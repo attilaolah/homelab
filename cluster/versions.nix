@@ -11,7 +11,7 @@ in {
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.10.0"];
   flux.github-releases = ["https://github.com/fluxcd/flux2" "2.4.0"];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.0.1"];
-  grafana.helm = ["https://grafana.github.io/helm-charts" "8.6.4"];
+  grafana.helm = ["https://grafana.github.io/helm-charts" "8.8.2"];
   homepage.github-releases = ["https://github.com/gethomepage/homepage" "0.9.13" vp];
   homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.0.1"];
   inadyn.github-releases = ["https://github.com/troglobit/inadyn" "2.12.0" vp];
