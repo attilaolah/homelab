@@ -7,7 +7,7 @@ in {
   cert-manager.helm = ["https://charts.jetstack.io" "1.16.2"];
   cilium.helm = ["https://helm.cilium.io" "1.16.5"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.31.0"];
-  external-secrets.helm = ["https://charts.external-secrets.io" "0.11.0"];
+  external-secrets.helm = ["https://charts.external-secrets.io" "0.12.1"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.10.0"];
   flux.github-releases = ["https://github.com/fluxcd/flux2" "2.4.0"];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.0.1"];
