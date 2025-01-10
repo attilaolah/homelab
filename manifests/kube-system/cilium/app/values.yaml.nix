@@ -1,12 +1,12 @@
 {self, ...}: let
   inherit (self.lib) cluster;
 in {
-  # Use KubePrism.
-  # TODO: Should work via IPv6 as well.
+  # Uses KubePrism on Talos nodes.
+  # Uses an IPtables rule on Alpine nodes without KubePrism.
   k8sServiceHost = "127.0.0.1";
   k8sServicePort = 7445;
   kubeProxyReplacement = true;
-  kubeProxyReplacementHealthzBindAddr = "[::]:10256";
+  kubeProxyReplacementHealthzBindAddr = "0.0.0.0:10256";
 
   cgroup = {
     # Mount CGroup at a different location.
@@ -26,9 +26,12 @@ in {
   routingMode = "native";
   autoDirectNodeRoutes = true;
   ipv4.enabled = true; # default
-  ipv6.enabled = true; # default = false
   ipv4NativeRoutingCIDR = cluster.network.pod.cidr4;
-  ipv6NativeRoutingCIDR = cluster.network.pod.cidr6;
+
+  # IPv6: temporarily disabled.
+  # Having troubles with direct routing as some nodes seem to pick up the global piblic address.
+  # ipv6.enabled = true; # default = false
+  # ipv6NativeRoutingCIDR = cluster.network.pod.cidr6;
 
   # Use L2 Announcements.
   l2announcements.enabled = true;
