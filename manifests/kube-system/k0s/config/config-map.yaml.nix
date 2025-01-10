@@ -1,21 +1,21 @@
-{self, ...}: let
+inputs @ {self, ...}: let
   inherit (builtins) baseNameOf dirOf mapAttrs toJSON;
   inherit (self.lib) cluster;
 
+  versions = import ./versions.nix;
+
   name = baseNameOf (dirOf ./.);
-  # TODO: Renovate!
-  version = "1.31.3-k0s.0";
-  majorMinor = "1.31"; # TODO
+  api = versions.k8sapi inputs;
 in {
   kind = "ConfigMap";
   apiVersion = "v1";
   metadata = {
-    name = "worker-config-alpine-${majorMinor}";
+    name = "worker-config-alpine-${api}";
     labels = {
       "app.kubernetes.io/name" = name;
       "app.kubernetes.io/component" = "worker-config";
-      "app.kubernetes.io/version" = "v${version}";
-      "k0s.k0sproject.io/stack" = "${name}-worker-config-${majorMinor}";
+      "app.kubernetes.io/version" = "v${versions.k0s}";
+      "k0s.k0sproject.io/stack" = "${name}-worker-config-${api}";
       "k0s.k0sproject.io/worker-profile" = "alpine";
     };
   };
@@ -25,8 +25,7 @@ in {
     nodeLocalLoadBalancing.enabled = false;
     pauseImage = {
       image = "registry.k8s.io/pause";
-      # TODO: Renovate!
-      version = "3.9";
+      version = versions.pause;
     };
     kubeletConfiguration = {
       kind = "KubeletConfiguration";
