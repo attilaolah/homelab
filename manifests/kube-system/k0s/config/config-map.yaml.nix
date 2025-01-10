@@ -20,7 +20,7 @@ in {
     };
   };
   data = mapAttrs (name: spec: toJSON spec) {
-    apiServerAddresses = map ({ipv4, ...}: "https://${ipv4}:6443") cluster.nodes.by.controlPlane;
+    apiServerAddresses = map ({ipv4, ...}: "${ipv4}:6443") cluster.nodes.by.controlPlane;
     konnectivity.enabled = false;
     nodeLocalLoadBalancing.enabled = false;
     pauseImage = {
