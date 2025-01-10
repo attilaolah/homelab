@@ -3,7 +3,7 @@
   self,
   ...
 }: let
-  inherit (builtins) attrValues baseNameOf dirOf elem elemAt filter mapAttrs readDir replaceStrings;
+  inherit (builtins) attrValues baseNameOf dirOf elem elemAt filter listToAttrs mapAttrs readDir replaceStrings;
   inherit (lib) optionals;
   inherit (lib.attrsets) filterAttrs recursiveUpdate;
   inherit (lib.lists) flatten subtractLists unique;
@@ -85,7 +85,10 @@ in {
     kustomization = dir: overrides: let
       name = baseNameOf dir;
       namespace = parentDirName dir;
-      hasConfig = ((readDir dir).config or null) == "directory";
+      exists = listToAttrs (map (name: {
+        inherit name;
+        value = ((readDir dir).${name} or null) == "directory";
+      }) ["app" "config"]);
       manifestPath = dir: "./${namespace}/${name}/${dir}";
       template = ksname: spec:
         recursiveUpdate {
@@ -119,9 +122,10 @@ in {
         dependsOn = [app.metadata];
       };
     in
-      if hasConfig
-      then [app config]
-      else app;
+      flatten [
+        (optionals exists.app app)
+        (optionals exists.config config)
+      ];
 
     git-repository = params:
       attrValues (mapAttrs (name: spec: let
