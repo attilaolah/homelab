@@ -21,7 +21,10 @@ in {
   };
   data = mapAttrs (name: spec: toJSON spec) {
     apiServerAddresses = map ({ipv4, ...}: "${ipv4}:6443") cluster.nodes.by.controlPlane;
-    konnectivity.enabled = false;
+    konnectivity = {
+      enabled = false;
+      agentPort = 8132; # unused but required
+    };
     nodeLocalLoadBalancing.enabled = false;
     pauseImage = {
       image = "registry.k8s.io/pause";
