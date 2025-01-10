@@ -119,7 +119,7 @@ in {
       app = template name {path = manifestPath "app";};
       config = template "${name}-config" {
         path = manifestPath "config";
-        dependsOn = [app.metadata];
+        dependsOn = optionals exists.app [app.metadata];
       };
     in
       flatten [
