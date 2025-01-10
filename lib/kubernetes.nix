@@ -130,6 +130,7 @@ in {
         recursiveUpdate (api "Kustomization.kustomize.toolkit.fluxcd.io" {
           metadata = {
             inherit (flux) namespace;
+            # <<<<<<< HEAD
             name =
               if subdir == "app"
               then name
@@ -187,6 +188,48 @@ in {
             #             inherit (flux) namespace;
             #             name = repository-name url;
             # >>>>>>> 449173c (Do not create Flux Kustomization for apps where the app directory does not exist.)
+            # =======
+            #             name = ksname;
+            #           };
+            #           spec =
+            #             recursiveUpdate {
+            #               targetNamespace = namespace;
+            #               commonMetadata.labels."app.kubernetes.io/name" = name;
+            #               prune = true;
+            #               sourceRef = {
+            #                 kind = "OCIRepository";
+            #                 name = flux.namespace;
+            #               };
+            #               wait = true;
+            #               interval = "30m";
+            #               retryInterval = "1m";
+            #               timeout = "5m";
+            #             }
+            #             spec;
+            #         }
+            #         overrides;
+            #
+            #       app = template name {path = manifestPath "app";};
+            #       config = template "${name}-config" {
+            #         path = manifestPath "config";
+            #         dependsOn = optionals exists.app [app.metadata];
+            #       };
+            #     in
+            #       flatten [
+            #         (optionals exists.app app)
+            #         (optionals exists.config config)
+            #       ];
+            #
+            #     git-repository = params:
+            #       attrValues (mapAttrs (name: spec: let
+            #           url = elemAt cluster.versions-data.${name}.github-releases 0;
+            #         in {
+            #           kind = "GitRepository";
+            #           apiVersion = "source.toolkit.fluxcd.io/v1";
+            #           metadata = {
+            #             inherit (flux) namespace;
+            #             name = repository-name url;
+            # >>>>>>> 52d119b (Only depend on the app kustomization if it actually exists.)
           };
           spec = {
             path = "./${namespace}/${name}/${subdir}";
