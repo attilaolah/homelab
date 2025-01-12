@@ -66,6 +66,7 @@ in {
       quad9 = ["9.9.9.9" "149.112.112.112"];
     in {
       inherit cloudflare;
+      one = pick [cloudflare];
       two = pick [cloudflare quad9];
       three = pick [cloudflare google quad9];
     };
@@ -75,6 +76,7 @@ in {
       quad9 = ["2620:fe::fe" "2620:fe::9"];
     in {
       inherit cloudflare;
+      one = pick [cloudflare];
       two = pick [cloudflare quad9];
       three = pick [cloudflare google quad9];
     };
