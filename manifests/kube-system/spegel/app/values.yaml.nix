@@ -1,15 +1,5 @@
 {
-  affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms = [
-    {
-      matchExpressions = [
-        {
-          key = "distro";
-          operator = "NotIn";
-          values = ["alpine"];
-        }
-      ];
-    }
-  ];
+  nodeSelector.distro = "talos";
   spegel.containerdRegistryConfigPath = "/etc/cri/conf.d/hosts";
   revisionHistoryLimit = 4;
 }

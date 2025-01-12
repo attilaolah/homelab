@@ -9,54 +9,52 @@
   inherit (lib.lists) flatten optional;
   inherit (self.lib) cluster yaml;
 
-  node = node:
-    {
-      inherit (node) hostname controlPlane;
+  node = node: {
+    inherit (node) hostname controlPlane;
 
-      ipAddress = node.ipv4;
-      installDiskSelector.type = "ssd";
-      networkInterfaces = [
-        {
-          deviceSelector.hardwareAddr = node.mac;
-          addresses = [node.net4];
-          routes = [
-            {
-              network = "0.0.0.0/0";
-              gateway = cluster.network.uplink.gw4;
-            }
-            # IPv6 default route is auto-configured.
-          ];
-          dhcp = false;
-        }
-      ];
+    ipAddress = node.ipv4;
+    installDiskSelector.type = "ssd";
+    networkInterfaces = [
+      {
+        deviceSelector.hardwareAddr = node.mac;
+        addresses = [node.net4];
+        routes = [
+          {
+            network = "0.0.0.0/0";
+            gateway = cluster.network.uplink.gw4;
+          }
+          # IPv6 default route is auto-configured.
+        ];
+        dhcp = false;
+      }
+    ];
 
-      kernelModules = optional node.zfs {name = "zfs";};
+    kernelModules = optional node.zfs {name = "zfs";};
 
-      schematic.customization.systemExtensions.officialExtensions = flatten [
-        (optional (elem node.cpu ["intel" "amd"]) "siderolabs/${node.cpu}-ucode")
-        (optional node.zfs "siderolabs/zfs")
-      ];
+    schematic.customization.systemExtensions.officialExtensions = flatten [
+      (optional (elem node.cpu ["intel" "amd"]) "siderolabs/${node.cpu}-ucode")
+      (optional node.zfs "siderolabs/zfs")
+    ];
 
-      extraManifests = map (src: yaml.write src {inherit pkgs;}) [
-        ./manifests/vector.yaml.nix
-        ./manifests/watchdog.yaml.nix
-      ];
+    extraManifests = map (src: yaml.write src {inherit pkgs;}) [
+      ./manifests/vector.yaml.nix
+      ./manifests/watchdog.yaml.nix
+    ];
 
-      patches = map yaml.format [
-        {
-          machine.logging.destinations = [
-            {
-              endpoint = "udp://${cluster.network.external.vector}:6051/";
-              format = "json_lines";
-              extraTags.node = node.hostname;
-            }
-          ];
-        }
-      ];
-    }
-    // optionalAttrs node.zfs {
-      nodeLabels.pvpool = "zfs";
-    };
+    patches = map yaml.format [
+      {
+        machine.logging.destinations = [
+          {
+            endpoint = "udp://${cluster.network.external.vector}:6051/";
+            format = "json_lines";
+            extraTags.node = node.hostname;
+          }
+        ];
+      }
+    ];
+
+    nodeLabels = {distro = "talos";} // optionalAttrs node.zfs {pvpool = "zfs";};
+  };
 in {
   clusterName = cluster.name;
   talosVersion = cluster.versions.talos.github-releases;
