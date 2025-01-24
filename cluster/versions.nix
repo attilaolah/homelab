@@ -19,6 +19,7 @@ in {
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.1"];
   k0s.docker = ["attilaolah/k0s" "1.32.2.0"];
+  k0s.github-releases = ["k0sproject/k0s" "1.32.2+k0s.0" vp];
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.4.13"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "70.1.1"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.6"];
@@ -28,6 +29,7 @@ in {
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.3"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
+  pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.3"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.0.30" vp];
