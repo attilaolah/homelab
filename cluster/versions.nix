@@ -17,6 +17,7 @@ in {
   inadyn.github-releases = ["https://github.com/troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
+  k0s.github-releases = ["github.com/k0sproject/k0s" "1.31.3+k0s.0" vp];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.5"];
   kubernetes.github-releases = ["https://github.com/kubernetes/kubernetes" "1.31.2" vp];
   local-path-provisioner.github-releases = ["https://github.com/rancher/local-path-provisioner" "0.0.30" vp];
@@ -24,6 +25,7 @@ in {
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.2"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.1"];
+  pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.1"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "1.2.0"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.0.27" vp];
