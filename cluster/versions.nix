@@ -19,7 +19,7 @@ in {
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.5"];
   kubernetes.github-releases = ["kubernetes/kubernetes" "1.32.1" vp];
-  local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.30" vp];
+  local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.31" vp];
   loki.helm = ["https://grafana.github.io/helm-charts" "6.25.1"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.2"];
