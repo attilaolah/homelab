@@ -96,5 +96,5 @@ in {
   #   key = "grafana-password";
   # };
 
-  image.tag = v.homepage.github-releases;
+  image.tag = v.homepage.docker;
 }

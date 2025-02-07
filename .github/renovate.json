@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "dependencyDashboard": true,
+  "enabledManagers": [
+    "custom.regex",
+    "nix"
+  ],
   "nix": {
     "enabled": true
   },
@@ -10,9 +14,12 @@
       "description": "Cluster dependencies",
       "fileMatch": "cluster/versions\\.nix$",
       "matchStrings": [
-        "(?<depName>[^\\s\\.]+)\\.(?<datasource>\\S+) = \\[\"(?<registryUrl>.+?)\" \"(?<currentValue>.+?)\"[^\\n]*"
+        "(?<depName>[^\\s\\.]+)\\.(?<datasource>helm) = \\[\"(?<registryUrl>https://.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
+        "(?<helmChart>[^\\s\\.]+)\\.helm = \\[\"(?<scheme>oci)://(?<helmRepo>.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
+        "[^\\s\\.]+\\.(?<datasource>docker|github-releases) = \\[\"(?<depName>[^\"]+?)\" \"(?<currentValue>.+?)\"[^\\n]*"
       ],
-      "datasourceTemplate": "{{#if (equals (lookup (split registryUrl '://') 0) 'oci')}}docker{{else}}{{{datasource}}}{{/if}}",
+      "depNameTemplate": "{{#if (equals scheme 'oci')}}{{{helmRepo}}}/{{{helmChart}}}{{else}}{{{depName}}}{{/if}}",
+      "datasourceTemplate": "{{#if (equals scheme 'oci')}}docker{{else}}{{{datasource}}}{{/if}}",
       "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "helm"
     }
