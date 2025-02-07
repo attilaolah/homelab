@@ -16,6 +16,7 @@
       "matchStrings": [
         "(?<depName>[^\\s\\.]+)\\.(?<datasource>helm) = \\[\"(?<registryUrl>https://.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
         "(?<helmChart>[^\\s\\.]+)\\.helm = \\[\"(?<scheme>oci)://(?<helmRepo>.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
+        "[^\\s\\.]+\\.(?<datasource>docker) = \\[\"(?<depName>.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
         "[^\\s\\.]+\\.(?<datasource>github-releases) = \\[\"(?<registryUrl>https://github.com)/(?<depName>[^\"]+)\" \"(?<currentValue>.+?)\"[^\\n]*",
       ],
       "depNameTemplate": "{{#if (equals scheme 'oci')}}{{{helmRepo}}}/{{{helmChart}}}{{else}}{{{depName}}}{{/if}}",
