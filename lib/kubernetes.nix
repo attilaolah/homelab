@@ -125,7 +125,7 @@ in {
 
     git-repository = params:
       attrValues (mapAttrs (name: spec: let
-          url = elemAt cluster.versions-data.${name}.github-releases 0;
+          url = "https://github.com/${elemAt cluster.versions-data.${name}.github-releases 0}";
         in {
           kind = "GitRepository";
           apiVersion = "source.toolkit.fluxcd.io/v1";
