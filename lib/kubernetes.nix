@@ -125,17 +125,17 @@ in {
 
     git-repository = params:
       attrValues (mapAttrs (name: spec: let
-          url = "https://github.com/${elemAt cluster.versions-data.${name}.github-releases 0}";
+          repo = elemAt cluster.versions-data.${name}.github-releases 0;
         in {
           kind = "GitRepository";
           apiVersion = "source.toolkit.fluxcd.io/v1";
           metadata = {
             inherit (flux) namespace;
-            name = repository-name url;
+            name = repository-name repo;
           };
           spec = {
-            inherit url;
             interval = "1h";
+            url = "https://github.com/${repo}";
             ref.tag = cluster.versions.${name}.github-releases;
           };
         })
