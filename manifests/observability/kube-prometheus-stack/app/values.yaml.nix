@@ -61,7 +61,5 @@ in {
     ];
   };
 
-  prometheus.networkPolicy.enabled = true;
-
   cleanPrometheusOperatorObjectNames = true;
 }
