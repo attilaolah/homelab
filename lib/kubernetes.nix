@@ -13,6 +13,7 @@
   flux.namespace = "flux-system";
   parentDirName = dir: baseNameOf (dirOf dir);
 in {
+  appname = parentDirName;
   hostname = dir: "${(parentDirName dir)}.${cluster.domain}";
 
   namespace = dir: overrides:

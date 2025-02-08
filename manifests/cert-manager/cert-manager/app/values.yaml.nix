@@ -17,8 +17,8 @@
     (map (ip: "https://${ip}:443/dns-query") self.lib.cluster.network.uplink.dns4.cloudflare);
   dns01RecursiveNameserversOnly = true;
 
-  # prometheus = {
-  #   enabled = true;
-  #   servicemonitor.enabled = true;
-  # };
+  prometheus = {
+    enabled = true;
+    servicemonitor.enabled = true;
+  };
 }

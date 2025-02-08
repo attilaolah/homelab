@@ -35,7 +35,4 @@
       metricsInstance.enabled = true;
     };
   };
-
-  # Allow ingesting logs from outside the cluster (e.g. Alpine hosts).
-  gateway.service.type = "LoadBalancer";
 }
