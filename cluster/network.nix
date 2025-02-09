@@ -10,7 +10,8 @@ in {
     # This strict range is used only when validating whether an IP belongs to a node.
     cidr4Strict = cidr net4 16;
 
-    net6 = "fd10:8::";
+    # ULA set by the modem:
+    net6 = "fdaa:bbcc:ddee::";
     net6Len = 64;
     cidr6 = cidr net6 net6Len;
   };

@@ -17,7 +17,7 @@
     networkInterfaces = [
       {
         deviceSelector.hardwareAddr = node.mac;
-        addresses = [node.net4];
+        addresses = with node; [net4 net6];
         routes = [
           {
             network = "0.0.0.0/0";
@@ -36,7 +36,7 @@
       (optional node.zfs "siderolabs/zfs")
     ];
 
-    extraManifests = map (src: yaml.write src {inherit pkgs;}) (flatten [
+    extraManifests = map (src: yaml.write src {inherit cluster pkgs;}) (flatten [
       (optional node.watchdog ./manifests/watchdog.yaml.nix)
       ./manifests/vector.yaml.nix
     ]);

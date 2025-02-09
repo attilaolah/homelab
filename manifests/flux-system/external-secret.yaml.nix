@@ -1,21 +1,35 @@
 {
+  cluster,
   k,
   lib,
   ...
 }:
+# This requires the external secrets chart to be installed.
+# However a dependency is not declared to avoid introducing a cycle.
 k.external-secret ./. {
-  name = "ghcr-auth";
+  name = "oci-auth";
   data.".dockerconfigjson" = let
-    auth = "$AUTH";
-    username = "flux";
+    username = cluster.owner;
+    dckr.auth = "$DCKR_AUTH";
+    ghcr.auth = "$GHCR_AUTH";
   in
     # Replace JSON-encoded string to avoid escaping the quotes below.
-    builtins.replaceStrings [auth] [
+    builtins.replaceStrings [dckr.auth ghcr.auth] [
+      ''{{ printf "${username}:%s" .dckr_token | b64enc }}''
+      # The GitHub registry ignores the username; only the token matters.
       ''{{ printf "${username}:%s" .ghcr_token | b64enc }}''
     ] (lib.strings.toJSON {
-      auths."ghcr.io" = {
-        inherit auth username;
-        password = "{{ .ghcr_token }}";
+      auths = {
+        "docker.io" = {
+          inherit username;
+          inherit (dckr) auth;
+          password = "{{ .dckr_token }}";
+        };
+        "ghcr.io" = {
+          inherit username;
+          inherit (ghcr) auth;
+          password = "{{ .ghcr_token }}";
+        };
       };
     });
 

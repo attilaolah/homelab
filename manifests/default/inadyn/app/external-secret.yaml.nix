@@ -1,10 +1,11 @@
 {
+  cluster,
   k,
   v,
   self,
   ...
 }: let
-  inherit (self.lib) cluster yaml;
+  inherit (self.lib) yaml;
 in
   k.external-secret ./. {
     data."values.yaml" = yaml.format {

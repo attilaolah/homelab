@@ -18,6 +18,7 @@ in {
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
+  keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.4.9"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "69.2.0"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.5"];
   kubernetes.github-releases = ["kubernetes/kubernetes" "1.32.1" vp];
@@ -38,6 +39,7 @@ in {
   Certificate.cert-manager.io = "v1";
   CiliumL2AnnouncementPolicy.cilium.io = "v2alpha1";
   CiliumLoadBalancerIPPool.cilium.io = "v2alpha1";
+  Cluster.postgresql.cnpg.io = "v1";
   ClusterIssuer.cert-manager.io = "v1";
   ClusterSecretStore.external-secrets.io = "v1beta1";
   ConfigMap = "v1";

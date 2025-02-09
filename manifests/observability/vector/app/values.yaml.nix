@@ -1,9 +1,9 @@
-{self, ...}: {
+{cluster, ...}: {
   service = {
     # Expose the service externally.
     # Needed for Talos & Alpine logs forwarding.
     type = "LoadBalancer";
-    annotations."lbipam.cilium.io/ips" = self.lib.cluster.network.external.vector;
+    annotations."lbipam.cilium.io/ips" = cluster.network.external.vector;
   };
 
   autoscaling = {

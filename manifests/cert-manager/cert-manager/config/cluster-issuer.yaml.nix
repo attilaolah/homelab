@@ -1,11 +1,9 @@
 {
-  self,
+  cluster,
   k,
   ...
 }:
 k.api "ClusterIssuer.cert-manager.io" (let
-  inherit (self.lib) cluster;
-
   prod = true;
   suffix =
     if prod

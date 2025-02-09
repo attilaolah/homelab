@@ -1,6 +1,6 @@
 {
   lib,
-  self,
+  cluster,
   ...
 }: {
   crds.enabled = true;
@@ -14,7 +14,7 @@
 
   dns01RecursiveNameservers =
     lib.strings.concatStringsSep ","
-    (map (ip: "https://${ip}:443/dns-query") self.lib.cluster.network.uplink.dns4.cloudflare);
+    (map (ip: "https://${ip}:443/dns-query") cluster.network.uplink.dns4.cloudflare);
   dns01RecursiveNameserversOnly = true;
 
   prometheus = {
