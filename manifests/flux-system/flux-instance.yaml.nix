@@ -22,7 +22,7 @@ in {
       url = with self.lib.cluster.github; "oci://${registry}/${owner}/${repository}";
       ref = "latest";
       path = ".";
-      pullSecret = "ghcr-auth";
+      pullSecret = "oci-auth";
     };
     cluster = {
       type = "kubernetes";

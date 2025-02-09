@@ -4,18 +4,28 @@
   ...
 }:
 k.external-secret ./. {
-  name = "ghcr-auth";
+  name = "oci-auth";
   data.".dockerconfigjson" = let
-    auth = "$AUTH";
     username = "flux";
+    dckr.auth = "$DCKR_AUTH";
+    ghcr.auth = "$GHCR_AUTH";
   in
     # Replace JSON-encoded string to avoid escaping the quotes below.
-    builtins.replaceStrings [auth] [
+    builtins.replaceStrings [dckr.auth ghcr.auth] [
+      ''{{ printf "${username}:%s" .dckr_token | b64enc }}''
       ''{{ printf "${username}:%s" .ghcr_token | b64enc }}''
     ] (lib.strings.toJSON {
-      auths."ghcr.io" = {
-        inherit auth username;
-        password = "{{ .ghcr_token }}";
+      auths = {
+        "registry-1.docker.io" = {
+          inherit username;
+          inherit (dckr) auth;
+          password = "{{ .dckr_token }}";
+        };
+        "ghcr.io" = {
+          inherit username;
+          inherit (ghcr) auth;
+          password = "{{ .ghcr_token }}";
+        };
       };
     });
 
