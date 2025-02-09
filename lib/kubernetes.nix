@@ -100,16 +100,19 @@ in {
       cleanup = replaceStrings ["/" "." "_"] ["-" "-" "-"] noprefix;
     in
       replaceStrings ["--"] ["-"] cleanup;
-  in {
-    dep = dir: let
+    ksname = dir: let
       name = baseNameOf dir;
-      ksname = parentDirName dir;
-    in {
+      appname = parentDirName dir;
+    in
+      if name == "app"
+      then appname
+      else "${appname}-${name}";
+  in {
+    inherit ksname;
+
+    dep = dir: {
       inherit (flux) namespace;
-      name =
-        if name == "app"
-        then ksname
-        else "${ksname}-${name}";
+      name = ksname dir;
     };
 
     kustomization = dir: overrides: let

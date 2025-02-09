@@ -24,12 +24,12 @@
   routingMode = "native";
   autoDirectNodeRoutes = true;
   ipv4.enabled = true; # default
-  ipv4NativeRoutingCIDR = cluster.network.pod.cidr4;
+  ipv4NativeRoutingCIDR = cluster.network.node.cidr4;
 
-  # IPv6: temporarily disabled.
-  # Having troubles with direct routing as some nodes seem to pick up the global piblic address.
-  # ipv6.enabled = true; # default = false
-  # ipv6NativeRoutingCIDR = cluster.network.pod.cidr6;
+  ipv6.enabled = true; # default = false
+  # The Swisscom Router seems to advertise this address.
+  # We should use something self-configured but this will do for now.
+  ipv6NativeRoutingCIDR = cluster.network.node.cidr6;
 
   # Use L2 Announcements.
   l2announcements.enabled = true;
