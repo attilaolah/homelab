@@ -101,46 +101,47 @@ in {
     in
       replaceStrings ["--"] ["-"] cleanup;
   in {
-    inherit repository-name;
+    dep = dir: let
+      name = baseNameOf dir;
+      ksname = parentDirName dir;
+    in {
+      inherit (flux) namespace;
+      name =
+        if name == "app"
+        then ksname
+        else "${ksname}-${name}";
+    };
 
     kustomization = dir: overrides: let
       name = baseNameOf dir;
       namespace = parentDirName dir;
-      hasConfig = ((readDir dir).config or null) == "directory";
-      manifestPath = dir: "./${namespace}/${name}/${dir}";
-      template = ksname: spec:
+      template = subdir:
         recursiveUpdate (api "Kustomization.kustomize.toolkit.fluxcd.io" {
           metadata = {
             inherit (flux) namespace;
-            name = ksname;
+            name =
+              if subdir == "app"
+              then name
+              else "${name}-${subdir}";
           };
-          spec =
-            recursiveUpdate {
-              targetNamespace = namespace;
-              commonMetadata.labels."app.kubernetes.io/name" = name;
-              prune = true;
-              sourceRef = {
-                kind = "OCIRepository";
-                name = flux.namespace;
-              };
-              wait = true;
-              interval = "30m";
-              retryInterval = "1m";
-              timeout = "5m";
-            }
-            spec;
+          spec = {
+            path = "./${namespace}/${name}/${subdir}";
+            targetNamespace = namespace;
+            commonMetadata.labels."app.kubernetes.io/name" = name;
+            prune = true;
+            sourceRef = {
+              kind = "OCIRepository";
+              name = flux.namespace;
+            };
+            wait = true;
+            interval = "30m";
+            retryInterval = "1m";
+            timeout = "5m";
+          };
         })
-        overrides;
-
-      app = template name {path = manifestPath "app";};
-      config = template "${name}-config" {
-        path = manifestPath "config";
-        dependsOn = [app.metadata];
-      };
+        (overrides.${subdir} or {});
     in
-      if hasConfig
-      then [app config]
-      else app;
+      map template (attrNames (filterAttrs (_: type: type == "directory") (readDir dir)));
 
     git-repository = params:
       attrValues (mapAttrs (name: spec:

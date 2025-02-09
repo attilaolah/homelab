@@ -1,4 +1,8 @@
 {k, ...}:
-k.fluxcd.kustomization ./. {
-  spec.prune = false; # should never be deleted
+k.fluxcd.kustomization ./. rec {
+  app.spec.prune = false;
+  config.spec = {
+    inherit (app.spec) prune;
+    dependsOn = map k.fluxcd.dep [./app];
+  };
 }
