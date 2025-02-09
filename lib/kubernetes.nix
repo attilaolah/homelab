@@ -3,30 +3,57 @@
   self,
   ...
 }: let
-  inherit (builtins) attrValues baseNameOf dirOf elem elemAt filter mapAttrs readDir replaceStrings;
-  inherit (lib) optionals;
+  inherit (builtins) attrNames attrValues baseNameOf dirOf elem elemAt filter foldl' mapAttrs readDir replaceStrings typeOf;
   inherit (lib.attrsets) filterAttrs recursiveUpdate;
-  inherit (lib.lists) flatten subtractLists unique;
-  inherit (lib.strings) hasPrefix hasSuffix removeSuffix;
+  inherit (lib.lists) flatten optionals subtractLists unique;
+  inherit (lib.strings) hasPrefix hasSuffix optionalString removePrefix removeSuffix splitString;
   inherit (self.lib) cluster;
 
   flux.namespace = "flux-system";
+
   parentDirName = dir: baseNameOf (dirOf dir);
+
+  api = resource: data: let
+    flattenAttrs = prefix: attrs:
+      foldl' (
+        acc: key: let
+          value = attrs.${key};
+          newKey =
+            if prefix == ""
+            then key
+            else "${prefix}.${key}";
+        in
+          if typeOf value == "set"
+          then acc // (flattenAttrs newKey value)
+          else acc // {${newKey} = value;}
+      ) {} (attrNames attrs);
+  in
+    {
+      kind = elemAt (splitString "." resource) 0;
+      apiVersion = let
+        kind = elemAt (splitString "." resource) 0;
+        data = cluster.versions-data.${kind};
+        flat = flattenAttrs "" {v = data;};
+        prefix =
+          optionalString
+          (!(cluster.versions-data ? ${resource}))
+          "${removePrefix "v." (elemAt (attrNames flat) 0)}/";
+        version = elemAt (attrValues flat) 0;
+      in "${prefix}${version}";
+    }
+    // data;
 in {
+  inherit api;
+
   appname = parentDirName;
   hostname = dir: "${(parentDirName dir)}.${cluster.domain}";
 
-  namespace = dir: overrides:
-    recursiveUpdate {
-      kind = "Namespace";
-      apiVersion = "v1";
-      metadata.name = baseNameOf dir;
-    }
-    overrides;
+  namespace = dir: overrides: recursiveUpdate (api "Namespace" {metadata.name = baseNameOf dir;}) overrides;
 
   kustomization = dir: overrides:
     recursiveUpdate {
       kind = "Kustomization";
+      # TODO: Conver this to use the api function!
       apiVersion = "kustomize.config.k8s.io/v1beta1";
       resources =
         subtractLists [
@@ -89,9 +116,7 @@ in {
       hasConfig = ((readDir dir).config or null) == "directory";
       manifestPath = dir: "./${namespace}/${name}/${dir}";
       template = ksname: spec:
-        recursiveUpdate {
-          kind = "Kustomization";
-          apiVersion = "kustomize.toolkit.fluxcd.io/v1";
+        recursiveUpdate (api "Kustomization.kustomize.toolkit.fluxcd.io" {
           metadata = {
             inherit (flux) namespace;
             name = ksname;
@@ -111,7 +136,7 @@ in {
               timeout = "5m";
             }
             spec;
-        }
+        })
         overrides;
 
       app = template name {path = manifestPath "app";};
@@ -125,11 +150,10 @@ in {
       else app;
 
     git-repository = params:
-      attrValues (mapAttrs (name: spec: let
+      attrValues (mapAttrs (name: spec:
+        api "GitRepository.source.toolkit.fluxcd.io" (let
           repo = elemAt cluster.versions-data.${name}.github-releases 0;
         in {
-          kind = "GitRepository";
-          apiVersion = "source.toolkit.fluxcd.io/v1";
           metadata = {
             inherit (flux) namespace;
             name = repository-name repo;
@@ -139,41 +163,38 @@ in {
             url = "https://github.com/${repo}";
             ref.tag = cluster.versions.${name}.github-releases;
           };
-        })
-        params);
+        }))
+      params);
 
     helm-repository = let
-      filtered = filterAttrs (dep: datasources: (datasources.helm or null) != null) cluster.versions-data;
+      filtered = filterAttrs (dep: datasources: typeOf (datasources.helm or null) == "list") cluster.versions-data;
       repoURLs = map (datasource: elemAt datasource.helm 0) (flatten (attrValues filtered));
-      repo = url: {
-        kind = "HelmRepository";
-        apiVersion = "source.toolkit.fluxcd.io/v1";
-        metadata = {
-          name = repository-name url;
-          inherit (flux) namespace;
+      repo = url:
+        api "HelmRepository.source.toolkit.fluxcd.io" {
+          metadata = {
+            name = repository-name url;
+            inherit (flux) namespace;
+          };
+          spec =
+            {
+              inherit url;
+              interval = "2h";
+            }
+            // (
+              if hasPrefix "oci://" url
+              then {type = "oci";}
+              else {}
+            );
         };
-        spec =
-          {
-            inherit url;
-            interval = "2h";
-          }
-          // (
-            if hasPrefix "oci://" url
-            then {type = "oci";}
-            else {}
-          );
-      };
     in
       map repo (unique repoURLs);
 
-    helm-release = dir: overrides: let
-      name = parentDirName dir;
-      crds = "CreateReplace";
-      pchart = overrides.chart or name;
-    in
-      recursiveUpdate {
-        kind = "HelmRelease";
-        apiVersion = "helm.toolkit.fluxcd.io/v2";
+    helm-release = dir: overrides:
+      recursiveUpdate (api "HelmRelease.helm.toolkit.fluxcd.io" (let
+        name = parentDirName dir;
+        crds = "CreateReplace";
+        pchart = overrides.chart or name;
+      in {
         metadata = {inherit name;};
         spec = {
           interval = "30m";
@@ -219,8 +240,7 @@ in {
               (optionals (has "external-secret") (from "Secret"))
             ];
         };
-      }
-      (filterAttrs (name: value: !(elem name ["chart" "v"])) overrides);
+      })) (filterAttrs (name: value: !(elem name ["chart" "v"])) overrides);
   };
 
   external-secret = dir: overrides @ {
@@ -228,10 +248,7 @@ in {
     name ? null,
     ...
   }:
-    recursiveUpdate
-    rec {
-      kind = "ExternalSecret";
-      apiVersion = "external-secrets.io/v1beta1";
+    recursiveUpdate (api "ExternalSecret.external-secrets.io" rec {
       metadata.name =
         if name == null
         then "${parentDirName dir}-secrets"
@@ -251,6 +268,5 @@ in {
         };
         dataFrom = [{extract.key = "external-secrets";}];
       };
-    }
-    (filterAttrs (name: value: !(elem name ["data" "name"])) overrides);
+    }) (filterAttrs (name: value: !(elem name ["data" "name"])) overrides);
 }

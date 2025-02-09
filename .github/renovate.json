@@ -3,6 +3,7 @@
   "dependencyDashboard": true,
   "enabledManagers": [
     "custom.regex",
+    "github-actions",
     "nix"
   ],
   "nix": {
@@ -22,12 +23,28 @@
       "datasourceTemplate": "{{#if (equals scheme 'oci')}}docker{{else}}{{{datasource}}}{{/if}}",
       "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "description": "Kubernetes API versions",
+      "fileMatch": "cluster/versions\\.nix$",
+      "matchStrings": [
+        "(?<depName>[^\\s\\.]+)(\\.(?<api>[^\\s]+))? = \"(?<currentValue>v.+?)\";"
+      ],
+      "currentValueTemplate": "{{#if api}}{{{api}}}/{{/if}}{{{currentValue}}}",
+      "datasourceTemplate": "kubernetes-api",
+      "extractVersionTemplate": "^(.*/)?(?<version>.*)$"
     }
+  ],
+  "ignorePaths": [
+    "/results/**"
   ],
   "packageRules": [
     {
       "description": "Merge GitHub actions updates",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "automerge": true
     }
   ]

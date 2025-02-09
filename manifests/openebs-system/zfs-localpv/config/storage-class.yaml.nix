@@ -1,6 +1,5 @@
-{
-  kind = "StorageClass";
-  apiVersion = "storage.k8s.io/v1";
+{k, ...}:
+k.api "StorageClass.storage.k8s.io" {
   metadata.name = "openebs-zfspv";
   parameters = {
     recordsize = "128k";

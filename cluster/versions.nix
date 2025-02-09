@@ -32,4 +32,21 @@ in {
   vector.helm = ["https://helm.vector.dev" "0.40.0"];
   vpa.helm = ["https://charts.fairwinds.com/stable" "4.7.1"];
   zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.6.2"];
+
+  # Kubernetes API versions
+  # Kustomization.kustomize.config.k8s.io = "v1beta1";
+  Certificate.cert-manager.io = "v1";
+  CiliumL2AnnouncementPolicy.cilium.io = "v2alpha1";
+  CiliumLoadBalancerIPPool.cilium.io = "v2alpha1";
+  ClusterIssuer.cert-manager.io = "v1";
+  ClusterSecretStore.external-secrets.io = "v1beta1";
+  ExternalSecret.external-secrets.io = "v1beta1";
+  FluxInstance.fluxcd.controlplane.io = "v1";
+  GitRepository.source.toolkit.fluxcd.io = "v1";
+  HelmRelease.helm.toolkit.fluxcd.io = "v2";
+  HelmRepository.source.toolkit.fluxcd.io = "v1";
+  Ingress.networking.k8s.io = "v1";
+  Kustomization.kustomize.toolkit.fluxcd.io = "v1";
+  Namespace = "v1";
+  StorageClass.storage.k8s.io = "v1";
 }
