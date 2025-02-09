@@ -34,7 +34,6 @@ in {
   zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.6.2"];
 
   # Kubernetes API versions
-  # Kustomization.kustomize.config.k8s.io = "v1beta1";
   Certificate.cert-manager.io = "v1";
   CiliumL2AnnouncementPolicy.cilium.io = "v2alpha1";
   CiliumLoadBalancerIPPool.cilium.io = "v2alpha1";
@@ -46,6 +45,7 @@ in {
   HelmRelease.helm.toolkit.fluxcd.io = "v2";
   HelmRepository.source.toolkit.fluxcd.io = "v1";
   Ingress.networking.k8s.io = "v1";
+  Kustomization.kustomize.config.k8s.io = "v1beta1";
   Kustomization.kustomize.toolkit.fluxcd.io = "v1";
   Namespace = "v1";
   StorageClass.storage.k8s.io = "v1";

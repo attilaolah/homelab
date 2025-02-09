@@ -14,6 +14,7 @@
   parentDirName = dir: baseNameOf (dirOf dir);
 
   api = resource: data: let
+    kind = elemAt (splitString "." resource) 0;
     flattenAttrs = prefix: attrs:
       foldl' (
         acc: key: let
@@ -29,16 +30,11 @@
       ) {} (attrNames attrs);
   in
     {
-      kind = elemAt (splitString "." resource) 0;
+      inherit kind;
       apiVersion = let
-        kind = elemAt (splitString "." resource) 0;
-        data = cluster.versions-data.${kind};
-        flat = flattenAttrs "" {v = data;};
-        prefix =
-          optionalString
-          (!(cluster.versions-data ? ${resource}))
-          "${removePrefix "v." (elemAt (attrNames flat) 0)}/";
-        version = elemAt (attrValues flat) 0;
+        group = optionalString (resource != kind) (removePrefix "${kind}." resource);
+        prefix = removePrefix "/" "${group}/";
+        version = (flattenAttrs "" {v = cluster.versions-data.${kind};}).${removeSuffix "." "v.${group}"};
       in "${prefix}${version}";
     }
     // data;
@@ -51,10 +47,7 @@ in {
   namespace = dir: overrides: recursiveUpdate (api "Namespace" {metadata.name = baseNameOf dir;}) overrides;
 
   kustomization = dir: overrides:
-    recursiveUpdate {
-      kind = "Kustomization";
-      # TODO: Conver this to use the api function!
-      apiVersion = "kustomize.config.k8s.io/v1beta1";
+    recursiveUpdate (api "Kustomization.kustomize.config.k8s.io" {
       resources =
         subtractLists [
           "kustomization.yaml" # exclude self
@@ -83,7 +76,7 @@ in {
         else []) [
         "kustomizeconfig.yaml"
       ]);
-    }
+    })
     overrides;
 
   kustomizeconfig = {
