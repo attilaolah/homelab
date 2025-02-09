@@ -81,9 +81,9 @@ in {
 
   kustomizeconfig = {
     nameReference = [
-      {
+      rec {
         kind = "ConfigMap";
-        version = "v1";
+        version = cluster.versions-data.${kind};
         fieldSpecs = [
           {
             path = "spec/valuesFrom/name";

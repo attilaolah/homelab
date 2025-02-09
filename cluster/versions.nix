@@ -39,6 +39,7 @@ in {
   CiliumLoadBalancerIPPool.cilium.io = "v2alpha1";
   ClusterIssuer.cert-manager.io = "v1";
   ClusterSecretStore.external-secrets.io = "v1beta1";
+  ConfigMap = "v1";
   ExternalSecret.external-secrets.io = "v1beta1";
   FluxInstance.fluxcd.controlplane.io = "v1";
   GitRepository.source.toolkit.fluxcd.io = "v1";
