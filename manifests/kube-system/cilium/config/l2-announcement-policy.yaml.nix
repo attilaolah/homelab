@@ -1,6 +1,9 @@
-{self, ...}: {
-  kind = "CiliumL2AnnouncementPolicy";
-  apiVersion = "cilium.io/v2alpha1";
+{
+  self,
+  k,
+  ...
+}:
+k.api "CiliumL2AnnouncementPolicy.cilium.io" {
   metadata.name = "${self.lib.cluster.name}-ips-l2-policy";
   spec = {
     loadBalancerIPs = true;

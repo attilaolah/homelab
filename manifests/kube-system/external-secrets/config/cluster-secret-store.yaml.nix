@@ -1,6 +1,5 @@
-{
-  kind = "ClusterSecretStore";
-  apiVersion = "external-secrets.io/v1beta1";
+{k, ...}:
+k.api "ClusterSecretStore.external-secrets.io" {
   metadata.name = "gcp-secrets";
   spec.provider.gcpsm = {
     projectID = "dornhaus";

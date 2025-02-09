@@ -1,11 +1,14 @@
-inputs @ {self, ...}: let
+inputs @ {
+  self,
+  k,
+  ...
+}:
+k.api "Certificate.cert-manager.io" (let
   inherit (issuer.metadata) name;
   inherit (self.lib.cluster) domain;
 
   issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
 in {
-  kind = "Certificate";
-  apiVersion = "cert-manager.io/v1";
   metadata = {inherit name;};
   spec = {
     secretName = "${name}-tls";
@@ -16,4 +19,4 @@ in {
     commonName = domain;
     dnsNames = [domain];
   };
-}
+})

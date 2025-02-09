@@ -1,12 +1,12 @@
 {
   self,
+  k,
   v,
   ...
-}: let
+}:
+k.api "FluxInstance.fluxcd.controlplane.io" (let
   name = "flux";
 in {
-  kind = "FluxInstance";
-  apiVersion = "fluxcd.controlplane.io/v1";
   metadata = {
     inherit name;
     namespace = "flux-system";
@@ -29,4 +29,4 @@ in {
       networkPolicy = true;
     };
   };
-}
+})
