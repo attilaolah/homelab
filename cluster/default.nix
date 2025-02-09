@@ -7,10 +7,11 @@
 in rec {
   name = "locker";
   domain = "dorn.haus";
+  owner = "attilaolah";
   email = "${name}@${domain}";
 
   github = {
-    owner = "attilaolah";
+    inherit owner;
     repository = "homelab";
     registry = "ghcr.io";
   };

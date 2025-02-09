@@ -1,4 +1,5 @@
 {
+  cluster,
   k,
   lib,
   ...
@@ -6,17 +7,18 @@
 k.external-secret ./. {
   name = "oci-auth";
   data.".dockerconfigjson" = let
-    username = "flux";
+    username = cluster.owner;
     dckr.auth = "$DCKR_AUTH";
     ghcr.auth = "$GHCR_AUTH";
   in
     # Replace JSON-encoded string to avoid escaping the quotes below.
     builtins.replaceStrings [dckr.auth ghcr.auth] [
       ''{{ printf "${username}:%s" .dckr_token | b64enc }}''
+      # The GitHub registry ignores the username; only the token matters.
       ''{{ printf "${username}:%s" .ghcr_token | b64enc }}''
     ] (lib.strings.toJSON {
       auths = {
-        "registry-1.docker.io" = {
+        "docker.io" = {
           inherit username;
           inherit (dckr) auth;
           password = "{{ .dckr_token }}";
