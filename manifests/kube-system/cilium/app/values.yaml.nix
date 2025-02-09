@@ -1,6 +1,4 @@
-{self, ...}: let
-  inherit (self.lib) cluster;
-in {
+{cluster, ...}: {
   # Uses KubePrism on Talos nodes.
   # Uses an IPtables rule on Alpine nodes without KubePrism.
   k8sServiceHost = "127.0.0.1";

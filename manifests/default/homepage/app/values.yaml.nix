@@ -1,9 +1,9 @@
 inputs @ {
-  self,
+  cluster,
   v,
   ...
 }: let
-  inherit (self.lib.cluster) domain;
+  inherit (cluster) domain;
 
   title = "Dornhaus";
 

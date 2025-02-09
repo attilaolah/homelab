@@ -1,5 +1,5 @@
 inputs @ {
-  self,
+  cluster,
   k,
   ...
 }: let
@@ -7,7 +7,7 @@ inputs @ {
   certificate = import ../../../ingress-nginx/ingress-nginx/config/certificate.yaml.nix inputs;
 in {
   grafana = let
-    inherit (self.lib.cluster) domain;
+    inherit (cluster) domain;
     path = "/grafana";
   in {
     # Expose Grafana via an ingress path on the default hostname.

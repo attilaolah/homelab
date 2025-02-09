@@ -1,6 +1,6 @@
-{self, ...}: {
+{cluster, ...}: {
   kind = "KmsgLogConfig";
   apiVersion = "v1alpha1";
   name = "vector-logs";
-  url = "udp://${self.lib.cluster.network.external.vector}:6050/";
+  url = "udp://${cluster.network.external.vector}:6050/";
 }

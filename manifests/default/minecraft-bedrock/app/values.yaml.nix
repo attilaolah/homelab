@@ -1,6 +1,6 @@
 {
   lib,
-  self,
+  cluster,
   ...
 }: let
   seed = toString 436606647;
@@ -43,5 +43,5 @@ in {
 
   # Use a pre-defined IP for the service.
   # This allows NAT-ing the service, making it available on the internet.
-  serviceAnnotations."lbipam.cilium.io/ips" = self.lib.cluster.network.external.minecraft;
+  serviceAnnotations."lbipam.cilium.io/ips" = cluster.network.external.minecraft;
 }

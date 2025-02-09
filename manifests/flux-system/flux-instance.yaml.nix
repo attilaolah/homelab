@@ -1,5 +1,5 @@
 {
-  self,
+  cluster,
   k,
   v,
   ...
@@ -19,7 +19,7 @@ in {
     };
     sync = {
       inherit (import ./source.nix) kind;
-      url = with self.lib.cluster.github; "oci://${registry}/${owner}/${repository}";
+      url = with cluster.github; "oci://${registry}/${owner}/${repository}";
       ref = "latest";
       path = ".";
       pullSecret = "oci-auth";
