@@ -11,11 +11,4 @@
     existingSecretDatabaseKey = "dbname";
     existingSecretPasswordKey = "password";
   };
-  extraEnvVars = [
-    {
-      name = "JAVA_OPTS";
-      # IPv6 should be fine, but just in case.
-      value = "-Djava.net.preferIPv4Stack=true";
-    }
-  ];
 }
