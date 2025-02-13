@@ -33,7 +33,7 @@ in {
   talos.github-releases = ["siderolabs/talos" "1.9.3" vp];
   vector.helm = ["https://helm.vector.dev" "0.40.0"];
   vpa.helm = ["https://charts.fairwinds.com/stable" "4.7.1"];
-  zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.7.0"];
+  zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.7.1"];
 
   # Kubernetes API versions
   Certificate.cert-manager.io = "v1";
