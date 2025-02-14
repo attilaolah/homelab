@@ -22,7 +22,7 @@ in {
     cidr4 = cidr net4 net4Len;
 
     net6 = "fd10:244::";
-    net6Len = 56;
+    net6Len = 64;
     cidr6 = cidr net6 net6Len;
   };
 

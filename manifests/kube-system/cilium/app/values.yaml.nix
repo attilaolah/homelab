@@ -38,7 +38,10 @@
   # IPAM: Use cluster-scope (default).
   # Limit the pod CIDRs to avoid conflic with the node network.
   # The default pod CIDR is 10.0.0.0/8, which shadows the node network.
-  ipam.operator.clusterPoolIPv4PodCIDRList = cluster.network.pod.cidr4;
+  ipam.operator = with cluster.network.pod; {
+    clusterPoolIPv4PodCIDRList = cidr4;
+    clusterPoolIPv6PodCIDRList = cidr6;
+  };
 
   loadBalancer.acceleration = "best-effort";
 
