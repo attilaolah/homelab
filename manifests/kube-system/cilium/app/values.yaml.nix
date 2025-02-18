@@ -39,8 +39,10 @@
   # Limit the pod CIDRs to avoid conflic with the node network.
   # The default pod CIDR is 10.0.0.0/8, which shadows the node network.
   ipam.operator = with cluster.network.pod; {
-    clusterPoolIPv4PodCIDRList = cidr4;
-    clusterPoolIPv6PodCIDRList = cidr6;
+    clusterPoolIPv4MaskSize = 24; # default (cilium + kubernetes)
+    clusterPoolIPv4PodCIDRList = cidr4; # default: ["10.0.0.0/8"]
+    clusterPoolIPv6MaskSize = 64; # default: 120; kubernetes default: 64
+    clusterPoolIPv6PodCIDRList = cidr6; # default: ["fd00::/104"]
   };
 
   loadBalancer.acceleration = "best-effort";

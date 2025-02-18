@@ -119,7 +119,7 @@ in {
         ${echo} "Installing Kubernetes, this might take a while…"
         until ${talhelper} gencommand bootstrap --config-file="$TALCONFIG" --out-dir=${state} |
           ${bash}
-          do ${sleep} 2
+          do ${sleep} 20
           ${echo} Retrying…
         done
       '';

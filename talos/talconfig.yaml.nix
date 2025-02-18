@@ -77,19 +77,6 @@ in {
         };
         # Use Cilium's KubeProxy replacement.
         proxy.disabled = true;
-        controllerManager.extraArgs = {
-          # Specify a higher IPv6 node CIDR mask.
-          #
-          # The node CIDR mask (obviously) must be larger than the subnet of the node IP CIDR configured for the kubelet.
-          # For IPv4, the default pod subnet is a /16, and the default mask is 24, resulting in 24-16 = 8 bits of IPs for
-          # nodes and another 32-24 = 8 bits assigned to each nodes. This allows 256 nodes with 256 IPs assigned to each
-          # node.
-          #
-          # The IPv6 mask defaults to /64, so to still allow 256 nodes to get a /64, the node IP must be a /56. However,
-          # Cilium won't accept such a large range, so the it is configured to use a /64 instead; to still allow for 8
-          # bits worth of nodes, we set the mask to 64+8 = 72. This leaves 128-72 = 56 bits of address space per node.
-          node-cidr-mask-size-ipv6 = 72;
-        };
       };
       machine = {
         kubelet = {
