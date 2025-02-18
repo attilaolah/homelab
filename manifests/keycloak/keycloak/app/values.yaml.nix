@@ -6,7 +6,6 @@ inputs @ {
 }: let
   inherit (cluster) domain;
   issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
-  certificate = import ../../../ingress-nginx/ingress-nginx/config/certificate.yaml.nix inputs;
 
   name = k.appname ./.;
 in {
@@ -39,9 +38,6 @@ in {
       "cert-manager.io/cluster-issuer" = issuer.metadata.name;
       # NGINX
       "nginx.ingress.kubernetes.io/rewrite-target" = "/$1";
-      # "nginx.ingress.kubernetes.io/configuration-snippet" = ''
-      #   rewrite ^(/${name})$ $1/ redirect;
-      # '';
       # Homepage
       "gethomepage.dev/enabled" = "true";
       "gethomepage.dev/name" = "Keycloak";
