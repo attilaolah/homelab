@@ -1,3 +1,49 @@
+## Talos
+
+Talos can be bootstrapped more or less using `talos:bootstrap`. Currently it will fail some time around the CNI step,
+but sub-tasks can be executed one-by-one manually. This should one day be fixed.
+
+Note that Kubelet is installed with `--rotate-server-certificates=true` from the start, meaning API calls to kubelet
+itself will fail the TLS check until the Kubelec certificates are issued. To do that, one can either manually approve
+the CSRs for each node, or just wait until the Flux steps below end up installing `kubelet-csr-approver`, which will do
+the approval. Until that, container logs can be checked using `talosctl -n node-ip logs -k container-id`.
+
+## Flux + Secrets
+
+Prerequisites:
+
+- API server (KAS), controller-manager and scheduler should all be running.
+- Cilium should be installed and running (even if `cilium status` shows errors due to TLS problems initially).
+
+The Flux operator and instance can be installed with `task flux:install`, but it needs the following to get started:
+
+- A GHCR secret to download the artifact, this can be created using:
+
+```sh
+kubectl --namespace=flux-system create secret docker-registry oci-auth \
+  --docker-username=attilaolah --docker-password=$GHCR_TOKEN --docker-server=ghcr.io
+```
+
+All secrets, including this one, is managed by the external-secrets operator (ESO), except for the GCP service account
+key used by ESO itself. The key is not stored anywhere else and cannot be retrievedfrom GCP, a new one must be created
+for service account number `113717540367402514039`, named `external-secrets`.
+
+This secret should be created manually using the JSON key downloaded from GCP using the command below:
+
+```sh
+kubectl --namespace=kube-system create secret generic gcp-secrets-service-account \
+  --from-file=key=dornhaus-keyid.js
+```
+
+Finally, for Flux to be able to bootstrap, it needs the external secrets CRD. The easiest way to get that is to instal
+ESO using the official Helm chart, like so:
+
+```sh
+helm repo add external-secrets https://charts.external-secrets.io
+helm --namespace=kube-system install external-secrets external-secrets/external-secrets \
+  --set=installCRDs=true
+```
+
 ## ZFS
 
 For now, I just create the ZFS pools manually from within a privileged Alpine container, using `nsenter` to enter the

@@ -2,15 +2,15 @@ inputs @ {
   cluster,
   k,
   ...
-}: let
-  issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
-  certificate = import ../../../ingress-nginx/ingress-nginx/config/certificate.yaml.nix inputs;
-in {
+}: {
   grafana = let
     inherit (cluster) domain;
+
+    issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
+    certificate = import ../../../ingress-nginx/ingress-nginx/config/certificate.yaml.nix inputs;
+
     path = "/grafana";
   in {
-    # Expose Grafana via an ingress path on the default hostname.
     ingress = let
       hosts = [domain];
     in {

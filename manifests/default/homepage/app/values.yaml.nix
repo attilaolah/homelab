@@ -56,6 +56,7 @@ in {
 
   ingress.main = {
     enabled = true;
+    ingressClassName = "nginx";
     hosts = [
       {
         host = domain;
