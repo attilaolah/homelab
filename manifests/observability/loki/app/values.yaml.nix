@@ -35,4 +35,7 @@
       metricsInstance.enabled = true;
     };
   };
+
+  # Be more liberal with canary upgrades, or else helm upgraed times out.
+  lokiCanary.updateStrategy.rollingUpdate.maxUnavailable = 4; # default: 1
 }
