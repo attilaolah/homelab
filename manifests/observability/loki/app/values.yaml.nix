@@ -35,4 +35,6 @@
       metricsInstance.enabled = true;
     };
   };
+
+  lokiCanary.updateStrategy.rollingUpdate.maxUnavailable = 4;
 }
