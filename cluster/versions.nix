@@ -29,7 +29,7 @@ in {
   rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.2"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "1.2.1"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.0.30" vp];
-  talos.github-releases = ["siderolabs/talos" "1.9.3" vp];
+  talos.github-releases = ["siderolabs/talos" "1.9.4" vp];
   vector.helm = ["https://helm.vector.dev" "0.40.0"];
   vpa.helm = ["https://charts.fairwinds.com/stable" "4.7.1"];
   zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.7.1"];
