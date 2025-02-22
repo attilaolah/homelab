@@ -9,7 +9,7 @@ in {
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.23.0"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.32.2"];
   external-secrets.helm = ["https://charts.external-secrets.io" "0.14.2"];
-  flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.13.0"];
+  flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.15.0"];
   flux.github-releases = ["fluxcd/flux2" "2.5.0"];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.0.1"];
   homepage.docker = ["ghcr.io/gethomepage/homepage" "0.10.9" vp];
