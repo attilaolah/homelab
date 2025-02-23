@@ -1,11 +1,10 @@
 # https://artifacthub.io/packages/helm/bitnami/keycloak#parameters
-inputs @ {
+{
   k,
   cluster,
   ...
 }: let
   inherit (cluster) domain;
-  issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
 
   name = k.appname ./.;
   namespace = k.nsname ./.;
@@ -36,7 +35,7 @@ in rec {
     path = "/${name}";
     annotations = {
       # TLS
-      "cert-manager.io/cluster-issuer" = issuer.metadata.name;
+      "cert-manager.io/cluster-issuer" = "letsencrypt";
       # NGINX
       # TODO: Configure mTLS between ingress controller & keycloak: https://www.keycloak.org/server/mutual-tls
       "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";

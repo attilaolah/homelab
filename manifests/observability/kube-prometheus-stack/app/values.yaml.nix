@@ -1,15 +1,16 @@
-inputs @ {
+{
   cluster,
   k,
+  lib,
   ...
 }: {
   grafana = let
+    inherit (builtins) attrValues mapAttrs;
     inherit (cluster) domain;
+    inherit (lib.strings) concatStringsSep;
 
-    issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
-    certificate = import ../../../ingress-nginx/ingress-nginx/config/certificate.yaml.nix inputs;
-
-    path = "/grafana";
+    name = "grafana";
+    path = "/${name}";
   in {
     ingress = let
       hosts = [domain];
@@ -20,25 +21,30 @@ inputs @ {
       ingressClassName = "nginx";
       annotations = {
         # TLS
-        "cert-manager.io/cluster-issuer" = issuer.metadata.name;
+        "cert-manager.io/cluster-issuer" = "letsencrypt";
         # Homepage
         "gethomepage.dev/enabled" = "true";
         "gethomepage.dev/name" = "Grafana";
         "gethomepage.dev/description" = "Observability platform";
         "gethomepage.dev/group" = "Cluster Management";
-        "gethomepage.dev/icon" = "grafana.png";
-        "gethomepage.dev/pod-selector" = "app.kubernetes.io/name=grafana";
+        "gethomepage.dev/icon" = "${name}.svg";
+        "gethomepage.dev/pod-selector" =
+          concatStringsSep ","
+          (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {
+            inherit name;
+            instance = k.appname ./.;
+          }));
       };
       tls = [
         {
           inherit hosts;
-          inherit (certificate.spec) secretName;
+          secretName = "${domain}-tls";
         }
       ];
     };
 
     admin = let
-      prefix = "grafana-admin";
+      prefix = "${name}-admin";
     in {
       userKey = "${prefix}-user";
       passwordKey = "${prefix}-password";

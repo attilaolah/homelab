@@ -1,6 +1,9 @@
-inputs @ {k, ...}: let
-  issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
-  certificate = import ../../../ingress-nginx/ingress-nginx/config/certificate.yaml.nix inputs;
+{
+  cluster,
+  k,
+  ...
+}: let
+  inherit (cluster) domain;
 in {
   hostname = k.hostname ./.;
 
@@ -10,7 +13,7 @@ in {
   ingress = {
     extraAnnotations = {
       # TLS
-      "cert-manager.io/cluster-issuer" = issuer.metadata.name;
+      "cert-manager.io/cluster-issuer" = "letsencrypt";
       # Homepage
       "gethomepage.dev/enabled" = "true";
       "gethomepage.dev/name" = "Rancher";
@@ -24,7 +27,7 @@ in {
     includeDefaultExtraAnnotations = false;
     tls = {
       source = "secret";
-      inherit (certificate.spec) secretName;
+      secretName = "${domain}-tls";
     };
   };
 }
