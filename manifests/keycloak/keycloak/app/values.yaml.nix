@@ -33,7 +33,7 @@ in rec {
     enabled = true;
     ingressClassName = "nginx";
     hostname = domain;
-    path = "/${name}/";
+    path = "/${name}";
     annotations = {
       # TLS
       "cert-manager.io/cluster-issuer" = issuer.metadata.name;
@@ -59,5 +59,5 @@ in rec {
       else "http";
   };
   proxyHeaders = "forwarded";
-  httpRelativePath = ingress.path;
+  httpRelativePath = "${ingress.path}/";
 }
