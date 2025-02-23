@@ -15,7 +15,12 @@ inputs @ {lib, ...}: let
       runCommand,
       remarshal,
       jq,
-    }:
+      json2yaml,
+    }: let
+      # Use upstream json2yaml.
+      # The one in the build env does not properly escape 'on' values as strings.
+      j2y = pkgs.lib.getExe json2yaml;
+    in
       runCommand name {
         nativeBuildInputs = [remarshal] ++ optionals multidoc [jq];
         value = toJSON value;
@@ -26,11 +31,11 @@ inputs @ {lib, ...}: let
         then ''
           jq -c '.[]' < "$valuePath" | while IFS= read -r line; do
             echo "---"
-            echo "$line" | json2yaml
+            echo "$line" | ${j2y}
           done > "$out"
         ''
         else ''
-          json2yaml "$valuePath" "$out"
+          ${j2y} "$valuePath" "$out"
         ''
       )) {};
 in {
