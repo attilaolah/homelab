@@ -10,7 +10,7 @@ inputs @ {
   name = k.appname ./.;
   namespace = k.nsname ./.;
 in rec {
-  production = false; # todo
+  production = true;
 
   # Use our own database.
   postgresql.enabled = false;
@@ -47,12 +47,12 @@ in rec {
       # Homepage
       "gethomepage.dev/enabled" = "true";
       "gethomepage.dev/name" = "Keycloak";
-      "gethomepage.dev/description" = "Identity management solution";
+      "gethomepage.dev/description" = "Identity provider";
       "gethomepage.dev/group" = "Cluster Management";
       "gethomepage.dev/icon" = "keycloak.svg";
     };
 
-    tls = true; # todo: production
+    tls = production;
     servicePort =
       if tls
       then "https"
