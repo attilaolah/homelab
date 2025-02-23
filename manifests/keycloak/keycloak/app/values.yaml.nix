@@ -39,9 +39,10 @@ in rec {
       "cert-manager.io/cluster-issuer" = issuer.metadata.name;
       # NGINX
       "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-      "nginx.ingress.kubernetes.io/proxy-ssl-name" = domain;
+      "nginx.ingress.kubernetes.io/proxy-ssl-name" = name;
       "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${name}-crt";
-      "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = name;
+      "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = "on";
+      "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
       # Homepage
       "gethomepage.dev/enabled" = "true";
       "gethomepage.dev/name" = "Keycloak";
