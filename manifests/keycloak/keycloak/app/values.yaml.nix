@@ -38,6 +38,7 @@ in rec {
       # TLS
       "cert-manager.io/cluster-issuer" = issuer.metadata.name;
       # NGINX
+      # TODO: Configure mTLS between ingress controller & keycloak: https://www.keycloak.org/server/mutual-tls
       "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
       "nginx.ingress.kubernetes.io/proxy-ssl-name" = name;
       "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${name}-crt";
