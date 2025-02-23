@@ -42,6 +42,8 @@ in {
   inherit api;
 
   appname = parentDirName;
+  nsname = dir: parentDirName (dirOf dir);
+
   hostname = dir: "${(parentDirName dir)}.${cluster.domain}";
 
   namespace = dir: overrides: recursiveUpdate (api "Namespace" {metadata.name = baseNameOf dir;}) overrides;
