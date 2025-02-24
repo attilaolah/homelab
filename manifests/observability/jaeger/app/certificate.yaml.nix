@@ -1,21 +1,15 @@
-{
-  cluster,
-  k,
-  ...
-}:
+{k, ...}:
 k.api "Certificate.cert-manager.io" (let
-  inherit (cluster) domain;
-
-  name = "letsencrypt";
+  name = "jaeger-query";
 in {
   metadata = {inherit name;};
   spec = {
     secretName = "${name}-tls";
     issuerRef = {
-      inherit name;
       kind = "ClusterIssuer";
+      name = "internal-ca";
     };
-    commonName = domain;
-    dnsNames = [domain];
+    commonName = name;
+    dnsNames = [name];
   };
 })

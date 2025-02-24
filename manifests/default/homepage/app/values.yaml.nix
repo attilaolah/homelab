@@ -1,4 +1,4 @@
-inputs @ {
+{
   cluster,
   v,
   ...
@@ -6,9 +6,6 @@ inputs @ {
   inherit (cluster) domain;
 
   title = "Dornhaus";
-
-  issuer = import ../../../cert-manager/cert-manager/config/cluster-issuer.yaml.nix inputs;
-  certificate = import ../../../ingress-nginx/ingress-nginx/config/certificate.yaml.nix inputs;
 in {
   config = {
     settings = {
@@ -68,11 +65,11 @@ in {
         ];
       }
     ];
-    annotations."cert-manager.io/cluster-issuer" = issuer.metadata.name;
+    annotations."cert-manager.io/cluster-issuer" = "letsencrypt";
     tls = [
       {
         hosts = [domain];
-        inherit (certificate.spec) secretName;
+        secretName = "${domain}-tls";
       }
     ];
   };

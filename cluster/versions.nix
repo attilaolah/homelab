@@ -17,6 +17,7 @@ in {
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
+  jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.0"];
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.4.10"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "69.4.1"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.6"];
