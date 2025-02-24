@@ -40,6 +40,9 @@ in {
         "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${tlsSecret}";
         "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = "on";
         "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
+        # NGINX: Increase header size since auth cookies are way too large.
+        "nginx.ingress.kubernetes.io/proxy-buffer-size" = "16k";
+        "nginx.ingress.kubernetes.io/proxy-buffers" = "8 16k";
         # Homepage
         "gethomepage.dev/enabled" = "true";
         "gethomepage.dev/name" = "Jaeger";
@@ -101,7 +104,6 @@ in {
         oidc_issuer_url = "https://${domain}/keycloak/realms/dornhaus"
         redirect_url = "https://${domain}/${name}/auth/callback"
         code_challenge_method = "S256"
-        allowed_roles = "jaeger-ui:view"
         email_domains = "${domain}"
 
         reverse_proxy = true
@@ -115,10 +117,12 @@ in {
         cookie_name = "__Host-jaeger-auth"
 
         upstreams = ["http://localhost:16686"]
+
+        skip_provider_button = "true"
       '';
 
       # TODO:
-      # skip_provider_button = "false"
+      # allowed_roles = "jaeger-ui:view"
 
       extraSecretMounts = [
         {

@@ -48,7 +48,8 @@ in rec {
       "gethomepage.dev/name" = "Keycloak";
       "gethomepage.dev/description" = "Identity provider";
       "gethomepage.dev/group" = "Cluster Management";
-      "gethomepage.dev/icon" = "keycloak.svg";
+      "gethomepage.dev/icon" = "${name}.svg";
+      "gethomepage.dev/href" = "/${name}/realms/dornhaus/account";
     };
 
     tls = production;
