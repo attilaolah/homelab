@@ -99,12 +99,13 @@ in {
         provider = "keycloak-oidc"
         client_id = "jaeger-ui"
         oidc_issuer_url = "https://${domain}/keycloak/realms/dornhaus"
-        redirect_url = "https://${domain}/${name}/oauth2/callback"
+        redirect_url = "https://${domain}/${name}/auth/callback"
         code_challenge_method = "S256"
         allowed_roles = "jaeger-ui:view"
         email_domains = "${domain}"
 
-        proxy_prefix = "${basePath}"
+        reverse_proxy = true
+        proxy_prefix = "${basePath}/auth"
 
         tls_cert_file = "/etc/tls/tls.crt"
         tls_key_file = "/etc/tls/tls.key"
