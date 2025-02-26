@@ -8,7 +8,7 @@ in {
   cilium.helm = ["https://helm.cilium.io" "1.17.1"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.23.0"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.32.2"];
-  external-secrets.helm = ["https://charts.external-secrets.io" "0.14.2"];
+  external-secrets.helm = ["https://charts.external-secrets.io" "0.14.3"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.16.0"];
   flux.github-releases = ["fluxcd/flux2" "2.5.0"];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.0.1"];
