@@ -27,7 +27,7 @@ in {
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.2"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
-  rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.2"];
+  rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.3"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "1.3.0"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.0.30" vp];
   talos.github-releases = ["siderolabs/talos" "1.9.4" vp];
