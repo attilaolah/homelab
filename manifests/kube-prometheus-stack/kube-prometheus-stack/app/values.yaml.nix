@@ -62,7 +62,7 @@
       {
         name = "Loki";
         type = "loki";
-        url = "http://loki:3100";
+        url = "http://loki.observability.svc:3100";
       }
     ];
   };
