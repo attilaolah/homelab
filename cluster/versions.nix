@@ -6,7 +6,7 @@ in {
   # If transform is not provided, the default is used: (v: v).
   cert-manager.helm = ["https://charts.jetstack.io" "1.17.1"];
   cilium.helm = ["https://helm.cilium.io" "1.17.1"];
-  cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.23.1"];
+  cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.23.2"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.32.2"];
   external-secrets.helm = ["https://charts.external-secrets.io" "0.14.3"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.17.0"];
