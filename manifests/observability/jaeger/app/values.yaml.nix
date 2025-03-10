@@ -14,11 +14,7 @@
 
   tlsPath = "/etc/tls";
 in {
-  strategy = "allinone";
-  storage = {
-    type = "memory";
-    options.memory.max-traces = 10000;
-  };
+  storage.options.memory.max-traces = 10000;
 
   query = let
     component = "query";
