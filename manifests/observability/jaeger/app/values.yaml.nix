@@ -14,8 +14,6 @@
 
   tlsPath = "/etc/tls";
 in {
-  storage.options.memory.max-traces = 10000;
-
   query = let
     component = "query";
     tlsSecret = "${name}-${component}-tls";
