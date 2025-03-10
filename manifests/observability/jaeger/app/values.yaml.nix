@@ -11,6 +11,8 @@
 
   name = k.appname ./.;
   namespace = k.nsname ./.;
+
+  tlsPath = "/etc/tls";
 in {
   strategy = "allinone";
   storage = {
@@ -109,8 +111,8 @@ in {
         reverse_proxy = true
         proxy_prefix = "${basePath}/auth"
 
-        tls_cert_file = "/etc/tls/tls.crt"
-        tls_key_file = "/etc/tls/tls.key"
+        tls_cert_file = "${tlsPath}/tls.crt"
+        tls_key_file = "${tlsPath}/tls.key"
 
         cookie_secure = "true"
         cookie_samesite = "strict"
@@ -128,12 +130,44 @@ in {
         {
           name = "tls";
           secretName = tlsSecret;
-          mountPath = "/etc/tls";
+          mountPath = tlsPath;
           readOnly = true;
         }
       ];
       # resources: {} # todo
     };
+  };
+
+  collector = let
+    component = "collector";
+    tlsSecret = "${name}-${component}-tls";
+  in {
+    enabled = true;
+    service = {
+      otlp = {
+        grpc.name = "otlp-grpc";
+        http.name = "otlp-http";
+      };
+      zipkin = null;
+    };
+    cmdlineParams = {
+      "collector.otlp.grpc.tls.enabled" = "true";
+      "collector.otlp.grpc.tls.cert" = "${tlsPath}/tls.crt";
+      "collector.otlp.grpc.tls.key" = "${tlsPath}/tls.key";
+      "collector.otlp.grpc.tls.client-ca" = "${tlsPath}/ca.crt";
+      "collector.otlp.http.tls.enabled" = "true";
+      "collector.otlp.http.tls.cert" = "${tlsPath}/tls.crt";
+      "collector.otlp.http.tls.key" = "${tlsPath}/tls.key";
+      "collector.otlp.http.tls.client-ca" = "${tlsPath}/ca.crt";
+    };
+    extraSecretMounts = [
+      {
+        name = "tls";
+        secretName = tlsSecret;
+        mountPath = tlsPath;
+        readOnly = true;
+      }
+    ];
   };
 
   networkPolicy.enabled = true;
