@@ -19,7 +19,8 @@ in {
   };
 
   query = let
-    tlsSecret = "${name}-query-tls";
+    component = "query";
+    tlsSecret = "${name}-${component}-tls";
   in rec {
     enabled = true;
     basePath = "/${name}";
@@ -36,7 +37,7 @@ in {
         "cert-manager.io/cluster-issuer" = "letsencrypt";
         # NGINX
         "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = "jaeger-query";
+        "nginx.ingress.kubernetes.io/proxy-ssl-name" = "${name}-${component}";
         "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${tlsSecret}";
         "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = "on";
         "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
@@ -52,9 +53,8 @@ in {
         "gethomepage.dev/pod-selector" =
           concatStringsSep ","
           (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {
-            inherit name;
+            inherit name component;
             instance = name;
-            component = "query";
           }));
       };
       tls = [
