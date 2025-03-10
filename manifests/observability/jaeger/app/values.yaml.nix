@@ -93,7 +93,6 @@ in {
           };
         }
       ];
-      # TODO: Don't set the http_address; just use the https address.
       config = ''
         provider = "keycloak-oidc"
         client_id = "jaeger-ui"
