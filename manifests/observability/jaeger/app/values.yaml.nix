@@ -11,15 +11,12 @@
 
   name = k.appname ./.;
   namespace = k.nsname ./.;
-in {
-  strategy = "allinone";
-  storage = {
-    type = "memory";
-    options.memory.max-traces = 10000;
-  };
 
+  tlsPath = "/etc/tls";
+in {
   query = let
-    tlsSecret = "${name}-query-tls";
+    component = "query";
+    tlsSecret = "${name}-${component}-tls";
   in rec {
     enabled = true;
     basePath = "/${name}";
@@ -36,7 +33,7 @@ in {
         "cert-manager.io/cluster-issuer" = "letsencrypt";
         # NGINX
         "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = "jaeger-query";
+        "nginx.ingress.kubernetes.io/proxy-ssl-name" = "${name}-${component}";
         "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${tlsSecret}";
         "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = "on";
         "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
@@ -52,9 +49,8 @@ in {
         "gethomepage.dev/pod-selector" =
           concatStringsSep ","
           (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {
-            inherit name;
+            inherit name component;
             instance = name;
-            component = "query";
           }));
       };
       tls = [
@@ -97,7 +93,6 @@ in {
           };
         }
       ];
-      # TODO: Don't set the http_address; just use the https address.
       config = ''
         provider = "keycloak-oidc"
         client_id = "jaeger-ui"
@@ -109,8 +104,8 @@ in {
         reverse_proxy = true
         proxy_prefix = "${basePath}/auth"
 
-        tls_cert_file = "/etc/tls/tls.crt"
-        tls_key_file = "/etc/tls/tls.key"
+        tls_cert_file = "${tlsPath}/tls.crt"
+        tls_key_file = "${tlsPath}/tls.key"
 
         cookie_secure = "true"
         cookie_samesite = "strict"
@@ -128,12 +123,40 @@ in {
         {
           name = "tls";
           secretName = tlsSecret;
-          mountPath = "/etc/tls";
+          mountPath = tlsPath;
           readOnly = true;
         }
       ];
       # resources: {} # todo
     };
+  };
+
+  collector = let
+    component = "collector";
+    tlsSecret = "${name}-${component}-tls";
+    protos = fn: (fn "grpc") // (fn "http");
+  in {
+    enabled = true;
+    service = {
+      otlp = protos (proto: {${proto}.name = "otlp-${proto}";});
+      zipkin = null; # disabled for now
+    };
+    cmdlineParams = protos (proto: let
+      prefix = "collector.otlp.${proto}.tls";
+    in {
+      "${prefix}.enabled" = "true";
+      "${prefix}.cert" = "${tlsPath}/tls.crt";
+      "${prefix}.key" = "${tlsPath}/tls.key";
+      "${prefix}.client-ca" = "${tlsPath}/ca.crt";
+    });
+    extraSecretMounts = [
+      {
+        name = "tls";
+        secretName = tlsSecret;
+        mountPath = tlsPath;
+        readOnly = true;
+      }
+    ];
   };
 
   networkPolicy.enabled = true;
