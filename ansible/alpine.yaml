@@ -13,4 +13,3 @@
   roles:
   - configure_network
   - update_packages
-  - configure_tailscale
