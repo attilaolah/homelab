@@ -135,25 +135,21 @@ in {
   collector = let
     component = "collector";
     tlsSecret = "${name}-${component}-tls";
+    protos = fn: (fn "grpc") // (fn "http");
   in {
     enabled = true;
     service = {
-      otlp = {
-        grpc.name = "otlp-grpc";
-        http.name = "otlp-http";
-      };
-      zipkin = null;
+      otlp = protos (proto: {${proto}.name = "otlp-${proto}";});
+      zipkin = null; # disabled for now
     };
-    cmdlineParams = {
-      "collector.otlp.grpc.tls.enabled" = "true";
-      "collector.otlp.grpc.tls.cert" = "${tlsPath}/tls.crt";
-      "collector.otlp.grpc.tls.key" = "${tlsPath}/tls.key";
-      "collector.otlp.grpc.tls.client-ca" = "${tlsPath}/ca.crt";
-      "collector.otlp.http.tls.enabled" = "true";
-      "collector.otlp.http.tls.cert" = "${tlsPath}/tls.crt";
-      "collector.otlp.http.tls.key" = "${tlsPath}/tls.key";
-      "collector.otlp.http.tls.client-ca" = "${tlsPath}/ca.crt";
-    };
+    cmdlineParams = protos (proto: let
+      prefix = "collector.otlp.${proto}.tls";
+    in {
+      "${prefix}.enabled" = "true";
+      "${prefix}.cert" = "${tlsPath}/tls.crt";
+      "${prefix}.key" = "${tlsPath}/tls.key";
+      "${prefix}.client-ca" = "${tlsPath}/ca.crt";
+    });
     extraSecretMounts = [
       {
         name = "tls";
