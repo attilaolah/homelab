@@ -18,7 +18,7 @@ in {
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.0"];
-  keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.4.11"];
+  keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.4.12"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "69.8.2"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.6"];
   kubernetes.github-releases = ["kubernetes/kubernetes" "1.32.2" vp];
