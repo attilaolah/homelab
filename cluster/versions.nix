@@ -21,7 +21,7 @@ in {
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.4.13"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "69.8.2"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.6"];
-  kubernetes.github-releases = ["kubernetes/kubernetes" "1.32.2" vp];
+  kubernetes.github-releases = ["kubernetes/kubernetes" "1.32.3" vp];
   local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.31" vp];
   loki.helm = ["https://grafana.github.io/helm-charts" "6.28.0"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
