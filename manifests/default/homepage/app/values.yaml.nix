@@ -45,7 +45,10 @@ in {
         };
       }
     ];
-    kubernetes.mode = "cluster";
+    kubernetes = {
+      mode = "cluster";
+      ingress = true;
+    };
   };
 
   enableRbac = true;
@@ -88,11 +91,7 @@ in {
     };
   };
 
-  # TODO:
-  # env.HOMEPAGE_VAR_GRAFANA_PASSWORD.valueFrom.secretKeyRef = {
-  #   name = "homepage-secrets";
-  #   key = "grafana-password";
-  # };
+  env.HOMEPAGE_ALLOWED_HOSTS = cluster.domain;
 
   image.tag = v.homepage.docker;
 }
