@@ -293,7 +293,6 @@ in {
             .machine.install.image |
           head --lines=1
         )"
-        version="''${image//.*:v//}"
       '';
     in {
       inherit silent;
@@ -305,10 +304,11 @@ in {
           runtimeInputs = with pkgs; [gnugrep jq talosctl yq];
           text = ''
             ${variables}
+            tag="''${image##*:}"
 
             talosctl version --nodes="$ip" --json |
               jq -r .version.tag |
-              grep "v$version"
+              grep "$tag"
           '';
         };
       in [''"${cmd}" "{{.node}}"''];
@@ -319,7 +319,6 @@ in {
           text = ''
             ${variables}
 
-            echo "Upgrading node $node ($ip) to version $version…"
             talosctl upgrade --nodes="$ip" --image="$image" --preserve=true --reboot-mode=powercycle
           '';
         };
@@ -340,8 +339,8 @@ in {
             version="$2"
 
             kubectl get node -ojson |
-            jq -r '.items[] | select(.metadata.name == "'"$node"'").status.nodeInfo.kubeletVersion' |
-            grep "v$version"
+              jq -r '.items[] | select(.metadata.name == "'"$node"'").status.nodeInfo.kubeletVersion' |
+              grep "v$version"
           '';
         };
       in [''"${cmd}" "{{.node}}" "{{.version}}"''];
