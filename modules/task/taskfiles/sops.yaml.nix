@@ -1,6 +1,6 @@
 {pkgs, ...}: let
   silent = true;
-  age-file = "$DEVENV_ROOT/age.key";
+  ageFile = "$DEVENV_ROOT/age.key";
   writeShellApplication = inputs: let
     name = "sops-task";
     params = inputs // {inherit name;};
@@ -10,7 +10,7 @@
     sh = writeShellApplication {
       runtimeInputs = with pkgs; [coreutils];
       text = ''
-        test -f "${age-file}"
+        test -f "${ageFile}"
       '';
     };
     msg = "SOPS Age key file not found; run sops:age-keygen or sops:age-restore-bw.";
@@ -26,7 +26,7 @@ in {
       cmd = writeShellApplication {
         runtimeInputs = with pkgs; [age];
         text = ''
-          age-keygen --output "${age-file}"
+          age-keygen --output "${ageFile}"
         '';
       };
     };
@@ -40,7 +40,7 @@ in {
         text = ''
           rbw login
           rbw unlock
-          rbw get home_lab_age_key > "${age-file}"
+          rbw get home_lab_age_key > "${ageFile}"
         '';
       };
     };
@@ -56,7 +56,7 @@ in {
 
             cd "$DEVENV_ROOT"
             sops --encrypt --in-place "$file"
-            age-keygen --output "${age-file}"
+            age-keygen --output "${ageFile}"
           '';
         };
       in ''"${cmd}" "{{.file}}"'';
