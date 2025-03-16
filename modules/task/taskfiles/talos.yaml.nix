@@ -5,21 +5,7 @@
   ...
 }: let
   inherit (pkgs) lib;
-  inherit (lib) getExe getExe';
   inherit (self.lib) cluster;
-
-  echo = getExe' pkgs.coreutils "echo";
-  grep = getExe' pkgs.gnugrep "grep";
-  head = getExe' pkgs.coreutils "head";
-  helm = getExe pkgs.kubernetes-helm;
-  jq = getExe pkgs.jq;
-  kubectl = getExe' pkgs.kubectl "kubectl";
-  ping = getExe' pkgs.iputils "ping";
-  sed = getExe pkgs.gnused;
-  talosctl = getExe pkgs.talosctl;
-  test = getExe' pkgs.coreutils "test";
-  xargs = getExe' pkgs.findutils "xargs";
-  yq = getExe pkgs.yq;
 
   state = "$DEVENV_STATE/talos";
   writeShellApplication = config @ {name, ...}: "${pkgs.writeShellApplication config}/bin/${name}";
@@ -27,17 +13,15 @@ in {
   version = 3;
 
   tasks = let
-    have-talsecret = {
-      sh = ''${test} -f $"$TALSECRET"'';
-      msg = "Missing talsecret, run `task talos:gensecret` to generate it.";
-    };
-    have-talosconfig = {
-      sh = ''${test} -f $"$TALOSCONFIG"'';
-      msg = "Missing talosconfig, run `task talos:genconfig` to generate it.";
-    };
-    have-kubeconfig = {
-      sh = ''${test} -f "$KUBECONFIG"'';
-      msg = "Missing kubeconfig, run `task talos:fetch-kubeconfig` to fetch it.";
+    checkVar = name: command: {
+      sh = writeShellApplication {
+        name = "check-var";
+        runtimeInputs = with pkgs; [coreutils helm];
+        text = ''
+          test -f "''$${name}"
+        '';
+      };
+      msg = "Missing ${name}! To fix it, run: task talos:${command}";
     };
     helmInstall = name: let
       inherit (builtins) elemAt;
@@ -53,15 +37,20 @@ in {
       repo = release.spec.chart.spec.sourceRef.name;
       repoUrl = elemAt cluster.versions-data.${name}.helm 0;
     in {
+      inherit silent;
       desc = "Install Helm release ${name}";
       status = [
-        ''
-          installed_version=$(
-            ${helm} list -n ${namespace} -o yaml |
-              ${yq} '.[] | select(.name == "${name}") | .app_version' -r
-          )
-          [ "$installed_version" = "${version}" ]
-        ''
+        (writeShellApplication {
+          name = "helm-install-${name}-status";
+          runtimeInputs = with pkgs; [helm yq];
+          text = ''
+            installed_version=$(
+              helm list -n "${namespace}" -o yaml |
+                yq '.[] | select(.name == "${name}") | .app_version' -r
+            )
+            [ "$installed_version" = "${version}" ]
+          '';
+        })
       ];
       cmd = writeShellApplication {
         name = "helm-install-${name}";
@@ -77,9 +66,9 @@ in {
         '';
       };
       preconditions = [have-kubeconfig];
-      silent = true;
     };
     waitForNodes = ready: {
+      inherit silent;
       desc = "Wait for nodes${
         if ready
         then " to become ready"
@@ -101,8 +90,14 @@ in {
         '';
       };
     };
+
+    silent = true;
+    have-kubeconfig = checkVar "KUBECONFIG" "fetch-kubeconfig";
+    have-talosconfig = checkVar "TALOSCONFIG" "genconfig";
+    have-talsecret = checkVar "TALSECRET" "gensecret";
   in {
     bootstrap = {
+      inherit silent;
       desc = "Bootstrap Talos cluster";
       cmds = map (task: {inherit task;}) [
         "gensecret"
@@ -120,16 +115,12 @@ in {
         "wait-for-nodes-ready"
         "wait-for-cluster-health"
       ];
-      silent = true;
     };
 
     gensecret = {
+      inherit silent;
       desc = "Generate Talos secrets";
-      status = [
-        ''
-          ${test} -f "$TALSECRET"
-        ''
-      ];
+      status = [have-talsecret.sh];
       cmds = [
         {
           cmd = writeShellApplication {
@@ -145,10 +136,10 @@ in {
           vars.file = "$TALSECRET";
         }
       ];
-      silent = true;
     };
 
     genconfig = {
+      inherit silent;
       desc = "Generate Talos configs";
       cmd = writeShellApplication {
         name = "genconfig";
@@ -160,22 +151,22 @@ in {
         '';
       };
       preconditions = [have-talsecret];
-      silent = true;
     };
 
     apply-insecure = {
+      inherit silent;
       desc = "Apply initial cluster config";
       cmd = {
         task = "apply";
         vars.extra_flags = "--insecure";
       };
-      silent = true;
     };
 
     install-k8s = {
+      inherit silent;
       desc = "Bootstrap Kubernetes on Talos nodes";
       cmd = writeShellApplication {
-        name = "install-kubernetes";
+        name = "install-k8s";
         runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
         text = ''
           echo "Installing Kubernetes, this might take a while…"
@@ -187,10 +178,10 @@ in {
         '';
       };
       preconditions = [have-talosconfig];
-      silent = true;
     };
 
     fetch-kubeconfig = {
+      inherit silent;
       desc = "Fetch Talos Kubernetes kubeconfig file";
       cmd = writeShellApplication {
         name = "fetch-kubeconfig";
@@ -206,7 +197,6 @@ in {
         '';
       };
       preconditions = [have-talosconfig];
-      silent = true;
     };
 
     install-cilium = helmInstall "cilium";
@@ -215,6 +205,7 @@ in {
     wait-for-nodes = waitForNodes false;
     wait-for-nodes-ready = waitForNodes true;
     wait-for-cilium = {
+      inherit silent;
       desc = "Wait for Cilium to become ready";
       cmd = writeShellApplication {
         name = "cilium-wait";
@@ -225,9 +216,9 @@ in {
       };
 
       preconditions = [have-kubeconfig];
-      silent = true;
     };
     wait-for-cluster-health = {
+      inherit silent;
       desc = "Wait for Talos cluster to become healthy";
       cmd = writeShellApplication {
         name = "cilium-wait";
@@ -238,105 +229,139 @@ in {
       };
 
       preconditions = [have-talosconfig];
-      silent = true;
     };
 
     apply = {
+      inherit silent;
       desc = "Apply Talos config to all nodes";
       cmd = let
         cmd = writeShellApplication {
           name = "apply";
           runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
           text = ''
+            extra_flags="$1"
+
             echo "Applying Talos config to all nodes…"
-            talhelper gencommand apply --config-file="$TALCONFIG" --out-dir="${state}" --extra-flags="$1" |
+            talhelper gencommand apply --config-file="$TALCONFIG" --out-dir="${state}" --extra-flags="$extra_flags" |
               bash
           '';
         };
-      in ''
-        "${cmd}" "{{.extra_flags}}"
-      '';
+      in ''"${cmd}" "{{.extra_flags}}"'';
       preconditions = [have-talosconfig];
-      silent = true;
     };
 
     diff = {
+      inherit silent;
       desc = "Diff Talos config on all nodes";
       cmd = {
         task = "apply";
         vars.extra_flags = "--dry-run";
       };
       preconditions = [have-talosconfig];
-      silent = true;
     };
 
     ping = {
+      inherit silent;
       desc = "Ping Talos nodes matching the pattern in nodes=";
-      cmd = ''
-        ${yq} < $TALCONFIG '.nodes[] | select(.hostname | test("^.*{{.nodes}}.*$")) | .ipAddress' \
-        | ${xargs} -i ${ping} -c 1 {} {{.CLI_ARGS}}
-      '';
-      silent = true;
+      cmd = let
+        cmd = writeShellApplication {
+          name = "ping";
+          runtimeInputs = with pkgs; [findutils iputils yq];
+          text = ''
+            nodes="$1"
+            cli_args=("''${@:2}")
+
+            yq < "$TALCONFIG" '.nodes[] | select(.hostname | test("^.*'"$nodes"'.*$")) | .ipAddress' |
+              xargs -i ping -c 1 {} "''${cli_args[@]}"
+          '';
+        };
+      in ''"${cmd}" "{{.nodes}}" {{.CLI_ARGS}}'';
     };
 
     upgrade-talos = let
-      vars = ''
-        IP="$(
-          ${yq} -r < $TALCONFIG '
+      variables = ''
+        node="$1"
+        ip="$(
+          yq -r < "$TALCONFIG" '
             .nodes[] |
-            select(.hostname == "{{.node}}") |
+            select(.hostname == "'"$node"'") |
             .ipAddress
           '
         )"
-        IMAGE="$(
-          ${yq} -r < "$DEVENV_STATE/talos/${cluster.name}-{{.node}}.yaml" \
+        image="$(
+          yq -r < "${state}/${cluster.name}-$node.yaml" \
             .machine.install.image |
-          ${head} --lines=1
+          head --lines=1
         )"
-        VERSION="$(${sed} "s/.*:v//" <<< "$IMAGE")"
+        version="''${image//.*:v//}"
       '';
     in {
+      inherit silent;
       desc = "Upgrade Talos on a node";
       requires.vars = ["node"];
-      status = [
-        ''
-          ${vars}
-          ${talosctl} version --nodes="$IP" --json |
-          ${jq} -r .version.tag |
-          ${grep} "v$VERSION"
-        ''
-      ];
-      cmd = ''
-        ${vars}
-        ${echo} "Upgrading node {{.node}} ($IP) to version $VERSION…"
-        ${talosctl} upgrade \
-          --nodes="$IP" \
-          --image="$IMAGE" \
-          --reboot-mode=powercycle \
-          --preserve=true
-      '';
+      status = let
+        cmd = writeShellApplication {
+          name = "upgrade-talos-status";
+          runtimeInputs = with pkgs; [gnugrep jq talosctl yq];
+          text = ''
+            ${variables}
+
+            talosctl version --nodes="$ip" --json |
+              jq -r .version.tag |
+              grep "v$version"
+          '';
+        };
+      in [''"${cmd} "{{.node}}"''];
+      cmd = let
+        cmd = writeShellApplication {
+          name = "upgrade-talos";
+          runtimeInputs = with pkgs; [coreutils talosctl yq];
+          text = ''
+            ${variables}
+
+            echo "Upgrading node $node ($ip) to version $version…"
+            talosctl upgrade --nodes="$ip" --image="$image" --preserve=true --reboot-mode=powercycle
+          '';
+        };
+      in ''"${cmd}" "{{.node}}"'';
       preconditions = [have-talosconfig];
-      silent = true;
     };
 
     upgrade-k8s = {
+      inherit silent;
       desc = "Upgrade Kubernetes on a node";
       requires.vars = ["node" "version"];
-      status = [
-        ''
-          ${kubectl} get node -ojson |
-          ${jq} -r '.items[] | select(.metadata.name == "{{.node}}").status.nodeInfo.kubeletVersion' |
-          ${grep} "v{{.version}}"
-        ''
-      ];
-      cmd = ''
-        ${talosctl} upgrade-k8s --nodes={{.node}} --to=v{{.version}}
-      '';
+      status = let
+        cmd = writeShellApplication {
+          name = "install-k8s-status";
+          runtimeInputs = with pkgs; [jq gnugrep kubectl];
+          text = ''
+            node="$1"
+            version="$2"
+
+            kubectl get node -ojson |
+            jq -r '.items[] | select(.metadata.name == "'"$node"'").status.nodeInfo.kubeletVersion' |
+            grep "v$version"
+          '';
+        };
+      in [''"${cmd}" "{{.node}}" "{{.version}}"''];
+      cmd = let
+        cmd = writeShellApplication {
+          name = "install-k8s";
+          runtimeInputs = with pkgs; [talosctl];
+          text = ''
+            node="$1"
+            version="$2"
+
+            talosctl upgrade-k8s --nodes="$node" --to=v"$version"
+          '';
+        };
+      in ''"${cmd}" "{{.node}}" "{{.version}}"'';
       preconditions = [have-talosconfig have-kubeconfig];
-      silent = true;
     };
 
     reset = {
+      inherit silent;
       desc = "Resets Talos nodes back to maintenance mode";
       prompt = "DANGER ZONE!!! Are you sure? This will reset the nodes back to maintenance mode.";
       cmd = let
@@ -349,7 +374,7 @@ in {
         ];
       in
         writeShellApplication {
-          name = "fetch-kubeconfig";
+          name = "reset";
           runtimeInputs = with pkgs; [bash inputs'.talhelper.packages.default];
           text = ''
             talhelper gencommand reset --config-file="$TALCONFIG" --out-dir="${state}" --extra-flags="${flags}" |
@@ -357,7 +382,6 @@ in {
           '';
         };
       preconditions = [have-talosconfig];
-      silent = true;
     };
   };
 }
