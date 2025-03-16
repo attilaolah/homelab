@@ -8,7 +8,6 @@
   inherit (lib) getExe getExe';
   inherit (self.lib) cluster;
 
-  bash = getExe pkgs.bash;
   echo = getExe' pkgs.coreutils "echo";
   grep = getExe' pkgs.gnugrep "grep";
   head = getExe' pkgs.coreutils "head";
@@ -16,10 +15,7 @@
   jq = getExe pkgs.jq;
   kubectl = getExe' pkgs.kubectl "kubectl";
   ping = getExe' pkgs.iputils "ping";
-  rm = getExe' pkgs.coreutils "rm";
   sed = getExe pkgs.gnused;
-  sleep = getExe' pkgs.coreutils "sleep";
-  talhelper = getExe' inputs'.talhelper.packages.default "talhelper";
   talosctl = getExe pkgs.talosctl;
   test = getExe' pkgs.coreutils "test";
   xargs = getExe' pkgs.findutils "xargs";
@@ -135,7 +131,15 @@ in {
         ''
       ];
       cmds = [
-        ''${talhelper} gensecret > "$TALSECRET"''
+        {
+          cmd = writeShellApplication {
+            name = "gensecret";
+            runtimeInputs = [inputs'.talhelper.packages.default];
+            text = ''
+              talhelper gensecret > "$TALSECRET"
+            '';
+          };
+        }
         {
           task = ":sops:encrypt-file";
           vars.file = "$TALSECRET";
@@ -146,11 +150,15 @@ in {
 
     genconfig = {
       desc = "Generate Talos configs";
-      cmd = ''
-        ${rm} -rf ${state}/*.yaml
-        ${echo} "Generating Talos config…"
-        ${talhelper} genconfig --config-file="$TALCONFIG" --secret-file="$TALSECRET" --out-dir="${state}"
-      '';
+      cmd = writeShellApplication {
+        name = "genconfig";
+        runtimeInputs = with pkgs; [coreutils inputs'.talhelper.packages.default];
+        text = ''
+          rm -rf "${state}"/*.yaml
+          echo "Generating Talos config…"
+          talhelper genconfig --config-file="$TALCONFIG" --secret-file="$TALSECRET" --out-dir="${state}"
+        '';
+      };
       preconditions = [have-talsecret];
       silent = true;
     };
@@ -166,29 +174,37 @@ in {
 
     install-k8s = {
       desc = "Bootstrap Kubernetes on Talos nodes";
-      cmd = ''
-        ${echo} "Installing Kubernetes, this might take a while…"
-        until ${talhelper} gencommand bootstrap --config-file="$TALCONFIG" --out-dir=${state} |
-          ${bash}
-          do ${sleep} 20
-          ${echo} Retrying…
-        done
-      '';
+      cmd = writeShellApplication {
+        name = "install-kubernetes";
+        runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
+        text = ''
+          echo "Installing Kubernetes, this might take a while…"
+          until talhelper gencommand bootstrap --config-file="$TALCONFIG" --out-dir="${state}" |
+            bash
+            do sleep 20
+            echo Retrying…
+          done
+        '';
+      };
       preconditions = [have-talosconfig];
       silent = true;
     };
 
     fetch-kubeconfig = {
       desc = "Fetch Talos Kubernetes kubeconfig file";
-      cmd = ''
-        ${echo} "Fetching kubeconfig…"
-        until ${talhelper} gencommand kubeconfig --config-file="$TALCONFIG" --out-dir=${state} \
-          --extra-flags="--merge=false --force $KUBECONFIG" |
-          ${bash}
-          do ${sleep} 2
-          ${echo} Retrying…
-        done
-      '';
+      cmd = writeShellApplication {
+        name = "fetch-kubeconfig";
+        runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
+        text = ''
+          echo "Fetching kubeconfig…"
+          until talhelper gencommand kubeconfig --config-file="$TALCONFIG" --out-dir="${state}" \
+            --extra-flags="--merge=false --force $KUBECONFIG" |
+            bash
+            do sleep 2
+            echo Retrying…
+          done
+        '';
+      };
       preconditions = [have-talosconfig];
       silent = true;
     };
@@ -227,11 +243,18 @@ in {
 
     apply = {
       desc = "Apply Talos config to all nodes";
-      cmd = ''
-        ${echo} "Applying Talos config to all nodes…"
-        ${talhelper} gencommand apply \
-          --config-file="$TALCONFIG" --out-dir=${state} --extra-flags="{{.extra_flags}}" |
-          ${bash}
+      cmd = let
+        cmd = writeShellApplication {
+          name = "apply";
+          runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
+          text = ''
+            echo "Applying Talos config to all nodes…"
+            talhelper gencommand apply --config-file="$TALCONFIG" --out-dir="${state}" --extra-flags="$1" |
+              bash
+          '';
+        };
+      in ''
+        "${cmd}" "{{.extra_flags}}"
       '';
       preconditions = [have-talosconfig];
       silent = true;
@@ -324,13 +347,15 @@ in {
           "--graceful=false"
           "--wait=false"
         ];
-      in ''
-        ${talhelper} gencommand reset \
-          --config-file=$TALCONFIG \
-          --out-dir="${state}" \
-          --extra-flags="${flags}" |
-          ${bash}
-      '';
+      in
+        writeShellApplication {
+          name = "fetch-kubeconfig";
+          runtimeInputs = with pkgs; [bash inputs'.talhelper.packages.default];
+          text = ''
+            talhelper gencommand reset --config-file="$TALCONFIG" --out-dir="${state}" --extra-flags="${flags}" |
+              bash
+          '';
+        };
       preconditions = [have-talosconfig];
       silent = true;
     };
