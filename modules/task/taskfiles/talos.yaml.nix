@@ -16,7 +16,7 @@ in {
     checkVar = name: command: {
       sh = writeShellApplication {
         name = "check-var";
-        runtimeInputs = with pkgs; [coreutils helm];
+        runtimeInputs = with pkgs; [coreutils kubernetes-helm];
         text = ''
           test -f "''$${name}"
         '';
@@ -54,7 +54,7 @@ in {
       ];
       cmd = writeShellApplication {
         name = "helm-install-${name}";
-        runtimeInputs = with pkgs; [coreutils helm];
+        runtimeInputs = with pkgs; [coreutils kubernetes-helm];
         text = ''
           echo "Installing Helm release ${name} version ${version} in namespace ${namespace}, stand by…"
           helm repo add "${repo}" "${repoUrl}"
