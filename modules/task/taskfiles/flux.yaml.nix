@@ -7,16 +7,28 @@
 
   silent = true;
   manifests = "$DEVENV_STATE/manifests";
-  writeShellApplication = config @ {name, ...}: "${pkgs.writeShellApplication config}/bin/${name}";
+  writeShellApplication = inputs: let
+    name = "flux-task";
+    params = inputs // {inherit name;};
+  in "${pkgs.writeShellApplication params}/bin/${name}";
 in {
   version = 3;
 
   tasks = {
+    bootstrap = {
+      inherit silent;
+      desc = "Install Flux (using flux-operator)";
+      cmds = map (task: {inherit task;}) [
+        "install-operator"
+        "install-instance"
+        "check"
+      ];
+    };
+
     build = {
       inherit silent;
       desc = "OCI image build + unpack locally";
       cmd = writeShellApplication {
-        name = "flux-build";
         runtimeInputs = with pkgs; [coreutils findutils nix];
         text = ''
           cd "$DEVENV_ROOT"
@@ -34,7 +46,6 @@ in {
       cmds = [
         {task = "build";}
         (writeShellApplication {
-          name = "flux-diff";
           runtimeInputs = with pkgs; [fluxcd];
           text = ''
             flux diff kustomization flux-system \
@@ -50,7 +61,6 @@ in {
       inherit silent;
       desc = "Upload OCI image to the registry";
       cmd = writeShellApplication {
-        name = "flux-push";
         runtimeInputs = with pkgs; [coreutils nix];
         text = ''
           cd "$DEVENV_ROOT"
@@ -63,7 +73,6 @@ in {
       inherit silent;
       desc = "Reconcile Flux manifests";
       cmd = writeShellApplication {
-        name = "flux-reconcile";
         runtimeInputs = with pkgs; [coreutils nix];
         text = ''
           flux reconcile ks flux-system --with-source
@@ -71,13 +80,15 @@ in {
       };
     };
 
-    install = {
+    check = {
       inherit silent;
-      desc = "Install Flux (using flux-operator)";
-      cmds = [
-        {task = "install-operator";}
-        {task = "install-instance";}
-      ];
+      desc = "Check Flux installation";
+      cmd = writeShellApplication {
+        runtimeInputs = with pkgs; [coreutils findutils nix];
+        text = ''
+          flux check
+        '';
+      };
     };
 
     install-operator = let
@@ -93,7 +104,6 @@ in {
       desc = "Install Helm release ${name}";
       status = [
         (writeShellApplication {
-          name = "helm-install-${name}-status";
           runtimeInputs = with pkgs; [kubernetes-helm yq];
           text = ''
             installed_version=$(
@@ -105,7 +115,6 @@ in {
         })
       ];
       cmd = writeShellApplication {
-        name = "helm-install-${name}";
         runtimeInputs = with pkgs; [coreutils kubernetes-helm];
         text = ''
           echo "Installing Helm release ${name} version ${version} in namespace ${namespace}, stand by…"
@@ -124,7 +133,6 @@ in {
       desc = "Install Flux instance ${namespace}/${name}";
       status = [
         (writeShellApplication {
-          name = "flux-install-status";
           runtimeInputs = with pkgs; [kubectl];
           text = ''
             kubectl --namespace="${namespace}" get fluxinstance "${name}"
@@ -132,7 +140,6 @@ in {
         })
       ];
       cmd = writeShellApplication {
-        name = "flux-install";
         runtimeInputs = with pkgs; [kubectl];
         text = ''
           kubectl apply --filename="$MANIFESTS/flux-system/flux-instance.yaml"

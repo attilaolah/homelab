@@ -9,14 +9,16 @@
 
   silent = true;
   state = "$DEVENV_STATE/talos";
-  writeShellApplication = config @ {name, ...}: "${pkgs.writeShellApplication config}/bin/${name}";
+  writeShellApplication = inputs: let
+    name = "talos-task";
+    params = inputs // {inherit name;};
+  in "${pkgs.writeShellApplication params}/bin/${name}";
 in {
   version = 3;
 
   tasks = let
     checkVar = name: command: {
       sh = writeShellApplication {
-        name = "check-var";
         runtimeInputs = with pkgs; [coreutils kubernetes-helm];
         text = ''
           test -f "''$${name}"
@@ -42,7 +44,6 @@ in {
       desc = "Install Helm release ${name}";
       status = [
         (writeShellApplication {
-          name = "helm-install-${name}-status";
           runtimeInputs = with pkgs; [kubernetes-helm yq];
           text = ''
             installed_version=$(
@@ -54,7 +55,6 @@ in {
         })
       ];
       cmd = writeShellApplication {
-        name = "helm-install-${name}";
         runtimeInputs = with pkgs; [coreutils kubernetes-helm];
         text = ''
           echo "Installing Helm release ${name} version ${version} in namespace ${namespace}, stand by…"
@@ -76,7 +76,6 @@ in {
         else ""
       }";
       cmd = writeShellApplication {
-        name = "wait-for-nodes";
         runtimeInputs = with pkgs; [coreutils kubectl];
         text = ''
           echo "Waiting for nodes…"
@@ -124,7 +123,6 @@ in {
       cmds = [
         {
           cmd = writeShellApplication {
-            name = "gensecret";
             runtimeInputs = [inputs'.talhelper.packages.default];
             text = ''
               talhelper gensecret > "$TALSECRET"
@@ -142,7 +140,6 @@ in {
       inherit silent;
       desc = "Generate Talos configs";
       cmd = writeShellApplication {
-        name = "genconfig";
         runtimeInputs = with pkgs; [coreutils inputs'.talhelper.packages.default];
         text = ''
           rm -rf "${state}"/*.yaml
@@ -166,7 +163,6 @@ in {
       inherit silent;
       desc = "Bootstrap Kubernetes on Talos nodes";
       cmd = writeShellApplication {
-        name = "install-k8s";
         runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
         text = ''
           echo "Installing Kubernetes, this might take a while…"
@@ -184,7 +180,6 @@ in {
       inherit silent;
       desc = "Fetch Talos Kubernetes kubeconfig file";
       cmd = writeShellApplication {
-        name = "fetch-kubeconfig";
         runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
         text = ''
           echo "Fetching kubeconfig…"
@@ -208,7 +203,6 @@ in {
       inherit silent;
       desc = "Wait for Cilium to become ready";
       cmd = writeShellApplication {
-        name = "cilium-wait";
         runtimeInputs = with pkgs; [cilium-cli coreutils];
         text = ''
           cilium status --wait --wait-duration=30m
@@ -221,7 +215,6 @@ in {
       inherit silent;
       desc = "Wait for Talos cluster to become healthy";
       cmd = writeShellApplication {
-        name = "cilium-wait";
         runtimeInputs = [pkgs.talosctl];
         text = ''
           talosctl health --server=false
@@ -236,7 +229,6 @@ in {
       desc = "Apply Talos config to all nodes";
       cmd = let
         cmd = writeShellApplication {
-          name = "apply";
           runtimeInputs = with pkgs; [bash coreutils inputs'.talhelper.packages.default];
           text = ''
             extra_flags="$1"
@@ -265,7 +257,6 @@ in {
       desc = "Ping Talos nodes matching the pattern in nodes=";
       cmd = let
         cmd = writeShellApplication {
-          name = "ping";
           runtimeInputs = with pkgs; [findutils iputils yq];
           text = ''
             nodes="$1"
@@ -300,7 +291,6 @@ in {
       requires.vars = ["node"];
       status = let
         cmd = writeShellApplication {
-          name = "upgrade-talos-status";
           runtimeInputs = with pkgs; [gnugrep jq talosctl yq];
           text = ''
             ${variables}
@@ -314,7 +304,6 @@ in {
       in [''"${cmd}" "{{.node}}"''];
       cmd = let
         cmd = writeShellApplication {
-          name = "upgrade-talos";
           runtimeInputs = with pkgs; [coreutils talosctl yq];
           text = ''
             ${variables}
@@ -332,7 +321,6 @@ in {
       requires.vars = ["node" "version"];
       status = let
         cmd = writeShellApplication {
-          name = "install-k8s-status";
           runtimeInputs = with pkgs; [jq gnugrep kubectl];
           text = ''
             node="$1"
@@ -346,7 +334,6 @@ in {
       in [''"${cmd}" "{{.node}}" "{{.version}}"''];
       cmd = let
         cmd = writeShellApplication {
-          name = "install-k8s";
           runtimeInputs = with pkgs; [talosctl];
           text = ''
             node="$1"
@@ -373,7 +360,6 @@ in {
         ];
       in
         writeShellApplication {
-          name = "reset";
           runtimeInputs = with pkgs; [bash inputs'.talhelper.packages.default];
           text = ''
             talhelper gencommand reset --config-file="$TALCONFIG" --out-dir="${state}" --extra-flags="${flags}" |
