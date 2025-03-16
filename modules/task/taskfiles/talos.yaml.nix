@@ -311,7 +311,7 @@ in {
               grep "v$version"
           '';
         };
-      in [''"${cmd} "{{.node}}"''];
+      in [''"${cmd}" "{{.node}}"''];
       cmd = let
         cmd = writeShellApplication {
           name = "upgrade-talos";
