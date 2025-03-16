@@ -38,7 +38,7 @@ in {
           runtimeInputs = with pkgs; [fluxcd];
           text = ''
             flux diff kustomization flux-system \
-              --local-sources=OCIRepository/flux-system/flux-system=${manifests} \
+              --local-sources=OCIRepository/flux-system/flux-system="${manifests}" \
               --path="${manifests}" \
               --recursive
           '';
@@ -124,7 +124,7 @@ in {
       desc = "Install Flux instance ${namespace}/${name}";
       status = [
         (writeShellApplication {
-          name = "helm-install-${name}";
+          name = "flux-install-status";
           runtimeInputs = with pkgs; [kubectl];
           text = ''
             kubectl --namespace="${namespace}" get fluxinstance "${name}"
@@ -132,7 +132,7 @@ in {
         })
       ];
       cmd = writeShellApplication {
-        name = "helm-install-${name}";
+        name = "flux-install";
         runtimeInputs = with pkgs; [kubectl];
         text = ''
           kubectl apply --filename="$MANIFESTS/flux-system/flux-instance.yaml"
