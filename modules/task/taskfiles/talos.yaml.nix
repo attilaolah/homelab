@@ -152,6 +152,7 @@ in {
         k = self.lib.kubernetes;
         v = cluster.versions;
       };
+      repo-url = builtins.elemAt cluster.versions-data.cilium.helm 0;
     in {
       desc = "Install Cilium";
       status = [
@@ -167,10 +168,12 @@ in {
         set -euo pipefail
 
         ${echo} "Installing Cilium version ${version}, stand by…"
+        ${helm} repo add ${chart} "${repo-url}"
+        ${helm} repo update ${chart}
         ${helm} install ${name} ${chart}/${name} --namespace=${namespace} --version=${version} --values="$MANIFESTS/kube-system/cilium/app/values.yaml"
 
         ${echo} "Done, waiting for Cilium to become ready…"
-        ${cilium} status --wait
+        ${cilium} status --wait --wait-duration=30m
       '';
       preconditions = [have-kubeconfig];
       silent = true;
