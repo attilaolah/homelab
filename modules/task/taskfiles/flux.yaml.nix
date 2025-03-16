@@ -179,7 +179,7 @@ in {
               helm list -n "${namespace}" -o yaml |
                 yq '.[] | select(.name == "${name}") | .app_version' -r
             )
-            [ "$installed_version" = "${version}" ]
+            [ "$installed_version" = "v${version}" ]
           '';
         })
       ];
