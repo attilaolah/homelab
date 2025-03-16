@@ -90,29 +90,24 @@
 
     apps = let
       deploy = let
-        inherit (pkgs.lib) getExe getExe';
-
-        chmod = getExe' pkgs.coreutils "chmod";
-        cp = getExe' pkgs.coreutils "cp";
-        flux = getExe pkgs.fluxcd;
-        git = getExe pkgs.git;
-        mktemp = getExe' pkgs.coreutils "mktemp";
-        rm = getExe' pkgs.coreutils "rm";
-
         artifactURI = with cluster.github; "oci://${registry}/${owner}/${repository}:latest";
       in {
         type = "app";
-        program = pkgs.writeShellScriptBin "deploy" ''
-          TEMP_DIR="$(${mktemp} --directory)"
-          ${cp} --recursive "${manifests-oci}"/* "$TEMP_DIR"
-          ${chmod} --recursive +w "$TEMP_DIR"
-          ${flux} push artifact "${artifactURI}" \
-            --path="$TEMP_DIR" \
-            --source="$(${git} config --get remote.origin.url)" \
-            --revision="$(${git} rev-parse --abbrev-ref HEAD)@sha1:$(${git} rev-parse HEAD)" \
-            --reproducible
-          ${rm} --recursive --force "$TEMP_DIR"
-        '';
+        program = pkgs.writeShellApplication {
+          name = "deploy";
+          runtimeInputs = with pkgs; [coreutils fluxcd git];
+          text = ''
+            TEMP_DIR="$(mktemp --directory)"
+            cp --recursive "${manifests-oci}"/* "$TEMP_DIR"
+            chmod --recursive +w "$TEMP_DIR"
+            flux push artifact "${artifactURI}" \
+              --path="$TEMP_DIR" \
+              --source="$(git config --get remote.origin.url)" \
+              --revision="$(git rev-parse --abbrev-ref HEAD)@sha1:$(git rev-parse HEAD)" \
+              --reproducible
+            rm --recursive --force "$TEMP_DIR"
+          '';
+        };
       };
     in {
       inherit deploy;

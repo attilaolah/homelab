@@ -4,8 +4,6 @@
   lib,
   ...
 }:
-# This requires the external secrets chart to be installed.
-# However a dependency is not declared to avoid introducing a cycle.
 k.external-secret ./. {
   name = "oci-auth";
   data.".dockerconfigjson" = let

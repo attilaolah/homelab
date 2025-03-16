@@ -6,11 +6,6 @@
 }: {
   version = 3;
 
-  tasks.default = {
-    desc = "List all tasks";
-    cmd = "task --list";
-  };
-
   includes = let
     include = src: self.lib.yaml.write src {inherit inputs' pkgs;};
   in {
