@@ -1,3 +1,3 @@
 {
-  installCRDs = true;
+  certManager.enabled = true;
 }

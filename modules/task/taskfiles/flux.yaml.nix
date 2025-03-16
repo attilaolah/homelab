@@ -20,8 +20,13 @@ in {
       desc = "Install Flux (using flux-operator)";
       cmds = map (task: {inherit task;}) [
         "install-operator"
-        "install-instance"
-        "check"
+        "create-flux-instance"
+        "check" # reconcile won't work yet
+        "install-external-secrets"
+        "create-secret"
+        "create-cluster-secret-store"
+        "create-external-secret"
+        "reconcile"
       ];
     };
 
@@ -119,13 +124,14 @@ in {
         text = ''
           echo "Installing Helm release ${name} version ${version} in namespace ${namespace}, stand by…"
           helm install "${name}" "${repoUrl}/${chart}" \
-            --namespace="${namespace}" --create-namespace \
+            --create-namespace \
+            --namespace="${namespace}" \
             --version="${version}"
         '';
       };
     };
 
-    install-instance = let
+    create-flux-instance = let
       name = "flux";
       namespace = "flux-system";
     in {
@@ -135,14 +141,151 @@ in {
         (writeShellApplication {
           runtimeInputs = with pkgs; [kubectl];
           text = ''
-            kubectl --namespace="${namespace}" get fluxinstance "${name}"
+            kubectl get fluxinstance "${name}" \
+              --namespace="${namespace}"
           '';
         })
       ];
       cmd = writeShellApplication {
         runtimeInputs = with pkgs; [kubectl];
         text = ''
-          kubectl apply --filename="$MANIFESTS/flux-system/flux-instance.yaml"
+          kubectl apply \
+            --namespace="${namespace}" \
+            --filename="$MANIFESTS/flux-system/flux-instance.yaml"
+        '';
+      };
+    };
+
+    install-external-secrets = let
+      inherit (builtins) elemAt;
+      inherit (release.spec.chart.spec) chart;
+      inherit (release.spec.chart.spec) version;
+
+      name = "external-secrets";
+      namespace = "kube-system";
+      release = import ../../../manifests/${namespace}/${name}/app/helm-release.yaml.nix {
+        k = self.lib.kubernetes;
+      };
+      repo = release.spec.chart.spec.sourceRef.name;
+      repoUrl = elemAt cluster.versions-data.${name}.helm 0;
+    in {
+      inherit silent;
+      desc = "Install External Secrets operator & bootstrap the cluster secret store";
+      status = [
+        (writeShellApplication {
+          runtimeInputs = with pkgs; [kubernetes-helm yq];
+          text = ''
+            installed_version=$(
+              helm list -n "${namespace}" -o yaml |
+                yq '.[] | select(.name == "${name}") | .app_version' -r
+            )
+            [ "$installed_version" = "${version}" ]
+          '';
+        })
+      ];
+      cmd = writeShellApplication {
+        runtimeInputs = with pkgs; [coreutils kubectl kubernetes-helm sops];
+        text = ''
+          echo "Installing Helm release ${name} version ${version} in namespace ${namespace}, stand by…"
+          helm repo add "${repo}" "${repoUrl}"
+          helm repo update "${repo}"
+          helm install "${name}" "${repo}/${chart}" \
+            --namespace="${namespace}" \
+            --version="${version}"
+        '';
+      };
+    };
+
+    create-secret = let
+      name = "external-secrets";
+      namespace = "kube-system";
+      kss = import ../../../manifests/${namespace}/${name}/config/cluster-secret-store.yaml.nix {
+        k = self.lib.kubernetes;
+      };
+      secret = kss.spec.provider.gcpsm.auth.secretRef.secretAccessKeySecretRef;
+    in {
+      inherit silent;
+      desc = "Create ClusterSecretStore secret";
+      status = [
+        (writeShellApplication {
+          runtimeInputs = with pkgs; [kubectl];
+          text = ''
+            kubectl get secret "${secret.name}" \
+              --namespace="${secret.namespace}"
+          '';
+        })
+      ];
+      cmd = writeShellApplication {
+        runtimeInputs = with pkgs; [coreutils kubectl];
+        text = ''
+          echo "Decoding GCP service account key…"
+          service_account_key="$(
+            sops --decrypt "$DEVENV_ROOT/manifests/${namespace}/${name}/config/${secret.name}.sops.json" |
+              jq --compact-output .
+          )"
+          echo "Storing GCP service account in Kubernetes secret ${secret.namespace}/${secret.name}"
+          kubectl create secret generic "${secret.name}" \
+            --namespace="${secret.namespace}" \
+            --from-literal="${secret.key}"="$service_account_key"
+        '';
+      };
+    };
+
+    create-cluster-secret-store = let
+      name = "external-secrets";
+      namespace = "kube-system";
+      kss = import ../../../manifests/${namespace}/${name}/config/cluster-secret-store.yaml.nix {
+        k = self.lib.kubernetes;
+      };
+    in {
+      inherit silent;
+      desc = "Create ClusterSecretStore object";
+      status = [
+        (writeShellApplication {
+          runtimeInputs = with pkgs; [kubectl];
+          text = ''
+            kubectl get clustersecretstore "${kss.metadata.name}" \
+              --namespace="${namespace}"
+          '';
+        })
+      ];
+      cmd = writeShellApplication {
+        runtimeInputs = with pkgs; [coreutils kubectl];
+        text = ''
+          echo "Creating ClusterSecretStore object…"
+          kubectl apply \
+            --namespace="${namespace}" \
+            --filename="$MANIFESTS/${namespace}/${name}/config/cluster-secret-store.yaml"
+        '';
+      };
+    };
+
+    create-external-secret = let
+      namespace = "flux-system";
+      es = import ../../../manifests/${namespace}/external-secret.yaml.nix {
+        inherit cluster;
+        inherit (self) lib;
+        k = self.lib.kubernetes;
+      };
+    in {
+      inherit silent;
+      desc = "Create ExternalSecret object";
+      status = [
+        (writeShellApplication {
+          runtimeInputs = with pkgs; [kubectl];
+          text = ''
+            kubectl get externalsecret "${es.metadata.name}" \
+              --namespace="${namespace}"
+          '';
+        })
+      ];
+      cmd = writeShellApplication {
+        runtimeInputs = with pkgs; [coreutils kubectl];
+        text = ''
+          echo "Creating ExternalSecret object…"
+          kubectl apply \
+            --namespace="${namespace}" \
+            --filename="$MANIFESTS/${namespace}/external-secret.yaml"
         '';
       };
     };
