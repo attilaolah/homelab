@@ -1,12 +1,6 @@
 ## Talos
 
-Talos can be bootstrapped more or less using `talos:bootstrap`. Currently it will fail some time around the CNI step,
-but sub-tasks can be executed one-by-one manually. This should one day be fixed.
-
-Note that Kubelet is installed with `--rotate-server-certificates=true` from the start, meaning API calls to kubelet
-itself will fail the TLS check until the Kubelec certificates are issued. To do that, one can either manually approve
-the CSRs for each node, or just wait until the Flux steps below end up installing `kubelet-csr-approver`, which will do
-the approval. Until that, container logs can be checked using `talosctl -n node-ip logs -k container-id`.
+Talos can be bootstrapped more or less using `talos:bootstrap`.
 
 ## Flux + Secrets
 
