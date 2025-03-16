@@ -7,6 +7,7 @@
   inherit (pkgs) lib;
   inherit (self.lib) cluster;
 
+  silent = true;
   state = "$DEVENV_STATE/talos";
   writeShellApplication = config @ {name, ...}: "${pkgs.writeShellApplication config}/bin/${name}";
 in {
@@ -91,7 +92,6 @@ in {
       };
     };
 
-    silent = true;
     have-kubeconfig = checkVar "KUBECONFIG" "fetch-kubeconfig";
     have-talosconfig = checkVar "TALOSCONFIG" "genconfig";
     have-talsecret = checkVar "TALSECRET" "gensecret";
