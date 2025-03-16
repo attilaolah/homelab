@@ -26,7 +26,6 @@ in {
         "create-secret"
         "create-cluster-secret-store"
         "create-external-secret"
-        "reconcile"
       ];
     };
 
