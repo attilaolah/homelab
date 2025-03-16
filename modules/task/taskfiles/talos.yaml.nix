@@ -9,7 +9,6 @@
   inherit (self.lib) cluster;
 
   bash = getExe pkgs.bash;
-  cilium = getExe pkgs.cilium-cli;
   echo = getExe' pkgs.coreutils "echo";
   grep = getExe' pkgs.gnugrep "grep";
   head = getExe' pkgs.coreutils "head";
@@ -27,6 +26,7 @@
   yq = getExe pkgs.yq;
 
   state = "$DEVENV_STATE/talos";
+  writeShellApplication = config @ {name, ...}: "${pkgs.writeShellApplication config}/bin/${name}";
 in {
   version = 3;
 
@@ -43,35 +43,86 @@ in {
       sh = ''${test} -f "$KUBECONFIG"'';
       msg = "Missing kubeconfig, run `task talos:fetch-kubeconfig` to fetch it.";
     };
-  in {
-    bootstrap = {
-      desc = "Bootstrap Talos cluster";
-      cmds = let
-        # Wait for nodes to report not ready.
-        # CNI is disabled initially, hence the nodes are not expected to be in ready state.
-        waitForNodes = ready: ''
-          ${echo} "Waiting for nodes…"
-          if [ "{{.wait}}" = "true" ]; then
-            until ${kubectl} wait --for=condition=Ready=${
+    helmInstall = name: let
+      inherit (builtins) elemAt;
+      inherit (release.spec.chart.spec) chart;
+      inherit (release.spec.chart.spec) version;
+
+      namespace = "kube-system";
+      release = import ../../../manifests/${namespace}/${name}/app/helm-release.yaml.nix {
+        inherit cluster;
+        k = self.lib.kubernetes;
+        v = cluster.versions;
+      };
+      repo = release.spec.chart.spec.sourceRef.name;
+      repoUrl = elemAt cluster.versions-data.${name}.helm 0;
+    in {
+      desc = "Install Helm release ${name}";
+      status = [
+        ''
+          installed_version=$(
+            ${helm} list -n ${namespace} -o yaml |
+              ${yq} '.[] | select(.name == "${name}") | .app_version' -r
+          )
+          [ "$installed_version" = "${version}" ]
+        ''
+      ];
+      cmd = writeShellApplication {
+        name = "helm-install-${name}";
+        runtimeInputs = with pkgs; [coreutils helm];
+        text = ''
+          echo "Installing Helm release ${name} version ${version} in namespace ${namespace}, stand by…"
+          helm repo add "${repo}" "${repoUrl}"
+          helm repo update "${repo}"
+          helm install "${name}" "${repo}/${chart}" \
+            --namespace="${namespace}" \
+            --values="$MANIFESTS/${namespace}/${name}/app/values.yaml" \
+            --version="${version}"
+        '';
+      };
+      preconditions = [have-kubeconfig];
+      silent = true;
+    };
+    waitForNodes = ready: {
+      desc = "Wait for nodes${
+        if ready
+        then " to become ready"
+        else ""
+      }";
+      cmd = writeShellApplication {
+        name = "wait-for-nodes";
+        runtimeInputs = with pkgs; [coreutils kubectl];
+        text = ''
+          echo "Waiting for nodes…"
+          until kubectl wait --for=condition=Ready=${
             if ready
             then "true"
             else "false"
-          } nodes --all --timeout=120s
-              do ${sleep} 2
-            done
-          fi
+          } nodes --all --timeout=120s; do
+            echo "Still waiting for nodes…"
+            sleep 2
+          done
         '';
-      in [
-        {task = "gensecret";}
-        {task = "genconfig";}
-        {task = "ping";}
-        {task = "apply-insecure";}
-        {task = "install-k8s";}
-        {task = "fetch-kubeconfig";}
-        (waitForNodes false)
-        {task = "install-cilium";}
-        (waitForNodes true)
-        "${talosctl} health --server=false"
+      };
+    };
+  in {
+    bootstrap = {
+      desc = "Bootstrap Talos cluster";
+      cmds = map (task: {inherit task;}) [
+        "gensecret"
+        "genconfig"
+        "ping"
+        "apply-insecure"
+        "install-k8s"
+        "fetch-kubeconfig"
+        # CNI is disabled, nodes will not be ready yet.
+        "wait-for-nodes"
+        "install-cilium"
+        "install-kubelet-csr-approver"
+        "wait-for-cilium"
+        # CNI is installed, nodes should become ready now.
+        "wait-for-nodes-ready"
+        "wait-for-cluster-health"
       ];
       silent = true;
     };
@@ -142,40 +193,35 @@ in {
       silent = true;
     };
 
-    install-cilium = let
-      inherit (release.metadata) name;
-      inherit (release.spec.chart.spec) chart;
-      inherit (release.spec.chart.spec) version;
+    install-cilium = helmInstall "cilium";
+    install-kubelet-csr-approver = helmInstall "kubelet-csr-approver";
 
-      namespace = "kube-system";
-      release = import ../../../manifests/kube-system/cilium/app/helm-release.yaml.nix {
-        k = self.lib.kubernetes;
-        v = cluster.versions;
+    wait-for-nodes = waitForNodes false;
+    wait-for-nodes-ready = waitForNodes true;
+    wait-for-cilium = {
+      desc = "Wait for Cilium to become ready";
+      cmd = writeShellApplication {
+        name = "cilium-wait";
+        runtimeInputs = with pkgs; [cilium-cli coreutils];
+        text = ''
+          cilium status --wait --wait-duration=30m
+        '';
       };
-      repo-url = builtins.elemAt cluster.versions-data.cilium.helm 0;
-    in {
-      desc = "Install Cilium";
-      status = [
-        ''
-          installed_version=$(
-            ${helm} list -n kube-system -o yaml |
-              ${yq} '.[] | select(.name == "cilium") | .app_version' -r
-          )
-          [ "$installed_version" = "${version}" ]
-        ''
-      ];
-      cmd = ''
-        set -euo pipefail
 
-        ${echo} "Installing Cilium version ${version}, stand by…"
-        ${helm} repo add ${chart} "${repo-url}"
-        ${helm} repo update ${chart}
-        ${helm} install ${name} ${chart}/${name} --namespace=${namespace} --version=${version} --values="$MANIFESTS/kube-system/cilium/app/values.yaml"
-
-        ${echo} "Done, waiting for Cilium to become ready…"
-        ${cilium} status --wait --wait-duration=30m
-      '';
       preconditions = [have-kubeconfig];
+      silent = true;
+    };
+    wait-for-cluster-health = {
+      desc = "Wait for Talos cluster to become healthy";
+      cmd = writeShellApplication {
+        name = "cilium-wait";
+        runtimeInputs = [pkgs.talosctl];
+        text = ''
+          talosctl health --server=false
+        '';
+      };
+
+      preconditions = [have-talosconfig];
       silent = true;
     };
 
