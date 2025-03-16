@@ -42,7 +42,7 @@ in {
       status = [
         (writeShellApplication {
           name = "helm-install-${name}-status";
-          runtimeInputs = with pkgs; [helm yq];
+          runtimeInputs = with pkgs; [kubernetes-helm yq];
           text = ''
             installed_version=$(
               helm list -n "${namespace}" -o yaml |
