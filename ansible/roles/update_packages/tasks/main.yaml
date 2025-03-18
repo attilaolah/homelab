@@ -1,4 +1,21 @@
 ---
-- name: Update packages
-  when: ansible_facts["os_family"] | lower == "alpine"
-  import_tasks: alpine.yaml
+- name: Set repository mirror
+  ansible.builtin.template:
+    src: etc/apk/repositories.j2
+    dest: /etc/apk/repositories
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+    backup: true
+
+- name: Update APK packages
+  community.general.apk:
+    available: true
+    update_cache: true
+    upgrade: true
+  register: updates
+
+- name: Reboot after a kernel upgrade
+  when: "'linux-lts' in updates.packages"
+  ansible.builtin.reboot:
+  throttle: 1

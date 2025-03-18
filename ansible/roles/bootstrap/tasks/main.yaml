@@ -7,5 +7,5 @@
 
 - name: Bootstrap Ansible dependencies
   when: python_check.rc != 0
-  import_tasks: alpine.yaml
+  import_tasks: install_python.yaml
   become: true

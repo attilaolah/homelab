@@ -1,7 +1,7 @@
 ---
 - name: Bootstrap Alpine nodes
   hosts: alpine
-  # Gathering facts might not work on a freshly installed system.
+  # Gathering facts requires Python which might not be installed yet.
   gather_facts: false
   roles:
   - bootstrap
@@ -9,6 +9,7 @@
 - name: Setup / Update Alpine nodes
   hosts: alpine
   become: true
+  gather_facts: false
   become_method: doas
   roles:
   - configure_network
