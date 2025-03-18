@@ -2,6 +2,7 @@
 - name: Install ZFS tools
   community.general.apk:
     name:
+    - lsblk
     - zfs
     - zfs-lts
     state: present
