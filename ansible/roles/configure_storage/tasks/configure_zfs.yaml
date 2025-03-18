@@ -1,0 +1,12 @@
+---
+- name: Install ZFS tools
+  community.general.apk:
+    name:
+    - zfs
+    - zfs-lts
+    state: present
+
+- name: Load ZFS module
+  community.general.modprobe:
+    name: zfs
+    state: present

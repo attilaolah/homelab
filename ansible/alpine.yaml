@@ -12,5 +12,9 @@
   gather_facts: false
   become_method: doas
   roles:
-  - configure_network
-  - update_packages
+  - role: configure_network
+    tags: [network]
+  - role: update_packages
+    tags: [update]
+  - role: configure_storage
+    tags: [storage]
