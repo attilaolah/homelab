@@ -37,7 +37,7 @@
 
   - name: Calculate ZFS key
     ansible.builtin.set_fact:
-      zfs_key: |
+      zfs_key: >-
         {{ disk_wwn | lower | replace('-', '_') }}
 
 - name: Detect USB serial for /dev/{{ disk.name }}
