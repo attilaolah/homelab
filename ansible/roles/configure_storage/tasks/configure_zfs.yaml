@@ -25,6 +25,8 @@
         json_query("blockdevices[?!(children[?mountpoint=='/']) && (tran=='sata' || tran=='usb')].name")
       }}
 
-- name: Print final disk names
-  ansible.builtin.debug:
-    msg: "{{ zfs_disks }}"
+- name: Set up ZFS on each disk
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/configure_zfs_disk.yaml"
+  loop: "{{ zfs_disks }}"
+  loop_control:
+    loop_var: disk

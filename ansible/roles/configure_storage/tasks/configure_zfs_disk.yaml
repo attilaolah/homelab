@@ -1,0 +1,16 @@
+---
+- name: Set pool name for {{ disk }}
+  ansible.builtin.set_fact:
+    zfs_pool_name: "{{ inventory_hostname }}-{{ disk }}"
+
+- name: Check if disk {{ disk }} has a pool
+  ansible.builtin.command: |
+    zpool list -H -o name
+  register: zfs_check
+  changed_when: false
+
+- name: Create ZFS pool on {{ disk }}
+  ansible.builtin.command: |
+    echo zpool create -O encryption=on -O keysource=keyfile:/etc/zfs_keys/{{ zfs_pool_name }}.key {{ zfs_pool_name }} {{ disk }}
+  when: |
+    zfs_pool_name not in zfs_check.stdout_lines
