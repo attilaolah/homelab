@@ -11,3 +11,20 @@
   community.general.modprobe:
     name: zfs
     state: present
+
+- name: Get block device information
+  ansible.builtin.command: lsblk --json -no name,tran,type,mountpoint
+  register: lsblk_output
+  changed_when: false
+
+- name: Filter and exclude disks
+  ansible.builtin.set_fact:
+    zfs_disks: >-
+      {{
+        lsblk_output.stdout | from_json |
+        json_query("blockdevices[?!(children[?mountpoint=='/']) && (tran=='sata' || tran=='usb')].name")
+      }}
+
+- name: Print final disk names
+  ansible.builtin.debug:
+    msg: "{{ zfs_disks }}"
