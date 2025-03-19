@@ -1,16 +1,89 @@
 ---
-- name: Set pool name for {{ disk }}
+- name: Detect SATA WWN for /dev/{{ disk.name }}
+  when: disk.tran == 'sata'
+  block:
+  - name: List SATA disks
+    ansible.builtin.find:
+      paths: /dev/disk/by-id
+      file_type: link
+      recurse: no
+      patterns:
+      - wwn-*
+      excludes:
+      - wwn-*-part*
+    register: disks_by_id
+
+  - name: Stat disks under /dev/disk/by-id
+    ansible.builtin.stat:
+      path: "{{ item }}"
+    loop: |
+      {{ disks_by_id.files | map(attribute='path') | list }}
+    register: stat_results
+
+  - name: Find the symlink pointing to /dev/{{ disk.name }}
+    ansible.builtin.set_fact:
+      disk_wwn: "{{ item[1] | basename }}"
+    loop: >-
+      {{
+        stat_results.results |
+          map(attribute='stat') |
+          map(attribute='lnk_source') |
+          zip(stat_results.results |
+            map(attribute='stat') |
+            map(attribute='path')
+          )
+      }}
+    when: item[0] == '/dev/' + disk.name
+
+  - name: Calculate ZFS key
+    ansible.builtin.set_fact:
+      zfs_key: |
+        {{ disk_wwn | lower | replace('-', '_') }}
+
+- name: Detect USB serial for /dev/{{ disk.name }}
+  when: disk.tran == 'usb'
+  block:
+  # NOTE: This assumes each USB storage device gets its own SCSI host.
+  # This could further be verified by inspecting disks under /sys/class/scsi_disk.
+  - name: Find SCSI device number
+    ansible.builtin.stat:
+      path: /sys/block/{{ disk.name }}/device
+    register: scsi_device
+
+  - name: Read USB serial number
+    ansible.builtin.slurp:
+      src: /proc/scsi/usb-storage/{{ scsi_device.stat.lnk_source | basename | split(':') | first }}
+    register: usb_storage
+
+  - name: Calculate ZFS key
+    ansible.builtin.set_fact:
+      zfs_key: >-
+        usb_{{
+          usb_storage.content | b64decode |
+            regex_search('Serial Number: (.+)', '\1') |
+            first | lower
+        }}
+
+- name: Set ZFS pool name
   ansible.builtin.set_fact:
-    zfs_pool_name: "{{ inventory_hostname }}-{{ disk }}"
+    zfs_pool: >-
+      {{ zfs_key | replace('_', '-') | upper }}
 
-- name: Check if disk {{ disk }} has a pool
-  ansible.builtin.command: |
-    zpool list -H -o name
-  register: zfs_check
+- name: Store ZFS key
+  ansible.builtin.copy:
+    dest: /etc/zfs/{{ zfs_key }}.key
+    content: >-
+      {{ secrets.zfs_keys['key_' + zfs_key] | b64decode }}
+    mode: '0600'
+
+- name: Check if ZFS pool {{ zfs_pool }} exists for /dev/{{ disk.name }}
+  ansible.builtin.command: zpool list {{ zfs_pool }}
+  register: zpool_exists
+  failed_when: zpool_exists.rc > 1
   changed_when: false
+  ignore_errors: true
 
-- name: Create ZFS pool on {{ disk }}
+- name: Create ZFS pool {{ zfs_pool }} for /dev/{{ disk.name }}
   ansible.builtin.command: |
-    echo zpool create -O encryption=on -O keysource=keyfile:/etc/zfs_keys/{{ zfs_pool_name }}.key {{ zfs_pool_name }} {{ disk }}
-  when: |
-    zfs_pool_name not in zfs_check.stdout_lines
+    zpool create -O encryption=on -O keyformat=raw -O keylocation=file:///etc/zfs/{{ zfs_key }}.key -m none -f {{ zfs_pool }} /dev/{{ disk.name }}
+  when: zpool_exists.rc == 1
