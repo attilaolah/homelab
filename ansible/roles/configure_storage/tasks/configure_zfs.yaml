@@ -1,0 +1,34 @@
+---
+- name: Install ZFS tools
+  community.general.apk:
+    name:
+    - lsblk
+    - zfs
+    - zfs-lts
+    state: present
+
+- name: Load ZFS module
+  community.general.modprobe:
+    name: zfs
+    state: present
+
+- name: Get block device information
+  ansible.builtin.command: lsblk --json -no name,tran,type,mountpoint
+  register: lsblk_output
+  changed_when: false
+
+- name: Filter and exclude disks
+  ansible.builtin.set_fact:
+    zfs_disks: >-
+      {{
+        lsblk_output.stdout | from_json |
+        json_query("
+          blockdevices[?!(children[?mountpoint=='/']) && (tran=='sata' || tran=='usb')].{name: name, tran: tran}
+        ")
+      }}
+
+- name: Set up ZFS on each disk
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/configure_zfs_disk.yaml"
+  loop: "{{ zfs_disks }}"
+  loop_control:
+    loop_var: disk

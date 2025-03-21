@@ -1,0 +1,4 @@
+- name: Configure storage
+  when: zfs
+  import_tasks: configure_zfs.yaml
+  become: true

@@ -1,7 +1,7 @@
 ---
 - name: Bootstrap Alpine nodes
   hosts: alpine
-  # Gathering facts might not work on a freshly installed system.
+  # Gathering facts requires Python which might not be installed yet.
   gather_facts: false
   roles:
   - bootstrap
@@ -9,7 +9,13 @@
 - name: Setup / Update Alpine nodes
   hosts: alpine
   become: true
+  # Gathering facts fails due to a bug on locker-11, hence disabled here.
+  gather_facts: false
   become_method: doas
   roles:
-  - configure_network
-  - update_packages
+  - role: configure_network
+    tags: [network]
+  - role: update_packages
+    tags: [update]
+  - role: configure_storage
+    tags: [storage]

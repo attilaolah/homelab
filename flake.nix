@@ -84,11 +84,8 @@
             vector
             yq
 
-            (wrapHelm kubernetes-helm {
-              plugins = with kubernetes-helmPlugins; [
-                helm-diff
-              ];
-            })
+            (python3.withPackages (ps: with ps; [jmespath]))
+            (wrapHelm kubernetes-helm {plugins = with kubernetes-helmPlugins; [helm-diff];})
           ];
 
           enterShell = ''
