@@ -1,8 +1,7 @@
-inputs: let
-  k8sapi = (import ./_k8s_api.nix) inputs;
+inputs @ {k, ...}:
+k.api "Role.rbac.authorization.k8s.io" (let
+  k8sapi = (import ./k8sapi.nix) inputs;
 in {
-  kind = "Role";
-  apiVersion = "rbac.authorization.k8s.io/v1";
   metadata.name = "config-map-reader";
   rules = [
     {
@@ -12,4 +11,4 @@ in {
       verbs = ["get" "list"];
     }
   ];
-}
+})

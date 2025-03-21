@@ -1,17 +1,17 @@
 inputs @ {
   self,
+  k,
   v,
   ...
-}: let
+}:
+k.api "ConfigMap" (let
   inherit (builtins) baseNameOf dirOf mapAttrs replaceStrings toJSON;
   inherit (self.lib) cluster;
 
   name = baseNameOf (dirOf ./.);
-  k8sapi = (import ./_k8s_api.nix) inputs;
+  k8sapi = (import ./k8sapi.nix) inputs;
   version = replaceStrings ["+"] ["-"] v.k0s.github-releases;
 in {
-  kind = "ConfigMap";
-  apiVersion = "v1";
   metadata = {
     name = "worker-config-alpine-${k8sapi}";
     labels = {
@@ -93,4 +93,4 @@ in {
       containerRuntimeEndpoint = "";
     };
   };
-}
+})

@@ -56,6 +56,8 @@ in {
   Kustomization.kustomize.config.k8s.io = "v1beta1";
   Kustomization.kustomize.toolkit.fluxcd.io = "v1";
   Namespace = "v1";
+  Role.rbac.authorization.k8s.io = "v1";
+  RoleBinding.rbac.authorization.k8s.io = "v1";
   Service = "v1";
   StorageClass.storage.k8s.io = "v1";
 }

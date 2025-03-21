@@ -1,10 +1,13 @@
-inputs @ {self, ...}: let
+inputs @ {
+  self,
+  k,
+  ...
+}:
+k.api "RoleBinding.rbac.authorization.k8s.io" (let
   inherit (self.lib) cluster;
 
   apiGroup = "rbac.authorization.k8s.io";
 in {
-  kind = "RoleBinding";
-  apiVersion = "rbac.authorization.k8s.io/v1";
   metadata.name = "config-map-readers-alpine";
 
   subjects =
@@ -22,4 +25,4 @@ in {
     inherit (role.metadata) name;
     inherit apiGroup;
   };
-}
+})
