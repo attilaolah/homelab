@@ -9,6 +9,7 @@
 - name: Setup / Update Alpine nodes
   hosts: alpine
   become: true
+  # Gathering facts fails due to a bug on locker-11, hence disabled here.
   gather_facts: false
   become_method: doas
   roles:
