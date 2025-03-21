@@ -13,9 +13,14 @@ in {
       theme = "dark";
       color = "gray";
 
-      layout."Cluster Management" = {
-        style = "row";
-        columns = 4;
+      layout = let
+        default = {
+          style = "row";
+          columns = 4;
+        };
+      in {
+        "Cluster Management" = default;
+        "Misc." = default;
       };
     };
     services = [];

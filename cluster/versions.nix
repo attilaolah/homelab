@@ -18,6 +18,7 @@ in {
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.1"];
+  k0s.docker = ["attilaolah/k0s" "1.32.2.0"];
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.4.13"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "70.1.1"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.6"];
@@ -43,6 +44,7 @@ in {
   ClusterIssuer.cert-manager.io = "v1";
   ClusterSecretStore.external-secrets.io = "v1beta1";
   ConfigMap = "v1";
+  Deployment.apps = "v1";
   ExternalSecret.external-secrets.io = "v1beta1";
   FluxInstance.fluxcd.controlplane.io = "v1";
   GitRepository.source.toolkit.fluxcd.io = "v1";
@@ -52,5 +54,6 @@ in {
   Kustomization.kustomize.config.k8s.io = "v1beta1";
   Kustomization.kustomize.toolkit.fluxcd.io = "v1";
   Namespace = "v1";
+  Service = "v1";
   StorageClass.storage.k8s.io = "v1";
 }
