@@ -5,7 +5,4 @@
   cpu = "amd"; # Athlon II X2 215
   watchdog = false;
   zfs = true;
-  zfs_disks = [
-    "wwn-0x5000c5007946e59f" # sdb
-  ];
 }
