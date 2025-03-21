@@ -23,7 +23,7 @@ in {
       "gethomepage.dev/name" = "APKs";
       "gethomepage.dev/description" = "Alpine APK mirrer containing k0s";
       "gethomepage.dev/group" = "Misc.";
-      "gethomepage.dev/icon" = "si-alpinelinux.svg";
+      "gethomepage.dev/icon" = "alpine-linux.svg";
     };
   };
   spec = {
