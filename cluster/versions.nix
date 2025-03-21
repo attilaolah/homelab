@@ -13,7 +13,7 @@ in {
   flux.github-releases = ["fluxcd/flux2" "2.5.1"];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.0.1"];
   homepage.docker = ["ghcr.io/gethomepage/homepage" "1.0.4" vp];
-  homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.0.1"];
+  homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.0.2"];
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.0"];
