@@ -23,6 +23,7 @@ in {
     };
   };
   data = mapAttrs (name: spec: toJSON spec) {
+    # TODO: Use the IPv6 address to talk to the API server.
     apiServerAddresses = map ({ipv4, ...}: "${ipv4}:6443") cluster.nodes.by.controlPlane;
     konnectivity = {
       enabled = false;
@@ -63,6 +64,7 @@ in {
       };
       eventRecordQPS = 0;
       clusterDomain = cluster.domain;
+      # TODO: Add IPv6 cluster DNS.
       clusterDNS = ["10.96.0.10"]; # default
       streamingConnectionIdleTimeout = "0s";
       nodeStatusUpdateFrequency = "0s";
