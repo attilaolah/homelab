@@ -34,9 +34,7 @@ in {
       image = "registry.k8s.io/pause";
       version = v.pause.docker;
     };
-    kubeletConfiguration = {
-      kind = "KubeletConfiguration";
-      apiVersion = "kubelet.config.k8s.io/v1beta1";
+    kubeletConfiguration = k.api "KubeletConfiguration.kubelet.config.k8s.io" {
       syncFrequency = "0s";
       fileCheckFrequency = "0s";
       httpCheckFrequency = "0s";

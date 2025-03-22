@@ -53,6 +53,7 @@ in {
   HelmRelease.helm.toolkit.fluxcd.io = "v2";
   HelmRepository.source.toolkit.fluxcd.io = "v1";
   Ingress.networking.k8s.io = "v1";
+  KubeletConfiguration.kubelet.config.k8s.io = "v1beta1";
   Kustomization.kustomize.config.k8s.io = "v1beta1";
   Kustomization.kustomize.toolkit.fluxcd.io = "v1";
   Namespace = "v1";
