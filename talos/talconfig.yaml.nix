@@ -17,7 +17,7 @@
     networkInterfaces = [
       {
         deviceSelector.hardwareAddr = node.mac;
-        addresses = with node; [net6 net4];
+        addresses = with node; [net4 net6];
         routes = [
           {
             network = "0.0.0.0/0";
@@ -71,8 +71,8 @@ in {
     {
       cluster = {
         network = with cluster.network; {
-          podSubnets = with pod; [cidr6 cidr4];
-          serviceSubnets = with service; [cidr6 cidr4];
+          podSubnets = with pod; [cidr4 cidr6];
+          serviceSubnets = with service; [cidr4 cidr6];
           cni.name = "none"; # we use cilium
         };
         # Use Cilium's KubeProxy replacement.
@@ -82,9 +82,9 @@ in {
         kubelet = {
           extraArgs.rotate-server-certificates = true;
           extraConfig.serverTLSBootstrap = true;
-          nodeIP.validSubnets = with cluster.network.node; [cidr6 cidr4];
+          nodeIP.validSubnets = with cluster.network.node; [cidr4 cidr6];
         };
-        network.nameservers = with cluster.network.uplink; dns6.two ++ dns4.one;
+        network.nameservers = with cluster.network.uplink; dns4.two ++ dns6.one;
       };
     }
   ];
