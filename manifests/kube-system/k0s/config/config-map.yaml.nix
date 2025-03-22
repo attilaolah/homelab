@@ -23,7 +23,6 @@ in {
     };
   };
   data = mapAttrs (name: spec: toJSON spec) {
-    # TODO: Use the IPv6 address to talk to the API server.
     apiServerAddresses = map ({ipv4, ...}: "${ipv4}:6443") cluster.nodes.by.controlPlane;
     konnectivity = {
       enabled = false;
