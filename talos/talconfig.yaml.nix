@@ -17,7 +17,7 @@
     networkInterfaces = [
       {
         deviceSelector.hardwareAddr = node.mac;
-        addresses = with node; [net4 net6];
+        addresses = with node; [net6 net4];
         routes = [
           {
             network = "0.0.0.0/0";
