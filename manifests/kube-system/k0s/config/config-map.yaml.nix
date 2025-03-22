@@ -86,7 +86,6 @@ in {
       oomScoreAdj = -450;
       port = 10250;
       protectKernelDefaults = true;
-      resolvConf = "/system/resolved/resolv.conf";
       logging = {
         flushFrequency = 0;
         verbosity = 0;
