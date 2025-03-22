@@ -17,9 +17,9 @@ in {
     labels = {
       "app.kubernetes.io/name" = name;
       "app.kubernetes.io/version" = version;
-      "k0s.k0sproject.io/stack" = "${name}-worker-config-${k8sapi}";
       "app.kubernetes.io/component" = "worker-config";
       "k0s.k0sproject.io/worker-profile" = "alpine";
+      "k0s.k0sproject.io/stack" = "${name}-worker-config-${k8sapi}";
     };
   };
   data = mapAttrs (name: spec: toJSON spec) {
@@ -39,31 +39,32 @@ in {
       fileCheckFrequency = "0s";
       httpCheckFrequency = "0s";
       tlsCipherSuites = [
-        # TODO: Limit to TLS 1.3 ciphers.
-        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
-        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
-        "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"
-        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
-        "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
+        # TLS 1.3 cipher suites (enabled by default):
+        "TLS_AES_128_GCM_SHA256"
+        "TLS_AES_256_GCM_SHA384"
+        "TLS_CHACHA20_POLY1305_SHA256"
       ];
-      # TODO: Set to 1.3.
-      tlsMinVersion = "VersionTLS12";
+      tlsMinVersion = "VersionTLS13";
       rotateCertificates = true;
       serverTLSBootstrap = true;
       authentication = {
         x509 = {};
-        webhook.cacheTTL = "0s";
-        anonymous = {};
+        webhook = {
+          enabled = true;
+          cacheTTL = "0s";
+        };
+        anonymous.enabled = false;
       };
-      authorization.webhook = {
-        cacheAuthorizedTTL = "0s";
-        cacheUnauthorizedTTL = "0s";
+      authorization = {
+        mode = "Webhook";
+        webhook = {
+          cacheAuthorizedTTL = "0s";
+          cacheUnauthorizedTTL = "0s";
+        };
       };
       eventRecordQPS = 0;
-      clusterDomain = cluster.domain;
-      # TODO: Add IPv6 cluster DNS.
-      clusterDNS = ["10.96.0.10"]; # default
+      clusterDomain = "cluster.local";
+      clusterDNS = ["10.96.0.10" "fd10:96::a"];
       streamingConnectionIdleTimeout = "0s";
       nodeStatusUpdateFrequency = "0s";
       nodeStatusReportFrequency = "0s";
@@ -74,8 +75,18 @@ in {
       cpuManagerReconcilePeriod = "0s";
       runtimeRequestTimeout = "0s";
       evictionPressureTransitionPeriod = "0s";
-      failSwapOn = false;
+      failSwapOn = false; # small machines have swap
+      systemReserved = {
+        cpu = "50m";
+        memory = "512Mi";
+        ephemeral-storage = "256Mi";
+        pid = "100";
+      };
       memorySwap = {};
+      oomScoreAdj = -450;
+      port = 10250;
+      protectKernelDefaults = true;
+      resolvConf = "/system/resolved/resolv.conf";
       logging = {
         flushFrequency = 0;
         verbosity = 0;
@@ -86,8 +97,10 @@ in {
           json = default;
         };
       };
-      shutdownGracePeriod = "0s";
-      shutdownGracePeriodCriticalPods = "0s";
+      seccompDefault = true;
+      serializeImagePulls = false;
+      shutdownGracePeriod = "30s";
+      shutdownGracePeriodCriticalPods = "10s";
       containerRuntimeEndpoint = "";
     };
   };
