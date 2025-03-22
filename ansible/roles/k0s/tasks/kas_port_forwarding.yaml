@@ -1,0 +1,26 @@
+- name: Install required packages
+  ansible.builtin.package:
+    name:
+    - nftables
+    state: present
+
+- name: Enable IPv4 route_localnet
+  ansible.builtin.sysctl:
+    name: net.ipv4.conf.all.route_localnet
+    value: "1"
+    state: present
+    reload: yes
+
+- name: Configure nftables
+  ansible.builtin.template:
+    src: etc/nftables.nft
+    dest: /etc/nftables.nft
+    backup: true
+  notify:
+  - Apply nftables configuration
+
+- name: Apply nftables configuration
+  ansible.builtin.command:
+    cmd: nft -f /etc/nftables.nft
+  when: ansible_facts['changed']
+  become: true

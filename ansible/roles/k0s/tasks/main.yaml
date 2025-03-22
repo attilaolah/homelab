@@ -1,0 +1,62 @@
+- name: Configure K8s API port forwarding
+  import_tasks: kas_port_forwarding.yaml
+  become: true
+
+# Enable cgroups v2:
+# echo "rc_cgroup_mode=\"unified\"" >> /etc/rc.conf
+# reboot if changed
+#
+# start:
+# rc-service cgroups start
+# rc-update add cgroups
+#
+# then:
+# apk add dbus
+# rc-service dbus start
+# rc-update add dbus
+#
+# enable udev
+# apk add udev # install udev
+# enable udev on startup
+# rc-update add udev sysinit
+# rc-update add udev-trigger sysinit
+# rc-update add udev-settle sysinit
+#
+# reboot when changed
+
+
+# - name: Install required packages
+#   ansible.builtin.package:
+#     name:
+#     - dbus
+#     - k0s
+#     - udev
+#     state: present
+
+# - name: Create k0s worker profile
+# # TODO:
+# ansible.builtin.command: >
+#   k0s install worker \
+#     --profile=alpine \
+#     --token-file=/etc/k0s/join_token \
+#     --kubelet-extra-args="--node-ip={{ [ipv4, ipv6] | join(","") }}""
+#
+# # TODO:
+# _: |
+#   # setup kernel support for bpf file system
+#   if [ -d /sys/fs/bpf ] && ! mountinfo -q /sys/fs/bpf; then
+#       if grep -qs bpf /proc/filesystems; then
+#           ebegin "Mounting eBPF filesystem"
+#           mount -n -t bpf -o ${sysfs_opts} bpffs /sys/fs/bpf
+#           mount --make-shared /sys/fs/bpf
+#           eend $?
+#       fi
+#   fi
+#
+# then:
+# mount --make-shared /sys/fs/cgroup
+# mount --make-shared /run
+#
+# then:
+# IPv6 is enabled and ip6tables modules initialization failed: could not load module ip6_tables: exit status 1 (try disabling IPv6 in Cilium or loading ip6_tables, ip6table_mangle, ip6table_raw and ip6table_filter kernel modules)"
+# fix with modprobe

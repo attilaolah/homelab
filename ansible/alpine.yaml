@@ -16,6 +16,8 @@
   - role: network
     tags: [network]
   - role: packages
-    tags: [update]
+    tags: [packages]
   - role: storage
     tags: [storage]
+  - role: k0s
+    tags: [k0s]

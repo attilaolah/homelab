@@ -1,0 +1,128 @@
+#!/usr/sbin/nft -f
+# vim: set ts=4 sw=4:
+
+# Clear all prior state
+flush ruleset
+
+# Basic IPv4/IPv6 stateful firewall
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        iifname lo accept \
+        comment "Accept any localhost traffic"
+
+        ct state { established, related } accept \
+        comment "Accept traffic originated from us"
+
+        ct state invalid drop \
+        comment "Drop invalid connections"
+
+        tcp dport 113 reject with icmpx type port-unreachable \
+        comment "Reject AUTH to make it fail fast"
+
+        ip saddr {{ network.uplink.gw4 }} tcp dport 22 reject \
+        comment "Reject SSH from external addresses"
+
+        tcp dport 22 accept \
+        comment "Allow SSH"
+
+        # ICMPv4
+
+        ip protocol icmp icmp type {
+            echo-reply,               # type 0
+            destination-unreachable,  # type 3
+            echo-request,             # type 8
+            time-exceeded,            # type 11
+            parameter-problem,        # type 12
+        } accept \
+        comment "Accept ICMP"
+
+        # ICMPv6
+
+        icmpv6 type {
+            destination-unreachable,  # type 1
+            packet-too-big,           # type 2
+            time-exceeded,            # type 3
+            parameter-problem,        # type 4
+            echo-request,             # type 128
+            echo-reply,               # type 129
+        } accept \
+        comment "Accept basic IPv6 functionality"
+
+        icmpv6 type {
+            nd-router-solicit,        # type 133
+            nd-router-advert,         # type 134
+            nd-neighbor-solicit,      # type 135
+            nd-neighbor-advert,       # type 136
+        } ip6 hoplimit 255 accept \
+        comment "Allow IPv6 SLAAC"
+
+        icmpv6 type {
+            mld-listener-query,       # type 130
+            mld-listener-report,      # type 131
+            mld-listener-reduction,   # type 132
+            mld2-listener-report,     # type 143
+        } ip6 saddr fe80::/10 accept \
+        comment "Allow IPv6 multicast listener discovery on link-local"
+
+        ip6 saddr fe80::/10 udp sport 547 udp dport 546 accept \
+        comment "Accept DHCPv6 replies from IPv6 link-local addresses"
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}
+
+table ip nat {
+    chain prerouting {
+        type nat hook prerouting priority dstnat; policy accept;
+
+        ip daddr 127.0.0.1 tcp \
+        dport {{ cluster.kubernetes_api.proxy_port }} \
+        dnat to {{ cluster.kubernetes_api.ipv4 }}:{{ cluster.kubernetes_api.port }} \
+        comment "DNAT for local traffic (localhost -> kubernetes)"
+    }
+
+    chain postrouting {
+        type nat hook postrouting priority srcnat; policy accept;
+
+        ip saddr 127.0.0.1 masquerade
+    }
+
+    chain output {
+        type nat hook output priority dstnat; policy accept;
+
+        ip daddr 127.0.0.1 tcp \
+        dport {{ cluster.kubernetes_api.proxy_port }} \
+        dnat to {{ cluster.kubernetes_api.ipv4 }}:{{ cluster.kubernetes_api.port }} \
+        comment "DNAT for local traffic (localhost -> kubernetes)"
+    }
+}
+
+table ip filter {
+    chain input {
+        type filter hook input priority filter; policy accept;
+
+        ip daddr {{ cluster.kubernetes_api.ipv4 }} tcp dport {{ cluster.kubernetes_api.port }} accept \
+        comment "Allow DNAT'd incoming traffic to kubernetes"
+    }
+
+    chain output {
+        type filter hook output priority filter; policy accept;
+
+        ip daddr {{ cluster.kubernetes_api.ipv4 }} tcp dport {{ cluster.kubernetes_api.port }} accept \
+        comment "Allow outgoing traffic to kubernetes"
+    }
+}
+
+# Don't include stateful objects
+# include "/var/lib/nftables/*.nft"
+
+# Rules
+include "/etc/nftables.d/*.nft"
