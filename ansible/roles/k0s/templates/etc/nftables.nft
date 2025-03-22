@@ -27,6 +27,9 @@ table inet filter {
         tcp dport 22 accept \
         comment "Allow SSH"
 
+        tcp dport 10250 accept \
+        comment "Allow Kubelet API"
+
         # ICMPv4
 
         ip protocol icmp icmp type {
