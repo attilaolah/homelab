@@ -8,7 +8,7 @@
     k0s install worker \
       --profile=alpine \
       --token-file=/etc/k0s/join_token \
-      --kubelet-extra-args="--node-ip={{ [ipv4, ipv6] | join(","") }}""
+      --kubelet-extra-args="--node-ip={{ [ipv4, ipv6] | join(",") }}"
   when: not k0s_worker.stat.exists
 
 - name: Enable k0s worker service
