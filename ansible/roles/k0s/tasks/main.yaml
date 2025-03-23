@@ -17,37 +17,14 @@
   import_tasks: services.yaml
 
 - name: Reboot if kernel modules configuration changed
-  ansible.builtin.reboot:
   when: ipv6_modules.changed or udev_services.changed
+  ansible.builtin.reboot:
 
 - name: Configure k0s join token
   import_tasks: join_token.yaml
 
-# - name: Create k0s worker profile
-# # TODO:
-# ansible.builtin.command: >
-#   k0s install worker \
-#     --profile=alpine \
-#     --token-file=/etc/k0s/join_token \
-#     --kubelet-extra-args="--node-ip={{ [ipv4, ipv6] | join(","") }}""
-#
-# # TODO:
-# _: |
-#   # setup kernel support for bpf file system
-#   if [ -d /sys/fs/bpf ] && ! mountinfo -q /sys/fs/bpf; then
-#       if grep -qs bpf /proc/filesystems; then
-#           ebegin "Mounting eBPF filesystem"
-#           mount -n -t bpf -o ${sysfs_opts} bpffs /sys/fs/bpf
-#           mount --make-shared /sys/fs/bpf
-#           eend $?
-#       fi
-#   fi
-#
-# then:
-# mount --make-shared /sys/fs/cgroup
-# mount --make-shared /run
-# mount --make-shared /
-#
-# then:
-# IPv6 is enabled and ip6tables modules initialization failed: could not load module ip6_tables: exit status 1 (try disabling IPv6 in Cilium or loading ip6_tables, ip6table_mangle, ip6table_raw and ip6table_filter kernel modules)"
-# fix with modprobe
+- name: Configure sysfs mounts
+  import_tasks: sysfs.yaml
+
+- name: Configure k0s worker script
+  import_tasks: worker.yaml

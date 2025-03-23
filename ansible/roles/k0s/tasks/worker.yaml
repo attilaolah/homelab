@@ -1,0 +1,18 @@
+- name: Check if k0s worker script exists
+  ansible.builtin.stat:
+    path: /etc/init.d/k0sworker
+  register: k0s_worker
+
+- name: Install k0s worker script
+  ansible.builtin.command: >
+    k0s install worker \
+      --profile=alpine \
+      --token-file=/etc/k0s/join_token \
+      --kubelet-extra-args="--node-ip={{ [ipv4, ipv6] | join(","") }}""
+  when: not k0s_worker.stat.exists
+
+- name: Enable and start cgroups service on Alpine
+  ansible.builtin.service:
+    name: k0sworker
+    enabled: true
+    state: started
