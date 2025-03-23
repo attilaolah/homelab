@@ -15,8 +15,18 @@
         fi
       }
 
+      mount_sys_cgroup() {
+        if [ -d /sys/fs/cgroup ] && ! mountinfo -q /sys/fs/cgroup; then
+          if grep -qs cgroup2 /proc/filesystems; then
+            ebegin "Mounting cgroup v2 filesystem"
+            mount -t cgroup2 none /sys/fs/cgroup
+            mount --make-shared /sys/fs/cgroup
+            eend $?
+          fi
+        fi
+      }
+
       mount_make_shared() {
-        mount --make-shared /sys/fs/cgroup
         mount --make-shared /run
         mount --make-shared /
       }
@@ -30,6 +40,7 @@
     insertafter: ^\s*mount_misc\s*$
     block: |
       mount_sys_bpf
+      mount_sys_cgroup
       mount_make_shared
   register: setup_mounts
 

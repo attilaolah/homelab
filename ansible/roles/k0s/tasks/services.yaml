@@ -1,4 +1,4 @@
-- name: Enable cgroups v2
+- name: Enable cgroups
   ansible.builtin.lineinfile:
     path: /etc/rc.conf
     regexp: '^#?\s*rc_cgroup_mode='
