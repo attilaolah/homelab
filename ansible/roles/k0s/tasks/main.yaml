@@ -1,37 +1,27 @@
-- name: Configure K8s API port forwarding
+- name: Install required packages
+  ansible.builtin.package:
+    name:
+    - dbus
+    - k0s
+    - nftables
+    - udev
+    state: present
+
+- name: Configure IPv6 iptables
+  import_tasks: ipv6.yaml
+
+- name: Configure k8s API port forwarding
   import_tasks: kas_port_forwarding.yaml
-  become: true
 
-# Enable cgroups v2:
-# echo "rc_cgroup_mode=\"unified\"" >> /etc/rc.conf
-# reboot if changed
-#
-# start:
-# rc-service cgroups start
-# rc-update add cgroups
-#
-# then:
-# apk add dbus
-# rc-service dbus start
-# rc-update add dbus
-#
-# enable udev
-# apk add udev # install udev
-# enable udev on startup
-# rc-update add udev sysinit
-# rc-update add udev-trigger sysinit
-# rc-update add udev-settle sysinit
-#
-# reboot when changed
+- name: Configure required services
+  import_tasks: services.yaml
 
+- name: Reboot if kernel modules configuration changed
+  ansible.builtin.reboot:
+  when: ipv6_modules.changed or udev_services.changed
 
-# - name: Install required packages
-#   ansible.builtin.package:
-#     name:
-#     - dbus
-#     - k0s
-#     - udev
-#     state: present
+- name: Configure k0s join token
+  import_tasks: join_token.yaml
 
 # - name: Create k0s worker profile
 # # TODO:
@@ -56,6 +46,7 @@
 # then:
 # mount --make-shared /sys/fs/cgroup
 # mount --make-shared /run
+# mount --make-shared /
 #
 # then:
 # IPv6 is enabled and ip6tables modules initialization failed: could not load module ip6_tables: exit status 1 (try disabling IPv6 in Cilium or loading ip6_tables, ip6table_mangle, ip6table_raw and ip6table_filter kernel modules)"

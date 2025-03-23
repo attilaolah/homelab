@@ -1,0 +1,11 @@
+- name: Ensure required kernel modules are loaded at boot
+  ansible.builtin.lineinfile:
+    path: /etc/modules
+    line: "{{ item }}"
+    state: present
+  loop:
+  - ip6_tables
+  - ip6table_mangle
+  - ip6table_raw
+  - ip6table_filter
+  register: ipv6_modules

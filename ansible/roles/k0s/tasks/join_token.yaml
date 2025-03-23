@@ -1,0 +1,22 @@
+- name: Check if the join token exists
+  ansible.builtin.stat:
+    path: /etc/k0s/join_token
+  register: k0s_join_token
+
+- name: Generate join token if required
+  ansible.builtin.command:
+    cmd: talos:create-join-token
+  delegate_to: localhost
+  run_once: true
+  register: join_token
+  when: not k0s_join_token.stat.exists
+  changed_when: false
+
+- name: Upload join token to host
+  ansible.builtin.copy:
+    content: "{{ join_token.stdout }}"
+    dest: /etc/k0s/join_token
+    owner: root
+    group: root
+    mode: u=r,go=
+  when: not k0s_join_token.stat.exists
