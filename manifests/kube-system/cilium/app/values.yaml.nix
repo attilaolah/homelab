@@ -1,6 +1,6 @@
 {cluster, ...}: {
   # Uses KubePrism on Talos nodes.
-  # Uses an IPtables rule on Alpine nodes without KubePrism.
+  # Uses NFTables rule on Alpine nodes without KubePrism.
   k8sServiceHost = "127.0.0.1";
   k8sServicePort = 7445;
   kubeProxyReplacement = true;

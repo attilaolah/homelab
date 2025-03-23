@@ -5,7 +5,7 @@
     line: 'rc_cgroup_mode="unified"'
     backrefs: true
 
-- name: Enable and start cgroups service on Alpine
+- name: Enable and start cgroups service
   ansible.builtin.service:
     name: "{{ item }}"
     enabled: true

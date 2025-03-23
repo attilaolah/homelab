@@ -1,3 +1,17 @@
+- name: Add APK repository
+  ansible.builtin.lineinfile:
+    path: /etc/apk/repositories
+    line: https://dorn.haus/apks
+    state: present
+
+- name: Add APK signing key
+  ansible.builtin.copy:
+    src: attila@dorn.haus-67093be0.rsa.pub
+    dest: /etc/apk/keys/attila@dorn.haus-67093be0.rsa.pub
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Install required packages
   ansible.builtin.package:
     name:

@@ -1,12 +1,9 @@
 ---
 - name: Set repository mirror
-  ansible.builtin.template:
-    src: etc/apk/repositories.j2
-    dest: /etc/apk/repositories
-    owner: root
-    group: root
-    mode: u=rw,g=r,o=r
-    backup: true
+  ansible.builtin.lineinfile:
+    path: /etc/apk/repositories
+    line: http://dl-cdn.alpinelinux.org/alpine/{{ alpine_version }}/community
+    state: present
 
 - name: Update APK packages
   community.general.apk:
