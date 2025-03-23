@@ -6,7 +6,7 @@
 - name: Generate join token if required
   when: not k0s_join_token.stat.exists
   ansible.builtin.command:
-    cmd: talos:create-join-token
+    cmd: task talos:create-join-token
   delegate_to: localhost
   run_once: true
   register: join_token
