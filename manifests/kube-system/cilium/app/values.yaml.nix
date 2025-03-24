@@ -1,6 +1,4 @@
 {cluster, ...}: {
-  k8sServiceHost = (builtins.head cluster.nodes.by.controlPlane).ipv4;
-  k8sServicePort = 6443;
   kubeProxyReplacement = true;
   kubeProxyReplacementHealthzBindAddr = "0.0.0.0:10256";
 
