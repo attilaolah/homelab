@@ -21,6 +21,7 @@
     register: stat_results
 
   - name: Find the symlink pointing to /dev/{{ disk.name }}
+    when: item[0] == '/dev/' + disk.name
     ansible.builtin.set_fact:
       disk_wwn: "{{ item[1] | basename }}"
     loop: >-
@@ -33,7 +34,6 @@
             map(attribute='path')
           )
       }}
-    when: item[0] == '/dev/' + disk.name
 
   - name: Calculate ZFS key
     ansible.builtin.set_fact:
@@ -84,6 +84,6 @@
   ignore_errors: true
 
 - name: Create ZFS pool {{ zfs_pool }} for /dev/{{ disk.name }}
+  when: zpool_exists.rc == 1
   ansible.builtin.command: |
     zpool create -O encryption=on -O keyformat=raw -O keylocation=file:///etc/zfs/{{ zfs_key }}.key -m none -f {{ zfs_pool }} /dev/{{ disk.name }}
-  when: zpool_exists.rc == 1

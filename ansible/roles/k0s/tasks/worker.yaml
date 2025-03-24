@@ -1,0 +1,29 @@
+- name: Check if k0s worker service exists
+  ansible.builtin.stat:
+    path: /etc/init.d/k0sworker
+  register: k0s_worker
+
+- name: Install k0s worker service
+  ansible.builtin.command: >
+    k0s install worker \
+      --profile=alpine \
+      --token-file=/etc/k0s/join_token \
+      --kubelet-extra-args="--node-ip={{ [ipv4, ipv6] | join(",") }}"
+  when: not k0s_worker.stat.exists
+
+- name: Enable k0s worker service
+  ansible.builtin.service:
+    name: k0sworker
+    enabled: true
+    state: started
+
+- name: Enable Kubelet's required sysctl flags
+  ansible.builtin.sysctl:
+    name: "{{ item[0] }}"
+    value: "{{ item[1] }}"
+    state: present
+    reload: yes
+  loop:
+  - [vm.overcommit_memory, 1]
+  - [kernel.panic, 10]
+  - [kernel.panic_on_oops, 1]

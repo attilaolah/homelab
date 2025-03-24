@@ -18,7 +18,7 @@ in {
       artifact = "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests";
     };
     sync = {
-      inherit (import ./source.nix) kind;
+      kind = "OCIRepository";
       url = with cluster.github; "oci://${registry}/${owner}/${repository}";
       ref = "latest";
       path = ".";

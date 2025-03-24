@@ -269,6 +269,71 @@ in {
       in ''"${cmd}" "{{.nodes}}" {{.CLI_ARGS}}'';
     };
 
+    create-join-token = {
+      inherit silent;
+      desc = "Create Kubernetes join token for non-Talos workers to join";
+      cmd = let
+        cmd = writeShellApplication {
+          runtimeInputs = with pkgs; [coreutils gzip kubectl yq];
+          text = ''
+            ca="$(
+              kubectl get configmap kube-root-ca.crt -o jsonpath='{.data}' \
+                --namespace=kube-system |
+                jq -r '.["ca.crt"]'
+            )"
+            bootstrap_token="$(
+              kubectl get secret -o yaml \
+                --namespace=kube-system \
+                --field-selector=type=bootstrap.kubernetes.io/token -o yaml |
+                yq -r '
+                  [
+                    .items |
+                    sort_by(.metadata.creationTimestamp) |
+                    reverse |
+                    .[] |
+                    select(.type=="bootstrap.kubernetes.io/token")
+                  ] |
+                  first |
+                  .data
+                '
+            )"
+            join_token="$(
+              echo "$bootstrap_token" |
+                jq -r '.["token-id"]' |
+                base64 -d
+            ).$(
+              echo "$bootstrap_token" |
+                jq -r '.["token-secret"]' |
+                base64 -d
+            )"
+            bootstrap_config_yaml="\
+            apiVersion: v1
+            kind: Config
+            clusters:
+            - name: k0s
+              cluster:
+                certificate-authority-data: $(echo "$ca" | base64 -w0)
+                server: https://${(builtins.head cluster.nodes.by.controlPlane).ipv4}:6443
+            contexts:
+            - name: k0s
+              context:
+                cluster: k0s
+                user: kubelet-bootstrap
+            current-context: k0s
+            preferences: {}
+            users:
+            - name: kubelet-bootstrap
+              user:
+                token: $join_token"
+
+            echo "$bootstrap_config_yaml" |
+              gzip -9 |
+              base64 -w0
+          '';
+        };
+      in ''"${cmd}" "{{.nodes}}" {{.CLI_ARGS}}'';
+    };
+
     upgrade-talos = let
       variables = ''
         node="$1"

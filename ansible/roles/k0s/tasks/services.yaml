@@ -1,0 +1,26 @@
+- name: Enable cgroups
+  ansible.builtin.lineinfile:
+    path: /etc/rc.conf
+    regexp: '^#?\s*rc_cgroup_mode='
+    line: 'rc_cgroup_mode="unified"'
+    backrefs: true
+
+- name: Enable and start cgroups service
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+  - cgroups
+  - dbus
+
+- name: Add udev services to sysinit runlevel
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+    runlevel: sysinit
+  loop:
+  - udev
+  - udev-trigger
+  - udev-settle
+  register: udev_services

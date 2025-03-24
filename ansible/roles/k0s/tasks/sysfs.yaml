@@ -1,0 +1,48 @@
+- name: Define additional functions
+  ansible.builtin.blockinfile:
+    path: &path /etc/init.d/sysfs
+    marker: "# {mark} k0s: define required mounts"
+    insertbefore: ^start\(\)
+    block: |
+      mount_sys_bpf() {
+        if [ -d /sys/fs/bpf ] && ! mountinfo -q /sys/fs/bpf; then
+          if grep -qs bpf /proc/filesystems; then
+            ebegin "Mounting eBPF filesystem"
+            mount -n -t bpf -o ${sysfs_opts} bpffs /sys/fs/bpf
+            mount --make-shared /sys/fs/bpf
+            eend $?
+          fi
+        fi
+      }
+
+      mount_sys_cgroup() {
+        if [ -d /sys/fs/cgroup ] && ! mountinfo -q /sys/fs/cgroup; then
+          if grep -qs cgroup2 /proc/filesystems; then
+            ebegin "Mounting cgroup v2 filesystem"
+            mount -t cgroup2 none /sys/fs/cgroup
+            mount --make-shared /sys/fs/cgroup
+            eend $?
+          fi
+        fi
+      }
+
+      mount_make_shared() {
+        mount --make-shared /run
+        mount --make-shared /
+      }
+  register: define_mounts
+
+- name: Update start function
+  ansible.builtin.blockinfile:
+    path: *path
+    marker: "# {mark} k0s: setup required mounts"
+    insertafter: ^\s*mount_misc\s*$
+    block: |
+      mount_sys_bpf
+      mount_sys_cgroup
+      mount_make_shared
+  register: setup_mounts
+
+- name: Reboot after updating sysfs config
+  when: define_mounts.changed or setup_mounts.changed
+  ansible.builtin.reboot:

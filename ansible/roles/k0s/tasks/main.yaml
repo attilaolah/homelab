@@ -1,0 +1,40 @@
+- name: Add APK repository
+  ansible.builtin.lineinfile:
+    path: /etc/apk/repositories
+    line: https://dorn.haus/apks
+    state: present
+
+- name: Add APK signing key
+  ansible.builtin.copy:
+    src: attila@dorn.haus-67093be0.rsa.pub
+    dest: /etc/apk/keys/attila@dorn.haus-67093be0.rsa.pub
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install required packages
+  ansible.builtin.package:
+    name:
+    - dbus
+    - k0s
+    - udev
+    state: present
+
+- name: Configure IPv6 iptables
+  import_tasks: ipv6.yaml
+
+- name: Configure required services
+  import_tasks: services.yaml
+
+- name: Reboot if kernel modules configuration changed
+  when: ipv6_modules.changed or udev_services.changed
+  ansible.builtin.reboot:
+
+- name: Configure sysfs mounts
+  import_tasks: sysfs.yaml
+
+- name: Configure k0s join token
+  import_tasks: join_token.yaml
+
+- name: Configure k0s worker script
+  import_tasks: worker.yaml
