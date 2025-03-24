@@ -1,6 +1,9 @@
 {cluster, ...}: {
+  # Enable KubeProxy replacement.
+  k8sServiceHost = (builtins.head cluster.nodes.by.controlPlane).ipv6;
+  k8sServicePort = 6443;
   kubeProxyReplacement = true;
-  kubeProxyReplacementHealthzBindAddr = "0.0.0.0:10256";
+  kubeProxyReplacementHealthzBindAddr = "[::]:10256";
 
   cgroup = {
     # Mount CGroup at a different location.
