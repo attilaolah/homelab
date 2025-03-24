@@ -33,7 +33,6 @@
   register: define_mounts
 
 - name: Update start function
-  tags: [debug]
   ansible.builtin.blockinfile:
     path: *path
     marker: "# {mark} k0s: setup required mounts"
