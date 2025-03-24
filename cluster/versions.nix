@@ -28,7 +28,8 @@ in {
   loki.helm = ["https://grafana.github.io/helm-charts" "6.28.0"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.3"];
-  node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
+  # node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
+  node-feature-discovery-operator.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery-operator/charts" "0.6"];
   pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.3"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
@@ -57,6 +58,7 @@ in {
   Kustomization.kustomize.config.k8s.io = "v1beta1";
   Kustomization.kustomize.toolkit.fluxcd.io = "v1";
   Namespace = "v1";
+  NodeFeatureDiscovery.nfd.kubernetes.io = "v1";
   Role.rbac.authorization.k8s.io = "v1";
   RoleBinding.rbac.authorization.k8s.io = "v1";
   Service = "v1";
