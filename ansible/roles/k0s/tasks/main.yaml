@@ -17,15 +17,11 @@
     name:
     - dbus
     - k0s
-    - nftables
     - udev
     state: present
 
 - name: Configure IPv6 iptables
   import_tasks: ipv6.yaml
-
-- name: Configure k8s API port forwarding
-  import_tasks: kas_port_forwarding.yaml
 
 - name: Configure required services
   import_tasks: services.yaml
@@ -34,11 +30,11 @@
   when: ipv6_modules.changed or udev_services.changed
   ansible.builtin.reboot:
 
-- name: Configure k0s join token
-  import_tasks: join_token.yaml
-
 - name: Configure sysfs mounts
   import_tasks: sysfs.yaml
+
+- name: Configure k0s join token
+  import_tasks: join_token.yaml
 
 - name: Configure k0s worker script
   import_tasks: worker.yaml
