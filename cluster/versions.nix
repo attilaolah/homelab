@@ -28,7 +28,7 @@ in {
   loki.helm = ["https://grafana.github.io/helm-charts" "6.28.0"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.3"];
-  nfd-operator.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery-operator/charts" "0.6"];
+  nfd-operator.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery-operator/charts" "0.1.0"];
   pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.3"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
