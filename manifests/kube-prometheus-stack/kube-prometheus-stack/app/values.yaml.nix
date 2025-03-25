@@ -111,25 +111,25 @@ in {
       };
       version = 1;
     in [
-      rec {
+      {
         inherit secureJsonData version;
-        type = prometheus;
         name = "Prometheus";
-        uid = type;
+        type = prometheus;
+        uid = prometheus;
         editable = false;
-        url = "https://${instance}-${name}:9090/prometheus";
+        url = "https://${instance}-${prometheus}:9090/${prometheus}";
         jsonData = {
           tlsAuth = true;
           tlsAuthWithCACert = true;
         };
       }
-      rec {
+      {
         inherit secureJsonData version;
-        type = jaeger;
         name = "Jaeger";
-        uid = type;
+        type = jaeger;
+        uid = jaeger;
         editable = false;
-        url = "https://jaeger-query-https.observability.svc/jaeger";
+        url = "https://${jaeger}-query-https.observability.svc/${jaeger}";
         jsonData = {
           tlsAuth = true;
           tlsAuthWithCACert = true;
@@ -139,7 +139,7 @@ in {
       {
         type = loki;
         name = "Loki";
-        url = "http://loki.observability.svc:3100";
+        url = "http://${loki}.observability.svc:3100";
       }
     ];
 
