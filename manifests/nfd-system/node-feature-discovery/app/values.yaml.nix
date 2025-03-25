@@ -13,7 +13,6 @@
     revisionHistoryLimit = 2;
   };
 
-  # Lower resource limits for workers.
   worker = let
     inherit (builtins) elemAt split;
     inherit (lib.strings) concatStringsSep escape;
@@ -25,6 +24,8 @@
   in {
     core.labelWhitelist = "^(${escape ["."] (concatStringsSep "|" labels)})$";
     labelSources = map (label: elemAt (split "-" label) 0) labels;
+
+    # Lower resource limits for workers.
     resources.limits = {
       cpu = "50m";
       memory = "128Mi";
