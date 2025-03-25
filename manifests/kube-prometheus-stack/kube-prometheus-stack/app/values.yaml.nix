@@ -9,7 +9,6 @@
   inherit (lib.strings) concatStringsSep;
 
   instance = k.appname ./.;
-  namespace = k.nsname ./.;
   hosts = [domain];
   tls = [
     {
@@ -17,11 +16,17 @@
       secretName = "${domain}-tls";
     }
   ];
+
+  pki = "/etc/tls";
+  crt = "${pki}/tls.crt";
+  key = "${pki}/tls.key";
+  ca = "${pki}/ca.crt";
 in {
   grafana = let
     name = "grafana";
     path = "/${name}";
-  in {
+    secretName = "${name}-tls";
+  in rec {
     ingress = {
       inherit hosts path tls;
 
@@ -62,30 +67,35 @@ in {
         serve_from_sub_path = true;
         root_url = "https://${domain}${path}";
         protocol = "https";
-        cert_file = "/etc/tls/tls.crt";
-        cert_key = "/etc/tls/tls.key";
+        cert_file = crt;
+        cert_key = key;
       };
-      "auth.generic_oauth" = {
+      "auth.generic_oauth" = let
+        idp = "https://${domain}/keycloak/realms/dh/protocol/openid-connect";
+      in {
         enabled = true;
         name = "OAuth";
-        scopes = "openid email profile";
+        scopes = concatStringsSep " " [
+          "email"
+          "openid"
+          "profile"
+        ];
         email_attribute_name = "email";
         login_attribute_path = "preferred_username";
         name_attribute_path = "join(' ', [firstName, lastName])";
         role_attribute_path = "('Admin')"; # everyone is an admin, for now
         client_id = "monitoring";
-        client_secret = "$__file{/etc/secrets/oauth2_client_secret}";
+        client_secret = "$__file{/etc/secrets/oauth2-client-secret}";
         allow_sign_up = true;
         allowed_domains = hosts;
-        auth_url = "https://dorn.haus/keycloak/realms/dh/protocol/openid-connect/auth";
-        token_url = "https://dorn.haus/keycloak/realms/dh/protocol/openid-connect/token";
-        api_url = "https://dorn.haus/keycloak/realms/dh/protocol/openid-connect/userinfo";
+        auth_url = "${idp}/auth";
+        token_url = "${idp}/token";
+        api_url = "${idp}/userinfo";
         use_pkce = true;
         use_refresh_token = true;
       };
     };
 
-    prune = true;
     # Prometheus Datasource installed manually below.
     sidecar.datasources.defaultDatasourceEnabled = false;
 
@@ -95,9 +105,9 @@ in {
       loki = "loki";
 
       secureJsonData = {
-        tlsCACert = "$__file{/etc/tls/ca.crt}";
-        tlsClientCert = "$__file{/etc/tls/tls.crt}";
-        tlsClientKey = "$__file{/etc/tls/tls.key}";
+        tlsCACert = "$__file{${ca}}";
+        tlsClientCert = "$__file{${crt}}";
+        tlsClientKey = "$__file{${key}}";
       };
       version = 1;
     in [
@@ -133,20 +143,36 @@ in {
       }
     ];
 
+    livenessProbe = {
+      exec.command = [
+        "curl"
+        "https://${instance}-${name}/api/health"
+        "--connect-to"
+        "${instance}-${name}:443:0.0.0.0:3000"
+        "--cert"
+        crt
+        "--key"
+        key
+        "--cacert"
+        ca
+      ];
+      httpGet = null;
+    };
+    readinessProbe = livenessProbe;
+
     extraSecretMounts = let
       readOnly = true;
     in [
-      {
+      rec {
         inherit readOnly;
         name = "secrets";
-        mountPath = "/etc/secrets";
-        secretName = name;
+        mountPath = "/etc/${name}";
+        secretName = "${instance}-${name}";
       }
       {
-        inherit readOnly;
+        inherit readOnly secretName;
         name = "tls";
-        mountPath = "/etc/tls";
-        secretName = "${name}-tls";
+        mountPath = pki;
       }
     ];
   };
@@ -192,7 +218,7 @@ in {
       volumeMounts = [
         {
           name = "tls";
-          mountPath = "/etc/tls";
+          mountPath = pki;
           readOnly = true;
         }
       ];
@@ -220,7 +246,7 @@ in {
           name = "internal-ca";
         };
         commonName = name;
-        dnsNames = ["${namespace}-${name}"];
+        dnsNames = ["${instance}-${name}"];
       };
     }) [
     "grafana"
