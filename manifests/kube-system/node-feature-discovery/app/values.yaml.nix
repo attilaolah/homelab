@@ -1,4 +1,4 @@
-{
+{lib, ...}: {
   master = {
     # TODO: Add a second replica.
     # The master deployment has pod affinity that assigns it to control plane nodes.
@@ -14,9 +14,21 @@
   };
 
   # Lower resource limits for workers.
-  worker.resources.limits = {
-    cpu = "50m";
-    memory = "128Mi";
+  worker = let
+    inherit (builtins) elemAt split;
+    inherit (lib.strings) concatStringsSep escape;
+
+    labels = [
+      "cpu-model.vendor_id"
+      "system-os_release.ID"
+    ];
+  in {
+    core.labelWhitelist = "^(${escape ["."] (concatStringsSep "|" labels)})$";
+    labelSources = map (label: elemAt (split "-" label) 0) labels;
+    resources.limits = {
+      cpu = "50m";
+      memory = "128Mi";
+    };
   };
 
   prometheus.enable = false; # todo
