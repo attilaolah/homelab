@@ -96,8 +96,19 @@ in {
       };
     };
 
-    # Prometheus Datasource installed manually below.
-    sidecar.datasources.defaultDatasourceEnabled = false;
+    sidecar = let
+      reload = what: "https://[::1]:3000${path}/api/admin/provisioning/${what}/reload";
+    in {
+      # TODO: BusyBox the CA into the container trust store instead!
+      skipTlsVerify = "1";
+
+      dashboards.reloadURL = reload "dashboards";
+      datasources = {
+        reloadURL = reload "datasources";
+        # Prometheus Datasource installed manually below.
+        defaultDatasourceEnabled = false;
+      };
+    };
 
     additionalDataSources = let
       prometheus = "prometheus";
@@ -111,25 +122,25 @@ in {
       };
       version = 1;
     in [
-      rec {
+      {
         inherit secureJsonData version;
-        type = prometheus;
         name = "Prometheus";
-        uid = type;
+        type = prometheus;
+        uid = prometheus;
         editable = false;
-        url = "https://${instance}-${name}:9090/prometheus";
+        url = "https://${instance}-${prometheus}:9090/${prometheus}";
         jsonData = {
           tlsAuth = true;
           tlsAuthWithCACert = true;
         };
       }
-      rec {
+      {
         inherit secureJsonData version;
-        type = jaeger;
         name = "Jaeger";
-        uid = type;
+        type = jaeger;
+        uid = jaeger;
         editable = false;
-        url = "https://jaeger-query-https.observability.svc/jaeger";
+        url = "https://${jaeger}-query-https.observability.svc/${jaeger}";
         jsonData = {
           tlsAuth = true;
           tlsAuthWithCACert = true;
@@ -139,7 +150,7 @@ in {
       {
         type = loki;
         name = "Loki";
-        url = "http://loki.observability.svc:3100";
+        url = "http://${loki}.observability.svc:3100";
       }
     ];
 
@@ -175,6 +186,26 @@ in {
         mountPath = pki;
       }
     ];
+
+    serviceMonitor = {
+      path = "${path}/metrics";
+      scheme = "https";
+      tlsConfig = {
+        cert.secret = {
+          name = secretName;
+          key = "tls.crt";
+        };
+        keySecret = {
+          name = secretName;
+          key = "tls.key";
+        };
+        client_ca.secret = {
+          name = secretName;
+          key = "ca.crt";
+        };
+        serverName = "${instance}-${name}";
+      };
+    };
   };
 
   prometheus = let
