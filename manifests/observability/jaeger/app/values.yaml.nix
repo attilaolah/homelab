@@ -95,8 +95,8 @@ in {
       ];
       config = ''
         provider = "keycloak-oidc"
-        client_id = "jaeger-ui"
-        oidc_issuer_url = "https://${domain}/keycloak/realms/dornhaus"
+        client_id = "monitoring"
+        oidc_issuer_url = "https://${domain}/keycloak/realms/dh"
         redirect_url = "https://${domain}/${name}/auth/callback"
         code_challenge_method = "S256"
         email_domains = "${domain}"
@@ -115,9 +115,6 @@ in {
 
         skip_provider_button = "true"
       '';
-
-      # TODO:
-      # allowed_roles = "jaeger-ui:view"
 
       extraSecretMounts = [
         {
