@@ -175,6 +175,26 @@ in {
         mountPath = pki;
       }
     ];
+
+    serviceMonitor = {
+      path = "${path}/metrics";
+      scheme = "https";
+      tlsConfig = {
+        cert.secret = {
+          name = secretName;
+          key = "tls.crt";
+        };
+        keySecret = {
+          name = secretName;
+          key = "tls.key";
+        };
+        client_ca.secret = {
+          name = secretName;
+          key = "ca.crt";
+        };
+        serverName = "${instance}-${name}";
+      };
+    };
   };
 
   prometheus = let
