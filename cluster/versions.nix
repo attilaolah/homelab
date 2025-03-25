@@ -31,7 +31,7 @@ in {
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
   pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
-  spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.1.0" vp];
+  spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.1.0"];
   talos.github-releases = ["siderolabs/talos" "1.9.5" vp];
   vector.helm = ["https://helm.vector.dev" "0.41.0"];
   vpa.helm = ["https://charts.fairwinds.com/stable" "4.7.2"];
