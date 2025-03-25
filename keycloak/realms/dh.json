@@ -47,6 +47,50 @@
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
   "failureFactor": 30,
+  "roles": {
+    "realm": [
+      {
+        "id": "4d899d17-9853-44bb-b38c-ee6d0b8c8c82",
+        "name": "default-roles-dh",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "offline_access",
+            "uma_authorization"
+          ],
+          "client": {
+            "account": [
+              "view-profile",
+              "manage-account"
+            ]
+          }
+        },
+        "clientRole": false,
+        "containerId": "b46622b0-ac3f-43d4-b9c6-6df3fca351de",
+        "attributes": {}
+      },
+      {
+        "id": "5b5af864-c6c7-4172-918e-4beb794eace3",
+        "name": "uma_authorization",
+        "description": "${role_uma_authorization}",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "b46622b0-ac3f-43d4-b9c6-6df3fca351de",
+        "attributes": {}
+      },
+      {
+        "id": "02d68d49-ed12-4e2e-8226-9f03c7ea6f90",
+        "name": "offline_access",
+        "description": "${role_offline-access}",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "b46622b0-ac3f-43d4-b9c6-6df3fca351de",
+        "attributes": {}
+      }
+    ]
+  },
+  "groups": [],
   "defaultRole": {
     "id": "4d899d17-9853-44bb-b38c-ee6d0b8c8c82",
     "name": "default-roles-dh",
