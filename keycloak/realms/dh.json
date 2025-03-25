@@ -1,6 +1,8 @@
 {
   "id": "b46622b0-ac3f-43d4-b9c6-6df3fca351de",
   "realm": "dh",
+  "displayName": "Dornhaus",
+  "displayNameHtml": "",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
