@@ -97,14 +97,14 @@ in {
     };
 
     sidecar = let
-      reloadUrl = what: "https://[::1]:3000${path}/api/admin/provisioning/${what}/reload";
+      reload = what: "https://[::1]:3000${path}/api/admin/provisioning/${what}/reload";
     in {
       # TODO: BusyBox the CA into the container trust store instead!
-      skipTlsVerify = true;
+      skipTlsVerify = "1";
 
-      dashboards.reloadUrl = reloadUrl "dashboards";
+      dashboards.reloadURL = reload "dashboards";
       datasources = {
-        reloadUrl = reloadUrl "datasources";
+        reloadURL = reload "datasources";
         # Prometheus Datasource installed manually below.
         defaultDatasourceEnabled = false;
       };
