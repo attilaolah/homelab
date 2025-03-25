@@ -53,7 +53,9 @@
       }
     ];
 
-    nodeLabels = {distro = "talos";} // optionalAttrs node.zfs {pvpool = "zfs";};
+    nodeLabels =
+      {"feature.node.kubernetes.io/system-os_release.ID" = "talos";}
+      // optionalAttrs node.zfs {pvpool = "zfs";};
   };
 in {
   clusterName = cluster.name;
