@@ -76,7 +76,6 @@
             helmfile
             jq
             kubectl
-            rancher
             renovate
             sops
             talhelper
@@ -90,12 +89,9 @@
 
           enterShell = ''
             export KUBECONFIG="$DEVENV_STATE/talos/kubeconfig"
-            export RANCHER_CONFIG_DIR="$DEVENV_STATE/rancher"
             export RENOVATE_CONFIG_FILE="$DEVENV_ROOT/.github/renovate.json"
             export TALOSCONFIG="$DEVENV_STATE/talos/talosconfig"
             export TALSECRET="$DEVENV_ROOT/talos/talsecret.sops.yaml"
-
-            mkdir -p "$RANCHER_CONFIG_DIR"
           '';
         };
       };

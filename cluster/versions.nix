@@ -30,7 +30,6 @@ in {
   minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.3"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
   pause.docker = ["https://registry.k8s.io/pause" "3.9"];
-  rancher.helm = ["https://releases.rancher.com/server-charts/latest" "2.10.3"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.1.0" vp];
   talos.github-releases = ["siderolabs/talos" "1.9.5" vp];
