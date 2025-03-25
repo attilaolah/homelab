@@ -316,6 +316,7 @@
           "attributes": {}
         }
       ],
+      "monitoring": [],
       "account": [
         {
           "id": "bcb4cba6-2f21-489e-98c5-75a11d64e478",
@@ -670,6 +671,63 @@
       ]
     },
     {
+      "id": "10f74bf8-b51d-4923-a6ff-b0b45a36435a",
+      "clientId": "monitoring",
+      "name": "Dornhaus Monitoring",
+      "description": "Grafana, Prometheus, Alertmanager, Jaeger & Loki access.",
+      "rootUrl": "https://dorn.haus",
+      "adminUrl": "https://dorn.haus",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "https://dorn.haus/jaeger/auth/callback",
+        "https://dorn.haus/grafana/login/generic_oauth"
+      ],
+      "webOrigins": [
+        "https://dorn.haus"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1742932162",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
       "id": "12ff085e-9790-4f73-9b24-1bc0d94aeeff",
       "clientId": "realm-management",
       "name": "${client_realm-management}",
@@ -800,8 +858,8 @@
           "consentRequired": false,
           "config": {
             "id.token.claim": "true",
-            "access.token.claim": "true",
-            "introspection.token.claim": "true"
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
           }
         }
       ]
@@ -1058,8 +1116,8 @@
           "protocolMapper": "oidc-allowed-origins-mapper",
           "consentRequired": false,
           "config": {
-            "access.token.claim": "true",
-            "introspection.token.claim": "true"
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
           }
         }
       ]
