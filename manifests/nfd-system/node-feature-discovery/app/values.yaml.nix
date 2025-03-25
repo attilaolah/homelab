@@ -22,8 +22,10 @@
       "system-os_release.ID"
     ];
   in {
-    core.labelWhitelist = "^(${escape ["."] (concatStringsSep "|" labels)})$";
-    labelSources = map (label: elemAt (split "-" label) 0) labels;
+    config.core = {
+      labelSources = map (label: elemAt (split "-" label) 0) labels;
+      labelWhitelist = "^(${escape ["."] (concatStringsSep "|" labels)})$";
+    };
 
     # Lower resource limits for workers.
     resources.limits = {
