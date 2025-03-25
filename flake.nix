@@ -73,6 +73,7 @@
             ansible
             cilium-cli
             fluxcd
+            ggshield
             helmfile
             jq
             kubectl

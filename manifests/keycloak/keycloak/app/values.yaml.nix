@@ -49,7 +49,7 @@ in rec {
       "gethomepage.dev/description" = "Identity provider";
       "gethomepage.dev/group" = "Cluster Management";
       "gethomepage.dev/icon" = "${name}.svg";
-      "gethomepage.dev/href" = "/${name}/realms/dornhaus/account";
+      "gethomepage.dev/href" = "/${name}/realms/dh/account";
     };
 
     tls = production;
