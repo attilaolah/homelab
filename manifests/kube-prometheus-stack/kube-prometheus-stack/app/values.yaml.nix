@@ -96,8 +96,19 @@ in {
       };
     };
 
-    # Prometheus Datasource installed manually below.
-    sidecar.datasources.defaultDatasourceEnabled = false;
+    sidecar = let
+      reloadUrl = what: "https://[::1]:3000${path}/api/admin/provisioning/${what}/reload";
+    in {
+      # TODO: BusyBox the CA into the container trust store instead!
+      skipTlsVerify = true;
+
+      dashboards.reloadUrl = reloadUrl "dashboards";
+      datasources = {
+        reloadUrl = reloadUrl "datasources";
+        # Prometheus Datasource installed manually below.
+        defaultDatasourceEnabled = false;
+      };
+    };
 
     additionalDataSources = let
       prometheus = "prometheus";
