@@ -9,6 +9,7 @@
   inherit (lib.strings) concatStringsSep;
 
   instance = k.appname ./.;
+  namespace = k.nsname ./.;
   hosts = [domain];
   tls = [
     {
@@ -21,11 +22,16 @@
   crt = "${pki}/tls.crt";
   key = "${pki}/tls.key";
   ca = "${pki}/ca.crt";
+
+  file = path: "$__file{${path}}";
 in {
   grafana = let
     name = "grafana";
+    fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
+    port = 3000;
+    localAddr = "https://localhost:${toString port}";
   in rec {
     ingress = {
       inherit hosts path tls;
@@ -37,8 +43,8 @@ in {
         "cert-manager.io/cluster-issuer" = "letsencrypt";
         # Ingress
         "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = "kube-prometheus-stack-grafana";
-        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "kube-prometheus-stack/grafana-tls";
+        "nginx.ingress.kubernetes.io/proxy-ssl-name" = fullName;
+        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${secretName}";
         "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
         # Homepage
         "gethomepage.dev/enabled" = "true";
@@ -62,13 +68,17 @@ in {
 
     # Grafana's primary configuration.
     "grafana.ini" = {
-      server = {
-        enforce_domain = true;
+      server = rec {
         serve_from_sub_path = true;
-        root_url = "https://${domain}${path}";
+        root_url = "${protocol}://${domain}${path}";
         protocol = "https";
         cert_file = crt;
         cert_key = key;
+
+        # Do not enforce the domain.
+        # This avoids sidecar requests being redirected to go through the ingress.
+        # For requests coming through the ingress, the controller already enforces the domain.
+        enforce_domain = false;
       };
       "auth.generic_oauth" = let
         idp = "https://${domain}/keycloak/realms/dh/protocol/openid-connect";
@@ -85,7 +95,7 @@ in {
         name_attribute_path = "join(' ', [firstName, lastName])";
         role_attribute_path = "('Admin')"; # everyone is an admin, for now
         client_id = "monitoring";
-        client_secret = "$__file{/etc/secrets/oauth2-client-secret}";
+        client_secret = file "/etc/secrets/oauth2-client-secret";
         allow_sign_up = true;
         allowed_domains = hosts;
         auth_url = "${idp}/auth";
@@ -97,13 +107,30 @@ in {
     };
 
     sidecar = let
-      reload = what: "https://[::1]:3000${path}/api/admin/provisioning/${what}/reload";
-    in {
-      # TODO: BusyBox the CA into the container trust store instead!
-      skipTlsVerify = "1";
+      script = "/usr/sbin/update-ca-certificates";
+      env.REQUESTS_CA_BUNDLE = "/etc/ssl/cert.pem";
+      extraMounts = [
+        rec {
+          name = "tls";
+          mountPath = "/usr/local/share/ca-certificates/${subPath}";
+          subPath = "ca.crt";
+          readOnly = true;
+        }
+        {
+          name = "certs";
+          mountPath = "/etc/ssl/certs";
+          # readOnly = false;
+        }
+      ];
 
-      dashboards.reloadURL = reload "dashboards";
+      reload = what: "${localAddr}${path}/api/admin/provisioning/${what}/reload";
+    in {
+      dashboards = {
+        inherit env extraMounts script;
+        reloadURL = reload "dashboards";
+      };
       datasources = {
+        inherit env extraMounts script;
         reloadURL = reload "datasources";
         # Prometheus Datasource installed manually below.
         defaultDatasourceEnabled = false;
@@ -116,9 +143,9 @@ in {
       loki = "loki";
 
       secureJsonData = {
-        tlsCACert = "$__file{${ca}}";
-        tlsClientCert = "$__file{${crt}}";
-        tlsClientKey = "$__file{${key}}";
+        tlsCACert = file ca;
+        tlsClientCert = file crt;
+        tlsClientKey = file key;
       };
       version = 1;
     in [
@@ -157,9 +184,8 @@ in {
     livenessProbe = {
       exec.command = [
         "curl"
-        "https://${instance}-${name}/api/health"
-        "--connect-to"
-        "${instance}-${name}:443:0.0.0.0:3000"
+        "--silent"
+        "${localAddr}/api/health"
         "--cert"
         crt
         "--key"
@@ -171,19 +197,23 @@ in {
     };
     readinessProbe = livenessProbe;
 
-    extraSecretMounts = let
-      readOnly = true;
-    in [
+    extraSecretMounts = map (mount: mount // {readOnly = true;}) [
       rec {
-        inherit readOnly;
         name = "secrets";
         mountPath = "/etc/${name}";
         secretName = "${instance}-${name}";
       }
       {
-        inherit readOnly secretName;
         name = "tls";
         mountPath = pki;
+        inherit secretName;
+      }
+    ];
+
+    extraContainerVolumes = [
+      {
+        name = "certs";
+        emptyDir.medium = "Memory";
       }
     ];
 
@@ -277,7 +307,10 @@ in {
           name = "internal-ca";
         };
         commonName = name;
-        dnsNames = ["${instance}-${name}"];
+        dnsNames =
+          ["${instance}-${name}"]
+          # Allow sidecars to connect via the loopback interface:
+          ++ lib.optionals (name == "grafana") ["localhost"];
       };
     }) [
     "grafana"

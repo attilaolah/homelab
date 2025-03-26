@@ -1,6 +1,6 @@
 {
-  self,
   k,
+  self,
   ...
 }: let
   inherit (self.lib) yaml;
