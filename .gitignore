@@ -1,6 +1,7 @@
 *_
-.devenv
-.direnv
-.env.local
-age.key
-result
+/.cache_ggshield
+/.devenv
+/.direnv
+/.env.local
+/age.key
+/result

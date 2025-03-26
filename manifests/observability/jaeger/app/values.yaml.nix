@@ -3,6 +3,7 @@
   cluster,
   k,
   lib,
+  v,
   ...
 }: let
   inherit (builtins) attrValues mapAttrs;
@@ -65,7 +66,7 @@ in {
       image = {
         registry = "quay.io";
         repository = "oauth2-proxy/oauth2-proxy";
-        tag = "v7.8.1"; # todo: renovate
+        tag = v.oauth2-proxy.docker;
       };
       pullPolicy = "IfNotPresent";
       containerPort = 443;
@@ -109,7 +110,7 @@ in {
 
         cookie_secure = "true"
         cookie_samesite = "strict"
-        cookie_name = "__Host-jaeger-auth"
+        cookie_name = "__Host-${name}"
 
         upstreams = ["http://localhost:16686"]
 

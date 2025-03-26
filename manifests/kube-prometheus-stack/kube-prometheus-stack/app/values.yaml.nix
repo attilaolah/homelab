@@ -2,6 +2,7 @@
   cluster,
   k,
   lib,
+  v,
   ...
 }: let
   inherit (builtins) attrValues mapAttrs;
@@ -10,6 +11,7 @@
 
   instance = k.appname ./.;
   namespace = k.nsname ./.;
+  secrets = "${instance}-secrets";
   hosts = [domain];
   tls = [
     {
@@ -63,7 +65,7 @@ in {
     in {
       userKey = "${prefix}-user";
       passwordKey = "${prefix}-password";
-      existingSecret = "${k.appname ./.}-secrets";
+      existingSecret = "${instance}-secrets";
     };
 
     # Grafana's primary configuration.
@@ -232,13 +234,14 @@ in {
           name = secretName;
           key = "ca.crt";
         };
-        serverName = "${instance}-${name}";
+        serverName = fullName;
       };
     };
   };
 
   prometheus = let
     name = "prometheus";
+    fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
   in rec {
@@ -261,56 +264,118 @@ in {
         };
         # NOTE: RequireAndVerifyClientCert causes startup probes to fail.
         clientAuthType = "VerifyClientCertIfGiven";
+
+        storageSpec.emptyDir.medium = "Memory";
+
+        containers = {
+          oauth-proxy = let
+            configFile = "prometheus.cfg";
+            configPath = "/etc/prometheus/configmaps/${instance}-oauth-config/${configFile}";
+          in {
+            image = "quay.io/oauth2-proxy/oauth2-proxy:${v.oauth2-proxy.docker}";
+            args = [
+              "--config"
+              configPath
+              "--client-secret"
+              ''"$(CLIENT_SECRET)"''
+              "--cookie-secret"
+              ''"$(COOKIE_SECRET)"''
+            ];
+            env = [
+              {
+                name = "CLIENT_SECRET";
+                valueFrom.secretKeyRef = {
+                  name = secrets;
+                  key = "oauth2-client-secret";
+                };
+              }
+              {
+                name = "COOKIE_SECRET";
+                valueFrom.secretKeyRef = {
+                  name = secrets;
+                  key = "oauth2-cookie-secret";
+                };
+              }
+            ];
+            ports = [
+              {
+                name = "oauth-proxy";
+                containerPort = 4180;
+                protocol = "TCP";
+              }
+            ];
+            resources = {};
+            securityContext = {
+              allowPrivilegeEscalation = false;
+              capabilities.drop = ["ALL"];
+              readOnlyRootFilesystem = true;
+            };
+          };
+        };
+
+        configMaps = ["${instance}-oauth-config"];
       };
-
-      storageSpec.emptyDir.medium = "Memory";
-
-      volumes = [
-        {
-          name = "tls";
-          secret = {inherit secretName;};
-        }
-      ];
-
-      volumeMounts = [
-        {
-          name = "tls";
-          mountPath = pki;
-          readOnly = true;
-        }
-      ];
     };
 
-    # containers: oauth-proxy!
     serviceMonitor = {
       scheme = "https";
       tlsConfig = {
         inherit (prometheusSpec.web.tlsConfig) cert keySecret client_ca;
-        serverName = "${instance}-${name}";
+        serverName = fullName;
       };
     };
   };
 
   cleanPrometheusOperatorObjectNames = true;
 
-  extraManifests = map (name:
-    k.api "Certificate.cert-manager.io" {
-      metadata = {inherit name;};
-      spec = {
-        secretName = "${name}-tls";
-        issuerRef = {
-          kind = "ClusterIssuer";
-          name = "internal-ca";
+  extraManifests =
+    (map (name:
+      k.api "Certificate.cert-manager.io" {
+        metadata = {inherit name;};
+        spec = {
+          secretName = "${name}-tls";
+          issuerRef = {
+            kind = "ClusterIssuer";
+            name = "internal-ca";
+          };
+          commonName = name;
+          dnsNames =
+            ["${instance}-${name}"]
+            # Allow sidecars to connect via the loopback interface:
+            ++ lib.optionals (name == "grafana") ["localhost"];
         };
-        commonName = name;
-        dnsNames =
-          ["${instance}-${name}"]
-          # Allow sidecars to connect via the loopback interface:
-          ++ lib.optionals (name == "grafana") ["localhost"];
-      };
-    }) [
-    "grafana"
-    "prometheus"
-    "alertmanager"
-  ];
+      }) [
+      "grafana"
+      "prometheus"
+      "alertmanager"
+    ])
+    ++ [
+      (k.api "ConfigMap" {
+        metadata.name = "${instance}-oauth-config";
+        data."prometheus.cfg" = let
+          name = "prometheus";
+        in ''
+          provider = "keycloak-oidc"
+          client_id = "monitoring"
+          oidc_issuer_url = "https://${domain}/keycloak/realms/dh"
+          redirect_url = "https://${domain}/${name}/auth/callback"
+          code_challenge_method = "S256"
+          email_domains = "${domain}"
+
+          reverse_proxy = true
+          proxy_prefix = "/${name}/auth"
+
+          tls_cert_file = "${crt}"
+          tls_key_file = "${key}"
+
+          cookie_secure = "true"
+          cookie_samesite = "strict"
+          cookie_name = "__Host-${name}"
+
+          upstreams = ["http://localhost:9090"]
+
+          skip_provider_button = "true"
+        '';
+      })
+    ];
 }
