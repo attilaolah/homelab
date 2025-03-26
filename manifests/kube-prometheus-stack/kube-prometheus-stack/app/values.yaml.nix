@@ -21,6 +21,8 @@
   crt = "${pki}/tls.crt";
   key = "${pki}/tls.key";
   ca = "${pki}/ca.crt";
+
+  file = path: "$__file{${path}}";
 in {
   grafana = let
     name = "grafana";
@@ -85,7 +87,7 @@ in {
         name_attribute_path = "join(' ', [firstName, lastName])";
         role_attribute_path = "('Admin')"; # everyone is an admin, for now
         client_id = "monitoring";
-        client_secret = "$__file{/etc/secrets/oauth2-client-secret}";
+        client_secret = file "/etc/secrets/oauth2-client-secret";
         allow_sign_up = true;
         allowed_domains = hosts;
         auth_url = "${idp}/auth";
@@ -116,9 +118,9 @@ in {
       loki = "loki";
 
       secureJsonData = {
-        tlsCACert = "$__file{${ca}}";
-        tlsClientCert = "$__file{${crt}}";
-        tlsClientKey = "$__file{${key}}";
+        tlsCACert = file ca;
+        tlsClientCert = file crt;
+        tlsClientKey = file key;
       };
       version = 1;
     in [
