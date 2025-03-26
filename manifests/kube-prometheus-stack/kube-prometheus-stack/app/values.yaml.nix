@@ -99,7 +99,7 @@ in {
     };
 
     sidecar = let
-      reload = what: "https://[::1]:3000${path}/api/admin/provisioning/${what}/reload";
+      reload = what: "https://localhost:3000${path}/api/admin/provisioning/${what}/reload";
       extraMounts = [
         {
           name = "tls";
@@ -289,7 +289,7 @@ in {
           name = "internal-ca";
         };
         commonName = name;
-        dnsNames = ["${instance}-${name}"];
+        dnsNames = ["${instance}-${name}" "localhost"];
       };
     }) [
     "grafana"
