@@ -103,15 +103,12 @@ in {
       extraMounts = [
         {
           name = "tls";
-          mountPath = "/usr/local/share/ca-certificates/ca.crt";
+          mountPath = "/etc/ssl/certs/ca-certificates.crt";
           subPath = "ca.crt";
           readOnly = true;
         }
       ];
     in {
-      # TODO: BusyBox the CA into the container trust store instead!
-      skipTlsVerify = "1";
-
       dashboards = {
         inherit extraMounts;
         reloadURL = reload "dashboards";
