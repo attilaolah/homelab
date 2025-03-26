@@ -171,6 +171,7 @@ in {
     livenessProbe = {
       exec.command = [
         "curl"
+        "--silent"
         "https://${instance}-${name}/api/health"
         "--connect-to"
         "${instance}-${name}:443:0.0.0.0:3000"
