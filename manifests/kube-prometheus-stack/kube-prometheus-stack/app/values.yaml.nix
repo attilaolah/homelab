@@ -119,7 +119,6 @@ in {
         {
           name = "certs";
           mountPath = "/etc/ssl/certs";
-          # readOnly = false;
         }
       ];
 
