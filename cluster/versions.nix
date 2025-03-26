@@ -27,7 +27,7 @@ in {
   local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.31" vp];
   loki.helm = ["https://grafana.github.io/helm-charts" "6.28.0"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
-  minecraft-bedrock.helm = ["https://itzg.github.io/minecraft-server-charts" "2.8.3"];
+  minecraft-bedrock.helm = ["oci://ghcr.io/itzg/minecraft-server-charts" "2.8.4"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
   pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
