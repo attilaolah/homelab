@@ -13,14 +13,10 @@ in {
       theme = "dark";
       color = "gray";
 
-      layout = let
-        default = {
-          style = "row";
-          columns = 4;
-        };
-      in {
-        "Cluster Management" = default;
-        "Misc." = default;
+      layout."Cluster Management" = {
+        style = "row";
+        icon = "kubernetes.svg";
+        columns = 4;
       };
     };
     services = [];

@@ -22,7 +22,7 @@ in {
       "gethomepage.dev/enabled" = "true";
       "gethomepage.dev/name" = "APKs";
       "gethomepage.dev/description" = "Alpine APK mirrer containing k0s";
-      "gethomepage.dev/group" = "Misc.";
+      "gethomepage.dev/group" = "Cluster Management";
       "gethomepage.dev/icon" = "alpine-linux.svg";
     };
   };
