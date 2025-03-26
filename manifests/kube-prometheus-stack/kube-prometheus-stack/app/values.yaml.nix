@@ -100,12 +100,24 @@ in {
 
     sidecar = let
       reload = what: "https://[::1]:3000${path}/api/admin/provisioning/${what}/reload";
+      extraMounts = [
+        {
+          name = "tls";
+          mountPath = "/usr/local/share/ca-certificates/ca.crt";
+          subPath = "ca.crt";
+          readOnly = true;
+        }
+      ];
     in {
       # TODO: BusyBox the CA into the container trust store instead!
       skipTlsVerify = "1";
 
-      dashboards.reloadURL = reload "dashboards";
+      dashboards = {
+        inherit extraMounts;
+        reloadURL = reload "dashboards";
+      };
       datasources = {
+        inherit extraMounts;
         reloadURL = reload "datasources";
         # Prometheus Datasource installed manually below.
         defaultDatasourceEnabled = false;
