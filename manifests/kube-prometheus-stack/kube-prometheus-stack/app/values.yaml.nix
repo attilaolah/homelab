@@ -246,9 +246,6 @@ in {
       retention = "28d";
       routePrefix = path; # should not be necessary
       externalUrl = "https://${domain}${path}";
-      additionalArgs = [
-        {name = "web.enable-otlp-receiver";}
-      ];
       web.tlsConfig = {
         cert.secret = {
           name = secretName;
