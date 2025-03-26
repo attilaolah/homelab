@@ -300,7 +300,7 @@ in {
             ports = [
               {
                 name = "oauth-proxy";
-                containerPort = 4180;
+                containerPort = 8443;
                 protocol = "TCP";
               }
             ];
@@ -365,6 +365,7 @@ in {
           reverse_proxy = true
           proxy_prefix = "/${name}/auth"
 
+          https_address = "[::1]:8443"
           tls_cert_file = "${crt}"
           tls_key_file = "${key}"
 
