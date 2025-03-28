@@ -266,55 +266,68 @@ in {
         clientAuthType = "VerifyClientCertIfGiven";
 
         storageSpec.emptyDir.medium = "Memory";
-
-        containers = {
-          oauth-proxy = let
-            configFile = "prometheus.cfg";
-            configPath = "/etc/prometheus/configmaps/${instance}-oauth-config/${configFile}";
-          in {
-            image = "quay.io/oauth2-proxy/oauth2-proxy:${v.oauth2-proxy.docker}";
-            args = [
-              "--config"
-              configPath
-              "--client-secret"
-              ''"$(CLIENT_SECRET)"''
-              "--cookie-secret"
-              ''"$(COOKIE_SECRET)"''
-            ];
-            env = [
-              {
-                name = "CLIENT_SECRET";
-                valueFrom.secretKeyRef = {
-                  name = secrets;
-                  key = "oauth2-client-secret";
-                };
-              }
-              {
-                name = "COOKIE_SECRET";
-                valueFrom.secretKeyRef = {
-                  name = secrets;
-                  key = "oauth2-cookie-secret";
-                };
-              }
-            ];
-            ports = [
-              {
-                name = "oauth-proxy";
-                containerPort = 8443;
-                protocol = "TCP";
-              }
-            ];
-            resources = {};
-            securityContext = {
-              allowPrivilegeEscalation = false;
-              capabilities.drop = ["ALL"];
-              readOnlyRootFilesystem = true;
-            };
-          };
-        };
-
-        configMaps = ["${instance}-oauth-config"];
       };
+      containers = let
+        configFile = "oauth2_proxy.cfg";
+        configPath = "/etc/${configFile}";
+      in [
+        {
+          name = "oauth2-proxy";
+          image = "quay.io/oauth2-proxy/oauth2-proxy:${v.oauth2-proxy.docker}";
+          args = ["--config" configPath];
+          env = [
+            {
+              name = "OAUTH2_PROXY_CONFIG";
+              value = configPath;
+            }
+            {
+              name = "OAUTH2_PROXY_CLIENT_SECRET";
+              valueFrom.secretKeyRef = {
+                name = secrets;
+                key = "oauth2-client-secret";
+              };
+            }
+            {
+              name = "OAUTH2_PROXY_COOKIE_SECRET";
+              valueFrom.secretKeyRef = {
+                name = secrets;
+                key = "oauth2-cookie-secret";
+              };
+            }
+          ];
+          ports = [
+            {
+              name = "oauth2-proxy";
+              containerPort = 8443;
+              protocol = "TCP";
+            }
+          ];
+          resources = {};
+          # Loading files from /etc/prometheus doesn't seem to work.
+          # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
+          volumeMounts = [
+            {
+              name = "configmap-${instance}-oauth-config";
+              mountPath = "/etc/oauth2_proxy.cfg";
+              subPath = configFile;
+              readOnly = true;
+            }
+            {
+              name = "secret-${secretName}";
+              mountPath = "/etc/tls";
+              readOnly = true;
+            }
+          ];
+          securityContext = {
+            allowPrivilegeEscalation = false;
+            capabilities.drop = ["ALL"];
+            readOnlyRootFilesystem = true;
+          };
+        }
+      ];
+
+      secrets = [secretName];
+      configMaps = ["${instance}-oauth-config"];
     };
 
     serviceMonitor = {
@@ -352,7 +365,7 @@ in {
     ++ [
       (k.api "ConfigMap" {
         metadata.name = "${instance}-oauth-config";
-        data."prometheus.cfg" = let
+        data."oauth2_proxy.cfg" = let
           name = "prometheus";
         in ''
           provider = "keycloak-oidc"
@@ -373,7 +386,7 @@ in {
           cookie_samesite = "strict"
           cookie_name = "__Host-${name}"
 
-          upstreams = ["http://localhost:9090"]
+          upstreams = ["https://localhost:9090"]
 
           skip_provider_button = "true"
         '';
