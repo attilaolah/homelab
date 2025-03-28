@@ -84,7 +84,7 @@
             vector
             yq
 
-            (python3.withPackages (ps: with ps; [jmespath]))
+            (python313.withPackages (ps: with ps; [jmespath]))
             (wrapHelm kubernetes-helm {plugins = with kubernetes-helmPlugins; [helm-diff];})
           ];
 
