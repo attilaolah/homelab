@@ -68,6 +68,9 @@
             pkgs.lib.mkIf (devenvRootFileContent != "") devenvRootFileContent;
 
           packages = with pkgs; [
+            (python3.withPackages (ps: with ps; [jmespath]))
+            (wrapHelm kubernetes-helm {plugins = with kubernetes-helmPlugins; [helm-diff];})
+
             age
             alejandra
             ansible
@@ -83,9 +86,6 @@
             talosctl
             vector
             yq
-
-            (python313.withPackages (ps: with ps; [jmespath]))
-            (wrapHelm kubernetes-helm {plugins = with kubernetes-helmPlugins; [helm-diff];})
           ];
 
           enterShell = ''
