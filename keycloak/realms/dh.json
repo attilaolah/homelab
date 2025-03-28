@@ -685,6 +685,8 @@
       "secret": "**********",
       "redirectUris": [
         "https://dorn.haus/jaeger/auth/callback",
+        "https://dorn.haus/prometheus/auth/callback",
+        "https://dorn.haus/alertmanager/auth/callback",
         "https://dorn.haus/grafana/login/generic_oauth"
       ],
       "webOrigins": [
