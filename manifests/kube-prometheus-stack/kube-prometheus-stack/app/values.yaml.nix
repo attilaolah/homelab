@@ -29,9 +29,15 @@
   prometheusPort = 9090;
 
   pki = "/etc/tls";
-  crt = "${pki}/tls.crt";
-  key = "${pki}/tls.key";
-  ca = "${pki}/ca.crt";
+
+  caCrt = "ca.crt";
+  tlsCrt = "tls.crt";
+  tlsKey = "tls.key";
+
+  ca = concatStringsSep "/" [pki caCrt];
+  crt = concatStringsSep "/" [pki tlsCrt];
+  key = concatStringsSep "/" [pki tlsKey];
+
   # Shared emptyDir mount for storing CA certificates.
   # This is populated by an initContainers with root CAs.
   certsMount = {
@@ -130,7 +136,7 @@ in {
         rec {
           name = "tls";
           mountPath = "/usr/local/share/ca-certificates/${subPath}";
-          subPath = "ca.crt";
+          subPath = caCrt;
           readOnly = true;
         }
         certsMount
@@ -236,15 +242,15 @@ in {
       tlsConfig = {
         cert.secret = {
           name = secretName;
-          key = "tls.crt";
+          key = tlsCrt;
         };
         keySecret = {
           name = secretName;
-          key = "tls.key";
+          key = tlsKey;
         };
         client_ca.secret = {
           name = secretName;
-          key = "ca.crt";
+          key = caCrt;
         };
         serverName = fullName;
       };
@@ -331,15 +337,15 @@ in {
       web.tlsConfig = {
         cert.secret = {
           name = secretName;
-          key = "tls.crt";
+          key = tlsCrt;
         };
         keySecret = {
           name = secretName;
-          key = "tls.key";
+          key = tlsKey;
         };
         client_ca.secret = {
           name = secretName;
-          key = "ca.crt";
+          key = caCrt;
         };
         # NOTE: RequireAndVerifyClientCert causes startup probes to fail.
         clientAuthType = "VerifyClientCertIfGiven";
@@ -411,13 +417,13 @@ in {
           volumeMounts = [
             {
               name = "secret-${secretName}";
-              mountPath = "/etc/tls";
+              mountPath = pki;
               readOnly = true;
             }
             {
               name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
               mountPath = ingressCrt;
-              subPath = "tls.crt";
+              subPath = tlsCrt;
               readOnly = true;
             }
             certsMount
