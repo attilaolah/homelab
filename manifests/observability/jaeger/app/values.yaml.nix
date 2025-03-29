@@ -125,7 +125,13 @@ in {
         skip_provider_button = "true"
       '';
 
-      extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
+      extraSecretMounts = [
+        (k.pki.mount
+          // {
+            name = "tls-sidecar";
+            secretName = tlsSecret;
+          })
+      ];
       resources = {
         limits = {
           cpu = "200m";
