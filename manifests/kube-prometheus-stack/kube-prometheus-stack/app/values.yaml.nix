@@ -7,18 +7,22 @@
 }: let
   inherit (builtins) attrValues mapAttrs;
   inherit (cluster) domain;
-  inherit (lib.strings) concatStringsSep;
+  inherit (lib.strings) concatStringsSep replaceStrings;
 
   instance = k.appname ./.;
   namespace = k.nsname ./.;
+
+  ingressClassName = "nginx";
+  ingressSecretName = "${domain}-tls";
   secrets = "${instance}-secrets";
   hosts = [domain];
   tls = [
     {
       inherit hosts;
-      secretName = "${domain}-tls";
+      secretName = ingressSecretName;
     }
   ];
+  oauth2Port = 8443;
 
   pki = "/etc/tls";
   crt = "${pki}/tls.crt";
@@ -36,10 +40,9 @@ in {
     localAddr = "https://localhost:${toString port}";
   in rec {
     ingress = {
-      inherit hosts path tls;
+      inherit hosts ingressClassName path tls;
 
       enabled = true;
-      ingressClassName = "nginx";
       annotations = {
         # TLS
         "cert-manager.io/cluster-issuer" = "letsencrypt";
@@ -244,11 +247,59 @@ in {
     fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
+    ingressSecretMount = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
   in rec {
+    ingress = {
+      inherit hosts ingressClassName tls;
+
+      enabled = true;
+      paths = [path];
+      pathType = "ImplementationSpecific";
+      annotations = {
+        # TLS
+        "cert-manager.io/cluster-issuer" = "letsencrypt";
+        # Ingress
+        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
+        "nginx.ingress.kubernetes.io/proxy-ssl-name" = fullName;
+        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${secretName}";
+        "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
+        # NGINX: Increase header size since auth cookies are way too large.
+        "nginx.ingress.kubernetes.io/proxy-buffer-size" = "16k";
+        "nginx.ingress.kubernetes.io/proxy-buffers" = "8 16k";
+        # Homepage
+        "gethomepage.dev/enabled" = "true";
+        "gethomepage.dev/name" = "Prometheus";
+        "gethomepage.dev/description" = "Monitoring system";
+        "gethomepage.dev/group" = "Cluster Management";
+        "gethomepage.dev/icon" = "${name}.svg";
+        "gethomepage.dev/pod-selector" =
+          concatStringsSep ","
+          (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {inherit name instance;}));
+      };
+    };
+
+    service = {
+      port = oauth2Port;
+      targetPort = oauth2Port;
+      additionalPorts = [
+        rec {
+          name = "http-web";
+          port = 9090;
+          targetPort = port;
+          appProtocol = "https";
+        }
+      ];
+    };
+
     prometheusSpec = {
       retention = "28d";
       routePrefix = path; # should not be necessary
       externalUrl = "https://${domain}${path}";
+
+      # The default port (service.port) is directed to the oauth2-proxy port.
+      # An additional port is created with the name http-web pointing to the internal port (9090).
+      portName = "oauth2-proxy";
+
       web.tlsConfig = {
         cert.secret = {
           name = secretName;
@@ -268,7 +319,7 @@ in {
         storageSpec.emptyDir.medium = "Memory";
       };
       containers = let
-        configFile = "oauth2_proxy.cfg";
+        configFile = "oauth2_proxy.conf";
         configPath = "/etc/${configFile}";
       in [
         {
@@ -276,10 +327,6 @@ in {
           image = "quay.io/oauth2-proxy/oauth2-proxy:${v.oauth2-proxy.docker}";
           args = ["--config" configPath];
           env = [
-            {
-              name = "OAUTH2_PROXY_CONFIG";
-              value = configPath;
-            }
             {
               name = "OAUTH2_PROXY_CLIENT_SECRET";
               valueFrom.secretKeyRef = {
@@ -298,24 +345,87 @@ in {
           ports = [
             {
               name = "oauth2-proxy";
-              containerPort = 8443;
+              containerPort = oauth2Port;
               protocol = "TCP";
             }
           ];
-          resources = {};
+          resources = {
+            limits = {
+              cpu = "200m";
+              memory = "256Mi";
+              ephemeral-storage = "2Gi";
+            };
+            requests = {
+              cpu = "50m";
+              memory = "128Mi";
+              ephemeral-storage = "64Mi";
+            };
+          };
           # Loading files from /etc/prometheus doesn't seem to work.
           # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
           volumeMounts = [
             {
               name = "configmap-${instance}-oauth-config";
-              mountPath = "/etc/oauth2_proxy.cfg";
-              subPath = configFile;
+              mountPath = configPath;
+              subPath = name;
               readOnly = true;
             }
             {
               name = "secret-${secretName}";
               mountPath = "/etc/tls";
               readOnly = true;
+            }
+            {
+              name = ingressSecretMount;
+              mountPath = "/etc/ssl/ingress.crt";
+              subPath = "tls.crt";
+              readOnly = true;
+            }
+            {
+              name = "certs";
+              mountPath = "/etc/ssl/certs";
+            }
+          ];
+          securityContext = {
+            allowPrivilegeEscalation = false;
+            capabilities.drop = ["ALL"];
+            readOnlyRootFilesystem = true;
+          };
+        }
+      ];
+      initContainers = [
+        {
+          name = "update-ca-certificates";
+          image = "busybox:${v.busybox.docker}";
+          args = [
+            "sh"
+            "-c"
+            # Running update-ca-certificates wold be nicer, but this works too.
+            ''cat /etc/ssl/ingress.crt /etc/tls/ca.crt > /etc/ssl/certs/ca-certificates.crt''
+          ];
+          resources = rec {
+            limits = {
+              cpu = "50m";
+              memory = "64Mi";
+              ephemeral-storage = "64Mi";
+            };
+            requests = limits;
+          };
+          volumeMounts = [
+            {
+              name = "secret-${secretName}";
+              mountPath = "/etc/tls";
+              readOnly = true;
+            }
+            {
+              name = ingressSecretMount;
+              mountPath = "/etc/ssl/ingress.crt";
+              subPath = "tls.crt";
+              readOnly = true;
+            }
+            {
+              name = "certs";
+              mountPath = "/etc/ssl/certs";
             }
           ];
           securityContext = {
@@ -326,8 +436,14 @@ in {
         }
       ];
 
-      secrets = [secretName];
+      secrets = [secretName ingressSecretName];
       configMaps = ["${instance}-oauth-config"];
+      volumes = [
+        {
+          name = "certs";
+          emptyDir.medium = "Memory";
+        }
+      ];
     };
 
     serviceMonitor = {
@@ -352,10 +468,11 @@ in {
             name = "internal-ca";
           };
           commonName = name;
-          dnsNames =
-            ["${instance}-${name}"]
+          dnsNames = [
+            "${instance}-${name}"
             # Allow sidecars to connect via the loopback interface:
-            ++ lib.optionals (name == "grafana") ["localhost"];
+            "localhost"
+          ];
         };
       }) [
       "grafana"
@@ -365,7 +482,7 @@ in {
     ++ [
       (k.api "ConfigMap" {
         metadata.name = "${instance}-oauth-config";
-        data."oauth2_proxy.cfg" = let
+        data.prometheus = let
           name = "prometheus";
         in ''
           provider = "keycloak-oidc"
@@ -378,7 +495,7 @@ in {
           reverse_proxy = true
           proxy_prefix = "/${name}/auth"
 
-          https_address = "[::1]:8443"
+          https_address = "[::]:${toString oauth2Port}"
           tls_cert_file = "${crt}"
           tls_key_file = "${key}"
 
