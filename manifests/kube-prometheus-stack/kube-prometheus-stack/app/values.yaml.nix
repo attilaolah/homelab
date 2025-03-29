@@ -430,7 +430,8 @@ in {
     serviceMonitor = {
       scheme = "https";
       tlsConfig = {
-        inherit (prometheusSpec.web.tlsConfig) cert keySecret client_ca;
+        inherit (prometheusSpec.web.tlsConfig) cert keySecret;
+        ca = prometheusSpec.web.tlsConfig.client_ca;
         serverName = fullName;
       };
     };
