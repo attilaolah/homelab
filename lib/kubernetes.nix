@@ -74,6 +74,7 @@ in {
       description,
       icon,
       group,
+      href ? null,
       selector ? null,
     }:
       {
@@ -83,6 +84,13 @@ in {
         "gethomepage.dev/group" = group;
         "gethomepage.dev/enabled" = "true";
       }
+      // (
+        if href == null
+        then {}
+        else {
+          "gethomepage.dev/href" = href;
+        }
+      )
       // (
         if selector == null
         then {}
