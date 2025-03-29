@@ -271,6 +271,7 @@ in {
       enabled = true;
       paths = [path];
       pathType = "ImplementationSpecific";
+      servicePort = oauth2Port;
       annotations = {
         # TLS
         "cert-manager.io/cluster-issuer" = "letsencrypt";
@@ -294,18 +295,14 @@ in {
       };
     };
 
-    service = {
-      port = oauth2Port;
-      targetPort = oauth2Port;
-      additionalPorts = [
-        rec {
-          name = "http-web";
-          port = prometheusPort;
-          targetPort = port;
-          appProtocol = "https";
-        }
-      ];
-    };
+    service.additionalPorts = [
+      {
+        name = "oauth2-proxy";
+        port = oauth2Port;
+        targetPort = oauth2Port;
+        appProtocol = "https";
+      }
+    ];
 
     prometheusSpec = let
       resources = {
@@ -327,12 +324,8 @@ in {
       };
     in {
       retention = "28d";
-      routePrefix = path; # should not be necessary
+      routePrefix = path;
       externalUrl = "https://${domain}${path}";
-
-      # The default port (service.port) is directed to the oauth2-proxy port.
-      # An additional port is created with the name http-web pointing to the internal port.
-      portName = "oauth2-proxy";
 
       web.tlsConfig = {
         cert.secret = {
