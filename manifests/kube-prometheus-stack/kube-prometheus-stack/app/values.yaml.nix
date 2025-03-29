@@ -12,6 +12,7 @@
 
   instance = k.appname ./.;
   namespace = k.nsname ./.;
+  group = "Cluster Management";
 
   ingressClassName = "nginx";
   ingressSecretName = "${domain}-tls";
@@ -61,24 +62,20 @@ in {
       inherit hosts ingressClassName path tls;
 
       enabled = true;
-      annotations = {
-        # TLS
-        "cert-manager.io/cluster-issuer" = "letsencrypt";
-        # Ingress
-        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = fullName;
-        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${secretName}";
-        "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
-        # Homepage
-        "gethomepage.dev/enabled" = "true";
-        "gethomepage.dev/name" = "Grafana";
-        "gethomepage.dev/description" = "Observability platform";
-        "gethomepage.dev/group" = "Cluster Management";
-        "gethomepage.dev/icon" = "${name}.svg";
-        "gethomepage.dev/pod-selector" =
-          concatStringsSep ","
-          (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {inherit name instance;}));
-      };
+      annotations = with k.annotations;
+        cert-manager
+        // (ingress-nginx {
+          inherit namespace;
+          name = fullName;
+          secret = secretName;
+        })
+        // (homepage {
+          inherit group;
+          name = "Grafana";
+          description = "Observability platform";
+          icon = name;
+          selector = {inherit name instance;};
+        });
     };
 
     admin = let
@@ -272,27 +269,22 @@ in {
       paths = [path];
       pathType = "ImplementationSpecific";
       servicePort = oauth2Port;
-      annotations = {
-        # TLS
-        "cert-manager.io/cluster-issuer" = "letsencrypt";
-        # Ingress
-        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = fullName;
-        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${secretName}";
-        "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
-        # NGINX: Increase header size since auth cookies are way too large.
-        "nginx.ingress.kubernetes.io/proxy-buffer-size" = "16k";
-        "nginx.ingress.kubernetes.io/proxy-buffers" = "8 16k";
-        # Homepage
-        "gethomepage.dev/enabled" = "true";
-        "gethomepage.dev/name" = "Prometheus";
-        "gethomepage.dev/description" = "Monitoring system";
-        "gethomepage.dev/group" = "Cluster Management";
-        "gethomepage.dev/icon" = "${name}.svg";
-        "gethomepage.dev/pod-selector" =
-          concatStringsSep ","
-          (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {inherit name instance;}));
-      };
+      annotations = with k.annotations;
+        cert-manager
+        // (ingress-nginx {
+          inherit namespace;
+          name = fullName;
+          secret = secretName;
+          # Increase header size to fit auth cookies.
+          proxyBufferSize = "16k";
+        })
+        // (homepage {
+          inherit group;
+          name = "Prometheus";
+          description = "Monitoring system";
+          icon = name;
+          selector = {inherit name instance;};
+        });
     };
 
     service.additionalPorts = [
@@ -402,10 +394,10 @@ in {
         {
           inherit resources securityContext;
 
-          name = "update-ca-certificates";
+          name = "init-ca-certificates";
           image = "busybox:${v.busybox.docker}";
-          # The ingress certificate is used only for trusting keycloak.
-          # The internal CA is used for trusting the upstream (prometheus).
+          # The ingress certificate is used only for trusting Keycloak.
+          # The internal CA is used for trusting the upstream service (Prometheus).
           args = ["sh" "-c" "cat ${ingressCrt} ${ca} > ${certsMount.mountPath}/ca-certificates.crt"];
           volumeMounts = [
             {

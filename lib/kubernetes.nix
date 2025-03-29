@@ -6,7 +6,7 @@
   inherit (builtins) attrNames attrValues baseNameOf dirOf elem elemAt filter foldl' mapAttrs readDir replaceStrings typeOf;
   inherit (lib.attrsets) filterAttrs recursiveUpdate;
   inherit (lib.lists) flatten optionals subtractLists unique;
-  inherit (lib.strings) hasPrefix hasSuffix optionalString removePrefix removeSuffix splitString;
+  inherit (lib.strings) concatStringsSep hasPrefix hasSuffix optionalString removePrefix removeSuffix splitString;
   inherit (self.lib) cluster;
 
   flux.namespace = "flux-system";
@@ -45,6 +45,54 @@ in {
   nsname = dir: parentDirName (dirOf dir);
 
   namespace = dir: overrides: recursiveUpdate (api "Namespace" {metadata.name = baseNameOf dir;}) overrides;
+
+  annotations = {
+    cert-manager = {"cert-manager.io/cluster-issuer" = "letsencrypt";};
+    ingress-nginx = {
+      name,
+      namespace,
+      secret,
+      proxyBufferSize ? null,
+    }:
+      {
+        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
+        "nginx.ingress.kubernetes.io/proxy-ssl-name" = name;
+        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${secret}";
+        "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = "on";
+        "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
+      }
+      // (
+        if proxyBufferSize == null
+        then {}
+        else {
+          "nginx.ingress.kubernetes.io/proxy-buffer-size" = proxyBufferSize;
+          "nginx.ingress.kubernetes.io/proxy-buffers" = "8 ${proxyBufferSize}";
+        }
+      );
+    homepage = {
+      name,
+      description,
+      icon,
+      group,
+      selector ? null,
+    }:
+      {
+        "gethomepage.dev/name" = name;
+        "gethomepage.dev/description" = description;
+        "gethomepage.dev/icon" = "${icon}.svg";
+        "gethomepage.dev/group" = group;
+        "gethomepage.dev/enabled" = "true";
+      }
+      // (
+        if selector == null
+        then {}
+        else {
+          "gethomepage.dev/pod-selector" =
+            concatStringsSep ","
+            (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") selector));
+        }
+      );
+  };
 
   kustomization = dir: overrides:
     recursiveUpdate (api "Kustomization.kustomize.config.k8s.io" {
