@@ -384,13 +384,13 @@ in {
           # The internal CA is used for trusting the upstream service (Prometheus).
           args = ["sh" "-c" "cat ${ingressCrt} ${k.pki.ca} > ${certsMount.mountPath}/ca-certificates.crt"];
           volumeMounts = [
-            secretMount
             {
               name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
               mountPath = ingressCrt;
               subPath = k.pki.files.crt;
               readOnly = true;
             }
+            secretMount
             certsMount
           ];
         }
