@@ -10,16 +10,19 @@
 
   name = k.appname ./.;
   namespace = k.nsname ./.;
+
+  oauth2Port = 8443;
 in {
   query = let
     component = "query";
     tlsSecret = "${name}-${component}-tls";
-  in rec {
+  in {
     enabled = true;
+    image.tag = v.jaeger-collector.docker;
     basePath = "/${name}";
     service = {
       port = 443;
-      targetPort = oAuthSidecar.containerPort;
+      targetPort = oauth2Port;
     };
     ingress = {
       enabled = true;
@@ -88,7 +91,7 @@ in {
         reverse_proxy = true
         proxy_prefix = "/${name}/auth"
 
-        https_address = "[::]:${toString oAuthSidecar.containerPort}"
+        https_address = "[::]:${toString oauth2Port}"
         tls_cert_file = "${k.pki.crt}"
         tls_key_file = "${k.pki.key}"
 
@@ -123,6 +126,7 @@ in {
     protos = fn: (fn "grpc") // (fn "http");
   in {
     enabled = true;
+    image.tag = v.jaeger-collector.docker;
     service = {
       otlp = protos (proto: {${proto}.name = "otlp-${proto}";});
       zipkin = null;
