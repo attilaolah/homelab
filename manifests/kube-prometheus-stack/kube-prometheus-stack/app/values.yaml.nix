@@ -28,16 +28,6 @@
   oauth2Port = 8443;
   prometheusPort = 9090;
 
-  pki = "/etc/tls";
-
-  caCrt = "ca.crt";
-  tlsCrt = "tls.crt";
-  tlsKey = "tls.key";
-
-  ca = concatStringsSep "/" [pki caCrt];
-  crt = concatStringsSep "/" [pki tlsCrt];
-  key = concatStringsSep "/" [pki tlsKey];
-
   # Shared emptyDir mount for storing CA certificates.
   # This is populated by an initContainers with root CAs.
   certsMount = {
@@ -91,8 +81,8 @@ in {
         serve_from_sub_path = true;
         root_url = "${protocol}://${domain}${path}";
         protocol = "https";
-        cert_file = crt;
-        cert_key = key;
+        cert_file = k.pki.crt;
+        cert_key = k.pki.key;
 
         # Do not enforce the domain.
         # This avoids sidecar requests being redirected to go through the ingress.
@@ -132,7 +122,7 @@ in {
         rec {
           name = "tls";
           mountPath = "/usr/local/share/ca-certificates/${subPath}";
-          subPath = caCrt;
+          subPath = k.pki.files.ca;
           readOnly = true;
         }
         certsMount
@@ -157,7 +147,7 @@ in {
       jaeger = "jaeger";
       loki = "loki";
 
-      secureJsonData = {
+      secureJsonData = with k.pki; {
         tlsCACert = localFile ca;
         tlsClientCert = localFile crt;
         tlsClientKey = localFile key;
@@ -197,7 +187,7 @@ in {
     ];
 
     livenessProbe = {
-      exec.command = [
+      exec.command = with k.pki; [
         "curl"
         "--silent"
         "${localAddr}/api/health"
@@ -212,17 +202,14 @@ in {
     };
     readinessProbe = livenessProbe;
 
-    extraSecretMounts = map (mount: mount // {readOnly = true;}) [
+    extraSecretMounts = [
       rec {
         name = "secrets";
         mountPath = "/etc/${name}";
         secretName = "${instance}-${name}";
+        readOnly = true;
       }
-      {
-        name = "tls";
-        mountPath = pki;
-        inherit secretName;
-      }
+      (k.pki.mount // {inherit secretName;})
     ];
 
     extraContainerVolumes = [
@@ -238,15 +225,15 @@ in {
       tlsConfig = {
         cert.secret = {
           name = secretName;
-          key = tlsCrt;
+          key = k.pki.files.crt;
         };
         keySecret = {
           name = secretName;
-          key = tlsKey;
+          key = k.pki.files.key;
         };
         client_ca.secret = {
           name = secretName;
-          key = caCrt;
+          key = k.pki.files.ca;
         };
         serverName = fullName;
       };
@@ -260,6 +247,10 @@ in {
     fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
+    volumeMounts = [
+      (k.pki.mount // {name = "secret-${secretName}";})
+      certsMount
+    ];
   in rec {
     ingress = {
       inherit hosts ingressClassName tls;
@@ -323,15 +314,15 @@ in {
       web.tlsConfig = {
         cert.secret = {
           name = secretName;
-          key = tlsCrt;
+          key = k.pki.files.crt;
         };
         keySecret = {
           name = secretName;
-          key = tlsKey;
+          key = k.pki.files.key;
         };
         client_ca.secret = {
           name = secretName;
-          key = caCrt;
+          key = k.pki.files.ca;
         };
         # NOTE: RequireAndVerifyClientCert causes startup probes to fail.
         clientAuthType = "VerifyClientCertIfGiven";
@@ -372,20 +363,16 @@ in {
           ];
           # Loading files from /etc/prometheus doesn't seem to work.
           # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
-          volumeMounts = [
-            {
-              name = "configmap-${oauthConfig}";
-              mountPath = configPath;
-              subPath = name;
-              readOnly = true;
-            }
-            {
-              name = "secret-${secretName}";
-              mountPath = pki;
-              readOnly = true;
-            }
-            certsMount
-          ];
+          volumeMounts =
+            volumeMounts
+            ++ [
+              {
+                name = "configmap-${oauthConfig}";
+                mountPath = configPath;
+                subPath = name;
+                readOnly = true;
+              }
+            ];
         }
       ];
       initContainers = let
@@ -398,21 +385,17 @@ in {
           image = "busybox:${v.busybox.docker}";
           # The ingress certificate is used only for trusting Keycloak.
           # The internal CA is used for trusting the upstream service (Prometheus).
-          args = ["sh" "-c" "cat ${ingressCrt} ${ca} > ${certsMount.mountPath}/ca-certificates.crt"];
-          volumeMounts = [
-            {
-              name = "secret-${secretName}";
-              mountPath = pki;
-              readOnly = true;
-            }
-            {
-              name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
-              mountPath = ingressCrt;
-              subPath = tlsCrt;
-              readOnly = true;
-            }
-            certsMount
-          ];
+          args = ["sh" "-c" "cat ${ingressCrt} ${k.pki.ca} > ${certsMount.mountPath}/ca-certificates.crt"];
+          volumeMounts =
+            volumeMounts
+            ++ [
+              {
+                name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
+                mountPath = ingressCrt;
+                subPath = k.pki.files.crt;
+                readOnly = true;
+              }
+            ];
         }
       ];
 
@@ -477,8 +460,8 @@ in {
           proxy_prefix = "/${name}/auth"
 
           https_address = "[::]:${toString oauth2Port}"
-          tls_cert_file = "${crt}"
-          tls_key_file = "${key}"
+          tls_cert_file = "${k.pki.crt}"
+          tls_key_file = "${k.pki.key}"
 
           cookie_secure = "true"
           cookie_samesite = "strict"

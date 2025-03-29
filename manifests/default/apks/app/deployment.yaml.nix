@@ -26,24 +26,20 @@ in {
                 containerPort = 8443;
               }
             ];
-            livenessProbe.exec.command = [
+            livenessProbe.exec.command = with k.pki; [
               "curl"
               "https://${name}/apks/key.rsa.pub"
               "--connect-to"
               "${name}:443:localhost:8443"
               "--cert"
-              "/etc/tls/tls.crt"
+              crt
               "--key"
-              "/etc/tls/tls.key"
+              key
               "--cacert"
-              "/etc/tls/ca.crt"
+              ca
             ];
             volumeMounts = [
-              {
-                name = "tls";
-                mountPath = "/etc/tls";
-                readOnly = true;
-              }
+              k.pki.mount
               {
                 name = "var-cache";
                 mountPath = "/var/cache/nginx";
