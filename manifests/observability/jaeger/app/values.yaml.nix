@@ -2,13 +2,10 @@
 {
   cluster,
   k,
-  lib,
   v,
   ...
 }: let
-  inherit (builtins) attrValues mapAttrs;
   inherit (cluster) domain;
-  inherit (lib.strings) concatStringsSep;
 
   name = k.appname ./.;
   namespace = k.nsname ./.;
