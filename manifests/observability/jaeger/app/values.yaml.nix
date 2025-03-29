@@ -12,6 +12,14 @@
   namespace = k.nsname ./.;
 
   oauth2Port = 8443;
+
+  tlsParams = prefix: {
+    "${prefix}.tls.enabled" = "true";
+    "${prefix}.tls.cert" = k.pki.crt;
+    "${prefix}.tls.key" = k.pki.key;
+    "${prefix}.tls.reload-interval" = "${toString (60 * 24)}h";
+    "${prefix}.tls.min-version" = "1.3";
+  };
 in {
   query = let
     component = "query";
@@ -21,9 +29,19 @@ in {
     image.tag = v.jaeger-collector.docker;
     basePath = "/${name}";
     service = {
-      port = 443;
+      port = oauth2Port;
       targetPort = oauth2Port;
     };
+
+    # HTTP Client CA cannot be enabled since oauth-proxy cannot pass it.
+    # https://github.com/oauth2-proxy/oauth2-proxy/issues/1901#issuecomment-1364004628
+    cmdlineParams =
+      (tlsParams "query.grpc")
+      // (tlsParams "query.http")
+      // {"query.grpc.tls.client-ca" = k.pki.ca;};
+
+    extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
+
     ingress = {
       enabled = true;
       ingressClassName = "nginx";
@@ -54,6 +72,7 @@ in {
         }
       ];
     };
+
     oAuthSidecar = {
       enabled = true;
       image = {
@@ -99,7 +118,9 @@ in {
         cookie_samesite = "strict"
         cookie_name = "__Host-${name}"
 
-        upstreams = ["http://localhost:16686"]
+        upstreams = ["https://localhost:16686"]
+        # TODO: Use caFiles from alpha config.
+        ssl_upstream_insecure_skip_verify = true
 
         skip_provider_button = "true"
       '';
@@ -129,18 +150,13 @@ in {
     service = {
       otlp = {
         grpc.name = "otlp-grpc";
-        http = null;
+        http.name = "otlp-http";
       };
       zipkin = null;
     };
-    cmdlineParams = let
-      prefix = "collector.otlp.grpc.tls";
-    in {
-      "${prefix}.enabled" = "true";
-      "${prefix}.cert" = k.pki.crt;
-      "${prefix}.key" = k.pki.key;
-      "${prefix}.client-ca" = k.pki.ca;
-    };
+    cmdlineParams =
+      (tlsParams "collector.otlp.grpc")
+      // {"collector.otlp.grpc.tls.client-ca" = k.pki.ca;};
     extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
   };
 
