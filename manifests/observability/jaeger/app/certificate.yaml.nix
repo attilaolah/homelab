@@ -15,6 +15,7 @@ in
           };
           commonName = name;
           dnsNames = [
+            "localhost" # for oauth sidecar
             "${name}.${namespace}.svc"
             name
           ];
