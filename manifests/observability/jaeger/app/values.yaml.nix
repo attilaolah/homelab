@@ -1,4 +1,5 @@
 # https://artifacthub.io/packages/helm/jaegertracing/jaeger#configuration
+# https://github.com/jaegertracing/helm-charts/blob/main/charts/jaeger/values.yaml
 {
   cluster,
   k,
@@ -10,17 +11,18 @@
   name = k.appname ./.;
   namespace = k.nsname ./.;
 
-  tlsPath = "/etc/tls";
+  oauth2Port = 8443;
 in {
   query = let
     component = "query";
     tlsSecret = "${name}-${component}-tls";
-  in rec {
+  in {
     enabled = true;
+    image.tag = v.jaeger-collector.docker;
     basePath = "/${name}";
     service = {
       port = 443;
-      targetPort = oAuthSidecar.containerPort;
+      targetPort = oauth2Port;
     };
     ingress = {
       enabled = true;
@@ -60,25 +62,18 @@ in {
         tag = v.oauth2-proxy.docker;
       };
       pullPolicy = "IfNotPresent";
-      containerPort = 443;
-      args = [
-        "--config"
-        "/etc/oauth2-proxy/oauth2-proxy.cfg"
-        "--client-secret"
-        ''"$(CLIENT_SECRET)"''
-        "--cookie-secret"
-        ''"$(COOKIE_SECRET)"''
-      ];
+      containerPort = 8443;
+      args = ["--config" "/etc/oauth2-proxy/oauth2-proxy.cfg"];
       extraEnv = [
         {
-          name = "CLIENT_SECRET";
+          name = "OAUTH2_PROXY_CLIENT_SECRET";
           valueFrom.secretKeyRef = {
             name = "${name}-secrets";
             key = "oauth2-client-secret";
           };
         }
         {
-          name = "COOKIE_SECRET";
+          name = "OAUTH2_PROXY_COOKIE_SECRET";
           valueFrom.secretKeyRef = {
             name = "${name}-secrets";
             key = "oauth2-cookie-secret";
@@ -94,10 +89,11 @@ in {
         email_domains = "${domain}"
 
         reverse_proxy = true
-        proxy_prefix = "${basePath}/auth"
+        proxy_prefix = "/${name}/auth"
 
-        tls_cert_file = "${tlsPath}/tls.crt"
-        tls_key_file = "${tlsPath}/tls.key"
+        https_address = "[::]:${toString oauth2Port}"
+        tls_cert_file = "${k.pki.crt}"
+        tls_key_file = "${k.pki.key}"
 
         cookie_secure = "true"
         cookie_samesite = "strict"
@@ -108,15 +104,19 @@ in {
         skip_provider_button = "true"
       '';
 
-      extraSecretMounts = [
-        {
-          name = "tls";
-          secretName = tlsSecret;
-          mountPath = tlsPath;
-          readOnly = true;
-        }
-      ];
-      # resources: {} # todo
+      extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
+      resources = {
+        limits = {
+          cpu = "200m";
+          memory = "256Mi";
+          ephemeral-storage = "2Gi";
+        };
+        requests = {
+          cpu = "50m";
+          memory = "128Mi";
+          ephemeral-storage = "64Mi";
+        };
+      };
     };
   };
 
@@ -126,27 +126,28 @@ in {
     protos = fn: (fn "grpc") // (fn "http");
   in {
     enabled = true;
+    image.tag = v.jaeger-collector.docker;
     service = {
       otlp = protos (proto: {${proto}.name = "otlp-${proto}";});
-      zipkin = null; # disabled for now
+      zipkin = null;
     };
     cmdlineParams = protos (proto: let
       prefix = "collector.otlp.${proto}.tls";
     in {
       "${prefix}.enabled" = "true";
-      "${prefix}.cert" = "${tlsPath}/tls.crt";
-      "${prefix}.key" = "${tlsPath}/tls.key";
-      "${prefix}.client-ca" = "${tlsPath}/ca.crt";
+      "${prefix}.cert" = k.pki.crt;
+      "${prefix}.key" = k.pki.key;
+      "${prefix}.client-ca" = k.pki.ca;
     });
-    extraSecretMounts = [
-      {
-        name = "tls";
-        secretName = tlsSecret;
-        mountPath = tlsPath;
-        readOnly = true;
-      }
-    ];
+    extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
   };
 
-  networkPolicy.enabled = true;
+  agent.enabled = false;
+
+  storage.type = "memory";
+  provisionDataStore = {
+    cassandra = false;
+    elasticsearch = false;
+    kafka = false;
+  };
 }

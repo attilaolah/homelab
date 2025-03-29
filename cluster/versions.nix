@@ -18,6 +18,8 @@ in {
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.1"];
+  jaeger-collector.docker = ["jaegertracing/jaeger-collector" "1.67.0"];
+  jaeger-query.docker = ["jaegertracing/jaeger-query" "1.67.0"];
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.1"];
   k0s.docker = ["attilaolah/k0s" "1.32.2.0"];
   k0s.github-releases = ["k0sproject/k0s" "1.32.2+k0s.0" vp];
