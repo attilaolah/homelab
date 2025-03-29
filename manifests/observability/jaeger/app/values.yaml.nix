@@ -123,22 +123,24 @@ in {
   collector = let
     component = "collector";
     tlsSecret = "${name}-${component}-tls";
-    protos = fn: (fn "grpc") // (fn "http");
   in {
     enabled = true;
     image.tag = v.jaeger-collector.docker;
     service = {
-      otlp = protos (proto: {${proto}.name = "otlp-${proto}";});
+      otlp = {
+        grpc.name = "otlp-grpc";
+        http = null;
+      };
       zipkin = null;
     };
-    cmdlineParams = protos (proto: let
-      prefix = "collector.otlp.${proto}.tls";
+    cmdlineParams = let
+      prefix = "collector.otlp.grpc.tls";
     in {
       "${prefix}.enabled" = "true";
       "${prefix}.cert" = k.pki.crt;
       "${prefix}.key" = k.pki.key;
       "${prefix}.client-ca" = k.pki.ca;
-    });
+    };
     extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
   };
 
