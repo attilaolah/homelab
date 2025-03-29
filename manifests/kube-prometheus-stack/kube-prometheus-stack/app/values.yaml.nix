@@ -247,7 +247,10 @@ in {
     fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
-    secretMount = k.pki.mount // {name = "secret-${secretName}";};
+    volumeMounts = [
+      (k.pki.mount // {name = "secret-${secretName}";})
+      certsMount
+    ];
   in rec {
     ingress = {
       inherit hosts ingressClassName tls;
@@ -360,16 +363,16 @@ in {
           ];
           # Loading files from /etc/prometheus doesn't seem to work.
           # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
-          volumeMounts = [
-            {
-              name = "configmap-${oauthConfig}";
-              mountPath = configPath;
-              subPath = name;
-              readOnly = true;
-            }
-            secretMount
-            certsMount
-          ];
+          volumeMounts =
+            volumeMounts
+            ++ [
+              {
+                name = "configmap-${oauthConfig}";
+                mountPath = configPath;
+                subPath = name;
+                readOnly = true;
+              }
+            ];
         }
       ];
       initContainers = let
@@ -383,16 +386,16 @@ in {
           # The ingress certificate is used only for trusting Keycloak.
           # The internal CA is used for trusting the upstream service (Prometheus).
           args = ["sh" "-c" "cat ${ingressCrt} ${k.pki.ca} > ${certsMount.mountPath}/ca-certificates.crt"];
-          volumeMounts = [
-            {
-              name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
-              mountPath = ingressCrt;
-              subPath = k.pki.files.crt;
-              readOnly = true;
-            }
-            secretMount
-            certsMount
-          ];
+          volumeMounts =
+            volumeMounts
+            ++ [
+              {
+                name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
+                mountPath = ingressCrt;
+                subPath = k.pki.files.crt;
+                readOnly = true;
+              }
+            ];
         }
       ];
 
