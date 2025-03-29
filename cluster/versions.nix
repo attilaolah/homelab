@@ -30,7 +30,7 @@ in {
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["oci://ghcr.io/itzg/minecraft-server-charts" "2.8.4"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
-  oauth2-proxy.docker = ["quay.io/oauth2-proxy/oauth2-proxy" "7.8.1" vp];
+  oauth2-proxy.docker = ["quay.io/oauth2-proxy/oauth2-proxy" "7.8.2" vp];
   pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.1.1"];
