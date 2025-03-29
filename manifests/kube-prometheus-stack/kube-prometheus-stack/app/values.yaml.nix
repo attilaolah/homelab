@@ -319,6 +319,8 @@ in {
       routePrefix = path;
       externalUrl = "https://${domain}${path}";
 
+      storageSpec.emptyDir.sizeLimit = "64Gi";
+
       web.tlsConfig = {
         cert.secret = {
           name = secretName;
@@ -334,9 +336,8 @@ in {
         };
         # NOTE: RequireAndVerifyClientCert causes startup probes to fail.
         clientAuthType = "VerifyClientCertIfGiven";
-
-        storageSpec.emptyDir.medium = "Memory";
       };
+
       containers = let
         configFile = "oauth2_proxy.conf";
         configPath = "/etc/${configFile}";
