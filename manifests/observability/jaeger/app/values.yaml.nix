@@ -9,8 +9,6 @@
 
   name = k.appname ./.;
   namespace = k.nsname ./.;
-
-  pki = "/etc/tls";
 in {
   query = let
     component = "query";
@@ -89,8 +87,8 @@ in {
         reverse_proxy = true
         proxy_prefix = "${basePath}/auth"
 
-        tls_cert_file = "${pki}/tls.crt"
-        tls_key_file = "${pki}/tls.key"
+        tls_cert_file = "${k.pki.crt}"
+        tls_key_file = "${k.pki.key}"
 
         cookie_secure = "true"
         cookie_samesite = "strict"
@@ -101,14 +99,7 @@ in {
         skip_provider_button = "true"
       '';
 
-      extraSecretMounts = [
-        {
-          name = "tls";
-          secretName = tlsSecret;
-          mountPath = pki;
-          readOnly = true;
-        }
-      ];
+      extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
       resources = {
         limits = {
           cpu = "200m";
@@ -138,18 +129,11 @@ in {
       prefix = "collector.otlp.${proto}.tls";
     in {
       "${prefix}.enabled" = "true";
-      "${prefix}.cert" = "${pki}/tls.crt";
-      "${prefix}.key" = "${pki}/tls.key";
-      "${prefix}.client-ca" = "${pki}/ca.crt";
+      "${prefix}.cert" = k.pki.crt;
+      "${prefix}.key" = k.pki.key;
+      "${prefix}.client-ca" = k.pki.ca;
     });
-    extraSecretMounts = [
-      {
-        name = "tls";
-        secretName = tlsSecret;
-        mountPath = pki;
-        readOnly = true;
-      }
-    ];
+    extraSecretMounts = [(k.pki.mount // {secretName = tlsSecret;})];
   };
 
   agent.enabled = false;

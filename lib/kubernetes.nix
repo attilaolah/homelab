@@ -111,6 +111,25 @@ in {
       );
   };
 
+  pki = let
+    dir = "/etc/tls";
+    files = {
+      ca = "ca.crt";
+      crt = "tls.crt";
+      key = "tls.key";
+    };
+  in {
+    inherit dir files;
+    ca = concatStringsSep "/" [dir files.ca];
+    crt = concatStringsSep "/" [dir files.crt];
+    key = concatStringsSep "/" [dir files.key];
+    mount = {
+      name = "tls";
+      mountPath = dir;
+      readOnly = true;
+    };
+  };
+
   kustomization = dir: overrides:
     recursiveUpdate (api "Kustomization.kustomize.config.k8s.io" {
       resources =
