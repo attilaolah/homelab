@@ -6,7 +6,6 @@
   v,
   ...
 }: let
-  inherit (builtins) attrValues mapAttrs;
   inherit (cluster) domain;
   inherit (lib.strings) concatStringsSep replaceStrings;
 

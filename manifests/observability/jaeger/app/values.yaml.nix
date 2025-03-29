@@ -2,13 +2,10 @@
 {
   cluster,
   k,
-  lib,
   v,
   ...
 }: let
-  inherit (builtins) attrValues mapAttrs;
   inherit (cluster) domain;
-  inherit (lib.strings) concatStringsSep;
 
   name = k.appname ./.;
   namespace = k.nsname ./.;
@@ -29,31 +26,25 @@ in {
       enabled = true;
       ingressClassName = "nginx";
       hosts = [domain];
-      annotations = {
-        # TLS
-        "cert-manager.io/cluster-issuer" = "letsencrypt";
-        # NGINX
-        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = "${name}-${component}";
-        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${tlsSecret}";
-        "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = "on";
-        "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
-        # NGINX: Increase header size since auth cookies are way too large.
-        "nginx.ingress.kubernetes.io/proxy-buffer-size" = "16k";
-        "nginx.ingress.kubernetes.io/proxy-buffers" = "8 16k";
-        # Homepage
-        "gethomepage.dev/enabled" = "true";
-        "gethomepage.dev/name" = "Jaeger";
-        "gethomepage.dev/description" = "Distributed tracing tool";
-        "gethomepage.dev/group" = "Cluster Management";
-        "gethomepage.dev/icon" = "${name}.svg";
-        "gethomepage.dev/pod-selector" =
-          concatStringsSep ","
-          (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {
+      annotations = with k.annotations;
+        cert-manager
+        // (ingress-nginx {
+          inherit namespace;
+          name = "${name}-${component}";
+          secret = tlsSecret;
+          # Increase header size to fit auth cookies.
+          proxyBufferSize = "16k";
+        })
+        // (homepage {
+          name = "Jaeger";
+          description = "Distributed tracing tool";
+          icon = name;
+          group = "Cluster Management";
+          selector = {
             inherit name component;
             instance = name;
-          }));
-      };
+          };
+        });
       tls = [
         {
           hosts = [domain];
