@@ -3,7 +3,7 @@
   self,
   ...
 }: let
-  inherit (builtins) attrNames attrValues baseNameOf dirOf elem elemAt filter foldl' mapAttrs readDir replaceStrings typeOf;
+  inherit (builtins) attrNames attrValues baseNameOf dirOf elem elemAt filter foldl' listToAttrs mapAttrs readDir replaceStrings typeOf;
   inherit (lib.attrsets) filterAttrs recursiveUpdate;
   inherit (lib.lists) flatten optionals subtractLists unique;
   inherit (lib.strings) concatStringsSep hasPrefix hasSuffix optionalString removePrefix removeSuffix splitString;
@@ -38,6 +38,12 @@
       in "${prefix}${version}";
     }
     // data;
+
+  attrGroup = group: attrs:
+    listToAttrs (map (name: {
+      name = concatStringsSep "/" [group name];
+      value = attrs.${name};
+    }) (attrNames attrs));
 in {
   inherit api;
 
@@ -47,27 +53,32 @@ in {
   namespace = dir: overrides: recursiveUpdate (api "Namespace" {metadata.name = baseNameOf dir;}) overrides;
 
   annotations = {
-    cert-manager = {"cert-manager.io/cluster-issuer" = "letsencrypt";};
+    group = attrGroup;
+    cert-manager = attrGroup "cert-manager.io" {
+      cluster-issuer = "letsencrypt";
+    };
     ingress-nginx = {
       name,
       namespace,
       secret,
       proxyBufferSize ? null,
     }:
-      {
-        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = name;
-        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${secret}";
-        "nginx.ingress.kubernetes.io/proxy-ssl-server-name" = "on";
-        "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
-      }
-      // (
-        if proxyBufferSize == null
-        then {}
-        else {
-          "nginx.ingress.kubernetes.io/proxy-buffer-size" = proxyBufferSize;
-          "nginx.ingress.kubernetes.io/proxy-buffers" = "8 ${proxyBufferSize}";
+      attrGroup "nginx.ingress.kubernetes.io" (
+        {
+          backend-protocol = "HTTPS";
+          proxy-ssl-name = name;
+          proxy-ssl-secret = "${namespace}/${secret}";
+          proxy-ssl-server-name = "on";
+          proxy-ssl-verify = "on";
         }
+        // (
+          if proxyBufferSize == null
+          then {}
+          else {
+            proxy-buffer-size = proxyBufferSize;
+            proxy-buffers = "8 ${proxyBufferSize}";
+          }
+        )
       );
     homepage = {
       name,
@@ -77,28 +88,26 @@ in {
       href ? null,
       selector ? null,
     }:
-      {
-        "gethomepage.dev/name" = name;
-        "gethomepage.dev/description" = description;
-        "gethomepage.dev/icon" = "${icon}.svg";
-        "gethomepage.dev/group" = group;
-        "gethomepage.dev/enabled" = "true";
-      }
-      // (
-        if href == null
-        then {}
-        else {
-          "gethomepage.dev/href" = href;
+      attrGroup "gethomepage.dev" (
+        {
+          inherit name description group;
+          icon = "${icon}.svg";
+          enabled = "true";
         }
-      )
-      // (
-        if selector == null
-        then {}
-        else {
-          "gethomepage.dev/pod-selector" =
-            concatStringsSep ","
-            (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") selector));
-        }
+        // (
+          if href == null
+          then {}
+          else {inherit href;}
+        )
+        // (
+          if selector == null
+          then {}
+          else {
+            pod-selector =
+              concatStringsSep ","
+              (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") selector));
+          }
+        )
       );
   };
 
