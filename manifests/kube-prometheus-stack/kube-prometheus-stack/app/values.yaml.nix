@@ -1,30 +1,55 @@
+# https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
 {
   cluster,
   k,
   lib,
+  v,
   ...
 }: let
   inherit (builtins) attrValues mapAttrs;
   inherit (cluster) domain;
-  inherit (lib.strings) concatStringsSep;
+  inherit (lib.strings) concatStringsSep replaceStrings;
 
   instance = k.appname ./.;
   namespace = k.nsname ./.;
+  group = "Cluster Management";
+
+  ingressClassName = "nginx";
+  ingressSecretName = "${domain}-tls";
+  secrets = "${instance}-secrets";
+  oauthConfig = "${instance}-oauth-config";
   hosts = [domain];
   tls = [
     {
       inherit hosts;
-      secretName = "${domain}-tls";
+      secretName = ingressSecretName;
     }
   ];
 
-  pki = "/etc/tls";
-  crt = "${pki}/tls.crt";
-  key = "${pki}/tls.key";
-  ca = "${pki}/ca.crt";
+  oauth2Port = 8443;
+  prometheusPort = 9090;
 
-  file = path: "$__file{${path}}";
+  pki = "/etc/tls";
+
+  caCrt = "ca.crt";
+  tlsCrt = "tls.crt";
+  tlsKey = "tls.key";
+
+  ca = concatStringsSep "/" [pki caCrt];
+  crt = concatStringsSep "/" [pki tlsCrt];
+  key = concatStringsSep "/" [pki tlsKey];
+
+  # Shared emptyDir mount for storing CA certificates.
+  # This is populated by an initContainers with root CAs.
+  certsMount = {
+    name = "certs";
+    mountPath = "/etc/ssl/certs";
+  };
+
+  localFile = path: "$__file{${path}}";
 in {
+  # Grafana subchart config defaults:
+  # https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
   grafana = let
     name = "grafana";
     fullName = "${instance}-${name}";
@@ -34,28 +59,23 @@ in {
     localAddr = "https://localhost:${toString port}";
   in rec {
     ingress = {
-      inherit hosts path tls;
+      inherit hosts ingressClassName path tls;
 
       enabled = true;
-      ingressClassName = "nginx";
-      annotations = {
-        # TLS
-        "cert-manager.io/cluster-issuer" = "letsencrypt";
-        # Ingress
-        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-        "nginx.ingress.kubernetes.io/proxy-ssl-name" = fullName;
-        "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${secretName}";
-        "nginx.ingress.kubernetes.io/proxy-ssl-verify" = "on";
-        # Homepage
-        "gethomepage.dev/enabled" = "true";
-        "gethomepage.dev/name" = "Grafana";
-        "gethomepage.dev/description" = "Observability platform";
-        "gethomepage.dev/group" = "Cluster Management";
-        "gethomepage.dev/icon" = "${name}.svg";
-        "gethomepage.dev/pod-selector" =
-          concatStringsSep ","
-          (attrValues (mapAttrs (key: val: "app.kubernetes.io/${key}=${val}") {inherit name instance;}));
-      };
+      annotations = with k.annotations;
+        cert-manager
+        // (ingress-nginx {
+          inherit namespace;
+          name = fullName;
+          secret = secretName;
+        })
+        // (homepage {
+          inherit group;
+          name = "Grafana";
+          description = "Observability platform";
+          icon = name;
+          selector = {inherit name instance;};
+        });
     };
 
     admin = let
@@ -63,7 +83,7 @@ in {
     in {
       userKey = "${prefix}-user";
       passwordKey = "${prefix}-password";
-      existingSecret = "${k.appname ./.}-secrets";
+      existingSecret = "${instance}-secrets";
     };
 
     # Grafana's primary configuration.
@@ -95,7 +115,7 @@ in {
         name_attribute_path = "join(' ', [firstName, lastName])";
         role_attribute_path = "('Admin')"; # everyone is an admin, for now
         client_id = "monitoring";
-        client_secret = file "/etc/secrets/oauth2-client-secret";
+        client_secret = localFile "/etc/secrets/oauth2-client-secret";
         allow_sign_up = true;
         allowed_domains = hosts;
         auth_url = "${idp}/auth";
@@ -113,14 +133,10 @@ in {
         rec {
           name = "tls";
           mountPath = "/usr/local/share/ca-certificates/${subPath}";
-          subPath = "ca.crt";
+          subPath = caCrt;
           readOnly = true;
         }
-        {
-          name = "certs";
-          mountPath = "/etc/ssl/certs";
-          # readOnly = false;
-        }
+        certsMount
       ];
 
       reload = what: "${localAddr}${path}/api/admin/provisioning/${what}/reload";
@@ -143,9 +159,9 @@ in {
       loki = "loki";
 
       secureJsonData = {
-        tlsCACert = file ca;
-        tlsClientCert = file crt;
-        tlsClientKey = file key;
+        tlsCACert = localFile ca;
+        tlsClientCert = localFile crt;
+        tlsClientKey = localFile key;
       };
       version = 1;
     in [
@@ -155,7 +171,7 @@ in {
         type = prometheus;
         uid = prometheus;
         editable = false;
-        url = "https://${instance}-${prometheus}:9090/${prometheus}";
+        url = "https://${instance}-${prometheus}:${toString prometheusPort}/${prometheus}";
         jsonData = {
           tlsAuth = true;
           tlsAuthWithCACert = true;
@@ -223,98 +239,256 @@ in {
       tlsConfig = {
         cert.secret = {
           name = secretName;
-          key = "tls.crt";
+          key = tlsCrt;
         };
         keySecret = {
           name = secretName;
-          key = "tls.key";
+          key = tlsKey;
         };
         client_ca.secret = {
           name = secretName;
-          key = "ca.crt";
+          key = caCrt;
         };
-        serverName = "${instance}-${name}";
+        serverName = fullName;
       };
     };
   };
 
+  # Prometheus subchart config defaults:
+  # https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml
   prometheus = let
     name = "prometheus";
+    fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
   in rec {
-    prometheusSpec = {
+    ingress = {
+      inherit hosts ingressClassName tls;
+
+      enabled = true;
+      paths = [path];
+      pathType = "ImplementationSpecific";
+      servicePort = oauth2Port;
+      annotations = with k.annotations;
+        cert-manager
+        // (ingress-nginx {
+          inherit namespace;
+          name = fullName;
+          secret = secretName;
+          # Increase header size to fit auth cookies.
+          proxyBufferSize = "16k";
+        })
+        // (homepage {
+          inherit group;
+          name = "Prometheus";
+          description = "Monitoring system";
+          icon = name;
+          selector = {inherit name instance;};
+        });
+    };
+
+    service.additionalPorts = [
+      {
+        name = "oauth2-proxy";
+        port = oauth2Port;
+        targetPort = oauth2Port;
+        appProtocol = "https";
+      }
+    ];
+
+    prometheusSpec = let
+      resources = {
+        limits = {
+          cpu = "200m";
+          memory = "256Mi";
+          ephemeral-storage = "2Gi";
+        };
+        requests = {
+          cpu = "50m";
+          memory = "128Mi";
+          ephemeral-storage = "64Mi";
+        };
+      };
+      securityContext = {
+        allowPrivilegeEscalation = false;
+        capabilities.drop = ["ALL"];
+        readOnlyRootFilesystem = true;
+      };
+    in {
       retention = "28d";
-      routePrefix = path; # should not be necessary
+      routePrefix = path;
       externalUrl = "https://${domain}${path}";
-      additionalArgs = [
-        {name = "web.enable-otlp-receiver";}
-      ];
+
+      storageSpec.emptyDir.sizeLimit = "64Gi";
+
       web.tlsConfig = {
         cert.secret = {
           name = secretName;
-          key = "tls.crt";
+          key = tlsCrt;
         };
         keySecret = {
           name = secretName;
-          key = "tls.key";
+          key = tlsKey;
         };
         client_ca.secret = {
           name = secretName;
-          key = "ca.crt";
+          key = caCrt;
         };
         # NOTE: RequireAndVerifyClientCert causes startup probes to fail.
         clientAuthType = "VerifyClientCertIfGiven";
       };
 
-      storageSpec.emptyDir.medium = "Memory";
-
-      volumes = [
+      containers = let
+        configFile = "oauth2_proxy.conf";
+        configPath = "/etc/${configFile}";
+      in [
         {
-          name = "tls";
-          secret = {inherit secretName;};
+          inherit resources securityContext;
+
+          name = "oauth2-proxy";
+          image = "quay.io/oauth2-proxy/oauth2-proxy:${v.oauth2-proxy.docker}";
+          args = ["--config" configPath];
+          env = [
+            {
+              name = "OAUTH2_PROXY_CLIENT_SECRET";
+              valueFrom.secretKeyRef = {
+                name = secrets;
+                key = "oauth2-client-secret";
+              };
+            }
+            {
+              name = "OAUTH2_PROXY_COOKIE_SECRET";
+              valueFrom.secretKeyRef = {
+                name = secrets;
+                key = "oauth2-cookie-secret";
+              };
+            }
+          ];
+          ports = [
+            {
+              name = "oauth2-proxy";
+              containerPort = oauth2Port;
+              protocol = "TCP";
+            }
+          ];
+          # Loading files from /etc/prometheus doesn't seem to work.
+          # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
+          volumeMounts = [
+            {
+              name = "configmap-${oauthConfig}";
+              mountPath = configPath;
+              subPath = name;
+              readOnly = true;
+            }
+            {
+              name = "secret-${secretName}";
+              mountPath = pki;
+              readOnly = true;
+            }
+            certsMount
+          ];
+        }
+      ];
+      initContainers = let
+        ingressCrt = "/etc/ssl/ingress.crt";
+      in [
+        {
+          inherit resources securityContext;
+
+          name = "init-ca-certificates";
+          image = "busybox:${v.busybox.docker}";
+          # The ingress certificate is used only for trusting Keycloak.
+          # The internal CA is used for trusting the upstream service (Prometheus).
+          args = ["sh" "-c" "cat ${ingressCrt} ${ca} > ${certsMount.mountPath}/ca-certificates.crt"];
+          volumeMounts = [
+            {
+              name = "secret-${secretName}";
+              mountPath = pki;
+              readOnly = true;
+            }
+            {
+              name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
+              mountPath = ingressCrt;
+              subPath = tlsCrt;
+              readOnly = true;
+            }
+            certsMount
+          ];
         }
       ];
 
-      volumeMounts = [
+      secrets = [secretName ingressSecretName];
+      configMaps = [oauthConfig];
+      volumes = [
         {
-          name = "tls";
-          mountPath = pki;
-          readOnly = true;
+          name = "certs";
+          emptyDir.medium = "Memory";
         }
       ];
     };
 
-    # containers: oauth-proxy!
     serviceMonitor = {
       scheme = "https";
       tlsConfig = {
-        inherit (prometheusSpec.web.tlsConfig) cert keySecret client_ca;
-        serverName = "${instance}-${name}";
+        inherit (prometheusSpec.web.tlsConfig) cert keySecret;
+        ca = prometheusSpec.web.tlsConfig.client_ca;
+        serverName = fullName;
       };
     };
   };
 
   cleanPrometheusOperatorObjectNames = true;
 
-  extraManifests = map (name:
-    k.api "Certificate.cert-manager.io" {
-      metadata = {inherit name;};
-      spec = {
-        secretName = "${name}-tls";
-        issuerRef = {
-          kind = "ClusterIssuer";
-          name = "internal-ca";
+  extraManifests =
+    (map (name:
+      k.api "Certificate.cert-manager.io" {
+        metadata = {inherit name;};
+        spec = {
+          secretName = "${name}-tls";
+          issuerRef = {
+            kind = "ClusterIssuer";
+            name = "internal-ca";
+          };
+          commonName = name;
+          dnsNames = [
+            "${instance}-${name}"
+            # Allow sidecars to connect via the loopback interface:
+            "localhost"
+          ];
         };
-        commonName = name;
-        dnsNames =
-          ["${instance}-${name}"]
-          # Allow sidecars to connect via the loopback interface:
-          ++ lib.optionals (name == "grafana") ["localhost"];
-      };
-    }) [
-    "grafana"
-    "prometheus"
-    "alertmanager"
-  ];
+      }) [
+      "grafana"
+      "prometheus"
+      "alertmanager"
+    ])
+    ++ [
+      (k.api "ConfigMap" {
+        metadata.name = oauthConfig;
+        data.prometheus = let
+          name = "prometheus";
+        in ''
+          provider = "keycloak-oidc"
+          client_id = "monitoring"
+          oidc_issuer_url = "https://${domain}/keycloak/realms/dh"
+          redirect_url = "https://${domain}/${name}/auth/callback"
+          code_challenge_method = "S256"
+          email_domains = "${domain}"
+
+          reverse_proxy = true
+          proxy_prefix = "/${name}/auth"
+
+          https_address = "[::]:${toString oauth2Port}"
+          tls_cert_file = "${crt}"
+          tls_key_file = "${key}"
+
+          cookie_secure = "true"
+          cookie_samesite = "strict"
+          cookie_name = "__Host-${name}"
+
+          upstreams = ["https://localhost:${toString prometheusPort}"]
+
+          skip_provider_button = "true"
+        '';
+      })
+    ];
 }

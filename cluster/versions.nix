@@ -4,6 +4,7 @@ in {
   # Format:
   # dep.datasource = [repository version transform]
   # If transform is not provided, the default is used: (v: v).
+  busybox.docker = ["busybox" "1.37.0"];
   cert-manager.helm = ["https://charts.jetstack.io" "1.17.1"];
   cilium.helm = ["https://helm.cilium.io" "1.17.2"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.23.2"];
@@ -29,6 +30,7 @@ in {
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["oci://ghcr.io/itzg/minecraft-server-charts" "2.8.4"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.2"];
+  oauth2-proxy.docker = ["quay.io/oauth2-proxy/oauth2-proxy" "7.8.1" vp];
   pause.docker = ["https://registry.k8s.io/pause" "3.9"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.0.0"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.1.1"];

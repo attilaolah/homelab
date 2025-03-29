@@ -685,6 +685,8 @@
       "secret": "**********",
       "redirectUris": [
         "https://dorn.haus/jaeger/auth/callback",
+        "https://dorn.haus/prometheus/auth/callback",
+        "https://dorn.haus/alertmanager/auth/callback",
         "https://dorn.haus/grafana/login/generic_oauth"
       ],
       "webOrigins": [
@@ -705,6 +707,8 @@
         "oidc.ciba.grant.enabled": "false",
         "client.secret.creation.time": "1742932162",
         "backchannel.logout.session.required": "true",
+        "frontchannel.logout.session.required": "true",
+        "display.on.consent.screen": "false",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false"
       },
