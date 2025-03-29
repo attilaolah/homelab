@@ -12,19 +12,18 @@ in {
   metadata = {
     inherit name labels;
 
-    annotations = {
-      # TLS
-      "cert-manager.io/cluster-issuer" = "letsencrypt";
-      "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS";
-      "nginx.ingress.kubernetes.io/proxy-ssl-name" = name;
-      "nginx.ingress.kubernetes.io/proxy-ssl-secret" = "${namespace}/${name}-tls";
-      # Homepage
-      "gethomepage.dev/enabled" = "true";
-      "gethomepage.dev/name" = "APKs";
-      "gethomepage.dev/description" = "Alpine APK mirrer containing k0s";
-      "gethomepage.dev/group" = "Cluster Management";
-      "gethomepage.dev/icon" = "alpine-linux.svg";
-    };
+    annotations = with k.annotations;
+      cert-manager
+      // (ingress-nginx {
+        inherit name namespace;
+        secret = "${name}-tls";
+      })
+      // (homepage {
+        name = "APKs";
+        description = "Alpine APK mirrer containing k0s";
+        icon = "alpine-linux";
+        group = "Cluster Management";
+      });
   };
   spec = {
     ingressClassName = "nginx";
