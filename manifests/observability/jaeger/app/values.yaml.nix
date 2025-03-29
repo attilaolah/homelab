@@ -10,7 +10,7 @@
   name = k.appname ./.;
   namespace = k.nsname ./.;
 
-  tlsPath = "/etc/tls";
+  pki = "/etc/tls";
 in {
   query = let
     component = "query";
@@ -61,24 +61,17 @@ in {
       };
       pullPolicy = "IfNotPresent";
       containerPort = 443;
-      args = [
-        "--config"
-        "/etc/oauth2-proxy/oauth2-proxy.cfg"
-        "--client-secret"
-        ''"$(CLIENT_SECRET)"''
-        "--cookie-secret"
-        ''"$(COOKIE_SECRET)"''
-      ];
+      args = ["--config" "/etc/oauth2-proxy/oauth2-proxy.cfg"];
       extraEnv = [
         {
-          name = "CLIENT_SECRET";
+          name = "OAUTH2_PROXY_CLIENT_SECRET";
           valueFrom.secretKeyRef = {
             name = "${name}-secrets";
             key = "oauth2-client-secret";
           };
         }
         {
-          name = "COOKIE_SECRET";
+          name = "OAUTH2_PROXY_COOKIE_SECRET";
           valueFrom.secretKeyRef = {
             name = "${name}-secrets";
             key = "oauth2-cookie-secret";
@@ -96,8 +89,8 @@ in {
         reverse_proxy = true
         proxy_prefix = "${basePath}/auth"
 
-        tls_cert_file = "${tlsPath}/tls.crt"
-        tls_key_file = "${tlsPath}/tls.key"
+        tls_cert_file = "${pki}/tls.crt"
+        tls_key_file = "${pki}/tls.key"
 
         cookie_secure = "true"
         cookie_samesite = "strict"
@@ -112,11 +105,22 @@ in {
         {
           name = "tls";
           secretName = tlsSecret;
-          mountPath = tlsPath;
+          mountPath = pki;
           readOnly = true;
         }
       ];
-      # resources: {} # todo
+      resources = {
+        limits = {
+          cpu = "200m";
+          memory = "256Mi";
+          ephemeral-storage = "2Gi";
+        };
+        requests = {
+          cpu = "50m";
+          memory = "128Mi";
+          ephemeral-storage = "64Mi";
+        };
+      };
     };
   };
 
@@ -128,25 +132,23 @@ in {
     enabled = true;
     service = {
       otlp = protos (proto: {${proto}.name = "otlp-${proto}";});
-      zipkin = null; # disabled for now
+      zipkin = null;
     };
     cmdlineParams = protos (proto: let
       prefix = "collector.otlp.${proto}.tls";
     in {
       "${prefix}.enabled" = "true";
-      "${prefix}.cert" = "${tlsPath}/tls.crt";
-      "${prefix}.key" = "${tlsPath}/tls.key";
-      "${prefix}.client-ca" = "${tlsPath}/ca.crt";
+      "${prefix}.cert" = "${pki}/tls.crt";
+      "${prefix}.key" = "${pki}/tls.key";
+      "${prefix}.client-ca" = "${pki}/ca.crt";
     });
     extraSecretMounts = [
       {
         name = "tls";
         secretName = tlsSecret;
-        mountPath = tlsPath;
+        mountPath = pki;
         readOnly = true;
       }
     ];
   };
-
-  networkPolicy.enabled = true;
 }
