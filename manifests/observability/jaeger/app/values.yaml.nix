@@ -1,4 +1,5 @@
 # https://artifacthub.io/packages/helm/jaegertracing/jaeger#configuration
+# https://github.com/jaegertracing/helm-charts/blob/main/charts/jaeger/values.yaml
 {
   cluster,
   k,
@@ -58,7 +59,7 @@ in {
         tag = v.oauth2-proxy.docker;
       };
       pullPolicy = "IfNotPresent";
-      containerPort = 443;
+      containerPort = 8443;
       args = ["--config" "/etc/oauth2-proxy/oauth2-proxy.cfg"];
       extraEnv = [
         {
@@ -85,8 +86,9 @@ in {
         email_domains = "${domain}"
 
         reverse_proxy = true
-        proxy_prefix = "${basePath}/auth"
+        proxy_prefix = "/${name}/auth"
 
+        https_address = "[::]:${toString oAuthSidecar.containerPort}"
         tls_cert_file = "${k.pki.crt}"
         tls_key_file = "${k.pki.key}"
 
@@ -137,4 +139,11 @@ in {
   };
 
   agent.enabled = false;
+
+  storage.type = "memory";
+  provisionDataStore = {
+    cassandra = false;
+    elasticsearch = false;
+    kafka = false;
+  };
 }

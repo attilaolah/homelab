@@ -43,13 +43,18 @@
 
     patches = map yaml.format [
       {
-        machine.logging.destinations = [
-          {
-            endpoint = "udp://${cluster.network.external.vector}:6051/";
-            format = "json_lines";
-            extraTags.node = node.hostname;
-          }
-        ];
+        machine = {
+          # Elasticsearch minimum requirements.
+          # https://www.elastic.co/guide/en/elasticsearch/reference/8.17/bootstrap-checks-max-map-count.html
+          sysctls."vm.max_map_count" = "262144";
+          logging.destinations = [
+            {
+              endpoint = "udp://${cluster.network.external.vector}:6051/";
+              format = "json_lines";
+              extraTags.node = node.hostname;
+            }
+          ];
+        };
       }
     ];
 
