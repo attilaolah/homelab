@@ -1,3 +1,4 @@
+# https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
 {
   cluster,
   k,
@@ -15,6 +16,7 @@
   ingressClassName = "nginx";
   ingressSecretName = "${domain}-tls";
   secrets = "${instance}-secrets";
+  oauthConfig = "${instance}-oauth-config";
   hosts = [domain];
   tls = [
     {
@@ -22,15 +24,25 @@
       secretName = ingressSecretName;
     }
   ];
+
   oauth2Port = 8443;
+  prometheusPort = 9090;
 
   pki = "/etc/tls";
   crt = "${pki}/tls.crt";
   key = "${pki}/tls.key";
   ca = "${pki}/ca.crt";
+  # Shared emptyDir mount for storing CA certificates.
+  # This is populated by an initContainers with root CAs.
+  certsMount = {
+    name = "certs";
+    mountPath = "/etc/ssl/certs";
+  };
 
-  file = path: "$__file{${path}}";
+  localFile = path: "$__file{${path}}";
 in {
+  # Grafana subchart config defaults:
+  # https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
   grafana = let
     name = "grafana";
     fullName = "${instance}-${name}";
@@ -100,7 +112,7 @@ in {
         name_attribute_path = "join(' ', [firstName, lastName])";
         role_attribute_path = "('Admin')"; # everyone is an admin, for now
         client_id = "monitoring";
-        client_secret = file "/etc/secrets/oauth2-client-secret";
+        client_secret = localFile "/etc/secrets/oauth2-client-secret";
         allow_sign_up = true;
         allowed_domains = hosts;
         auth_url = "${idp}/auth";
@@ -121,10 +133,7 @@ in {
           subPath = "ca.crt";
           readOnly = true;
         }
-        {
-          name = "certs";
-          mountPath = "/etc/ssl/certs";
-        }
+        certsMount
       ];
 
       reload = what: "${localAddr}${path}/api/admin/provisioning/${what}/reload";
@@ -147,9 +156,9 @@ in {
       loki = "loki";
 
       secureJsonData = {
-        tlsCACert = file ca;
-        tlsClientCert = file crt;
-        tlsClientKey = file key;
+        tlsCACert = localFile ca;
+        tlsClientCert = localFile crt;
+        tlsClientKey = localFile key;
       };
       version = 1;
     in [
@@ -159,7 +168,7 @@ in {
         type = prometheus;
         uid = prometheus;
         editable = false;
-        url = "https://${instance}-${prometheus}:9090/${prometheus}";
+        url = "https://${instance}-${prometheus}:${toString prometheusPort}/${prometheus}";
         jsonData = {
           tlsAuth = true;
           tlsAuthWithCACert = true;
@@ -242,12 +251,13 @@ in {
     };
   };
 
+  # Prometheus subchart config defaults:
+  # https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml
   prometheus = let
     name = "prometheus";
     fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
-    ingressSecretMount = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
   in rec {
     ingress = {
       inherit hosts ingressClassName tls;
@@ -284,20 +294,38 @@ in {
       additionalPorts = [
         rec {
           name = "http-web";
-          port = 9090;
+          port = prometheusPort;
           targetPort = port;
           appProtocol = "https";
         }
       ];
     };
 
-    prometheusSpec = {
+    prometheusSpec = let
+      resources = {
+        limits = {
+          cpu = "200m";
+          memory = "256Mi";
+          ephemeral-storage = "2Gi";
+        };
+        requests = {
+          cpu = "50m";
+          memory = "128Mi";
+          ephemeral-storage = "64Mi";
+        };
+      };
+      securityContext = {
+        allowPrivilegeEscalation = false;
+        capabilities.drop = ["ALL"];
+        readOnlyRootFilesystem = true;
+      };
+    in {
       retention = "28d";
       routePrefix = path; # should not be necessary
       externalUrl = "https://${domain}${path}";
 
       # The default port (service.port) is directed to the oauth2-proxy port.
-      # An additional port is created with the name http-web pointing to the internal port (9090).
+      # An additional port is created with the name http-web pointing to the internal port.
       portName = "oauth2-proxy";
 
       web.tlsConfig = {
@@ -323,6 +351,8 @@ in {
         configPath = "/etc/${configFile}";
       in [
         {
+          inherit resources securityContext;
+
           name = "oauth2-proxy";
           image = "quay.io/oauth2-proxy/oauth2-proxy:${v.oauth2-proxy.docker}";
           args = ["--config" configPath];
@@ -349,68 +379,35 @@ in {
               protocol = "TCP";
             }
           ];
-          resources = {
-            limits = {
-              cpu = "200m";
-              memory = "256Mi";
-              ephemeral-storage = "2Gi";
-            };
-            requests = {
-              cpu = "50m";
-              memory = "128Mi";
-              ephemeral-storage = "64Mi";
-            };
-          };
           # Loading files from /etc/prometheus doesn't seem to work.
           # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
           volumeMounts = [
             {
-              name = "configmap-${instance}-oauth-config";
+              name = "configmap-${oauthConfig}";
               mountPath = configPath;
               subPath = name;
               readOnly = true;
             }
             {
               name = "secret-${secretName}";
-              mountPath = "/etc/tls";
+              mountPath = pki;
               readOnly = true;
             }
-            {
-              name = ingressSecretMount;
-              mountPath = "/etc/ssl/ingress.crt";
-              subPath = "tls.crt";
-              readOnly = true;
-            }
-            {
-              name = "certs";
-              mountPath = "/etc/ssl/certs";
-            }
+            certsMount
           ];
-          securityContext = {
-            allowPrivilegeEscalation = false;
-            capabilities.drop = ["ALL"];
-            readOnlyRootFilesystem = true;
-          };
         }
       ];
-      initContainers = [
+      initContainers = let
+        ingressCrt = "/etc/ssl/ingress.crt";
+      in [
         {
+          inherit resources securityContext;
+
           name = "update-ca-certificates";
           image = "busybox:${v.busybox.docker}";
-          args = [
-            "sh"
-            "-c"
-            # Running update-ca-certificates wold be nicer, but this works too.
-            ''cat /etc/ssl/ingress.crt /etc/tls/ca.crt > /etc/ssl/certs/ca-certificates.crt''
-          ];
-          resources = rec {
-            limits = {
-              cpu = "50m";
-              memory = "64Mi";
-              ephemeral-storage = "64Mi";
-            };
-            requests = limits;
-          };
+          # The ingress certificate is used only for trusting keycloak.
+          # The internal CA is used for trusting the upstream (prometheus).
+          args = ["sh" "-c" "cat ${ingressCrt} ${ca} > ${certsMount.mountPath}/ca-certificates.crt"];
           volumeMounts = [
             {
               name = "secret-${secretName}";
@@ -418,26 +415,18 @@ in {
               readOnly = true;
             }
             {
-              name = ingressSecretMount;
-              mountPath = "/etc/ssl/ingress.crt";
+              name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
+              mountPath = ingressCrt;
               subPath = "tls.crt";
               readOnly = true;
             }
-            {
-              name = "certs";
-              mountPath = "/etc/ssl/certs";
-            }
+            certsMount
           ];
-          securityContext = {
-            allowPrivilegeEscalation = false;
-            capabilities.drop = ["ALL"];
-            readOnlyRootFilesystem = true;
-          };
         }
       ];
 
       secrets = [secretName ingressSecretName];
-      configMaps = ["${instance}-oauth-config"];
+      configMaps = [oauthConfig];
       volumes = [
         {
           name = "certs";
@@ -481,7 +470,7 @@ in {
     ])
     ++ [
       (k.api "ConfigMap" {
-        metadata.name = "${instance}-oauth-config";
+        metadata.name = oauthConfig;
         data.prometheus = let
           name = "prometheus";
         in ''
@@ -503,7 +492,7 @@ in {
           cookie_samesite = "strict"
           cookie_name = "__Host-${name}"
 
-          upstreams = ["https://localhost:9090"]
+          upstreams = ["https://localhost:${toString prometheusPort}"]
 
           skip_provider_button = "true"
         '';
