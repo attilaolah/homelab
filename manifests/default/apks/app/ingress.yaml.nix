@@ -42,5 +42,11 @@ in {
         ];
       }
     ];
+    tls = [
+      {
+        hosts = [domain];
+        secretName = "${domain}-tls";
+      }
+    ];
   };
 })
