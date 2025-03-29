@@ -1,5 +1,6 @@
 {
   cluster,
+  k,
   v,
   ...
 }: let
@@ -69,7 +70,7 @@ in {
         ];
       }
     ];
-    annotations."cert-manager.io/cluster-issuer" = "letsencrypt";
+    annotations = k.annotations.cert-manager;
     tls = [
       {
         hosts = [domain];
