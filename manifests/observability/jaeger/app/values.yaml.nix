@@ -151,4 +151,6 @@ in {
       }
     ];
   };
+
+  agent.enabled = false;
 }
