@@ -32,3 +32,14 @@
   loop: "{{ zfs_disks }}"
   loop_control:
     loop_var: disk
+
+- name: Add ZFS services to boot runlevel
+  when: zfs
+  ansible.builtin.service:
+    name: zfs-{{ item }}
+    enabled: true
+    runlevel: boot
+  loop:
+  - load-key
+  - import
+  - mount
