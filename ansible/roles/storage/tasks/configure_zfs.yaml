@@ -1,4 +1,3 @@
----
 - name: Install ZFS tools
   community.general.apk:
     name:
@@ -32,3 +31,14 @@
   loop: "{{ zfs_disks }}"
   loop_control:
     loop_var: disk
+
+- name: Add ZFS services to boot runlevel
+  when: zfs
+  ansible.builtin.service:
+    name: zfs-{{ item }}
+    runlevel: boot
+    enabled: true
+  loop:
+  - load-key
+  - import
+  - mount

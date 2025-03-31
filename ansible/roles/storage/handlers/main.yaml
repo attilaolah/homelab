@@ -1,0 +1,3 @@
+- name: Export NFS mounts
+  ansible.builtin.command: exportfs -a
+  listen: exportfs

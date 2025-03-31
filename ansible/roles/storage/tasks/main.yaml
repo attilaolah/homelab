@@ -1,15 +1,9 @@
-- name: Configure storage
+- name: Configure ZFS
   when: zfs
+  tags: [zfs]
   import_tasks: configure_zfs.yaml
-  become: true
 
-- name: Add ZFS services to boot runlevel
+- name: Configure NFS
   when: zfs
-  ansible.builtin.service:
-    name: zfs-{{ item }}
-    enabled: true
-    runlevel: boot
-  loop:
-  - load-key
-  - import
-  - mount
+  tags: [nfs]
+  import_tasks: configure_nfs.yaml

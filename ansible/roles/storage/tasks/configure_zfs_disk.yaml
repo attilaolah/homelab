@@ -35,9 +35,9 @@
           )
       }}
 
-  - name: Calculate ZFS key
+  - name: Calculate ZFS pool name
     ansible.builtin.set_fact:
-      zfs_key: >-
+      zfs_pool: >-
         {{ disk_wwn | lower | replace('-', '_') }}
 
 - name: Detect USB serial for /dev/{{ disk.name }}
@@ -55,26 +55,21 @@
       src: /proc/scsi/usb-storage/{{ scsi_device.stat.lnk_source | basename | split(':') | first }}
     register: usb_storage
 
-  - name: Calculate ZFS key
+  - name: Calculate ZFS pool name
     ansible.builtin.set_fact:
-      zfs_key: >-
+      zfs_pool: >-
         usb_{{
           usb_storage.content | b64decode |
             regex_search('Serial Number: (.+)', '\1') |
             first | lower
         }}
 
-- name: Set ZFS pool name
-  ansible.builtin.set_fact:
-    zfs_pool: >-
-      {{ zfs_key | replace('_', '-') | upper }}
-
 - name: Store ZFS key
   ansible.builtin.copy:
-    dest: /etc/zfs/{{ zfs_key }}.key
+    dest: /etc/zfs/{{ zfs_pool }}.key
     content: >-
-      {{ secrets.zfs_keys['key_' + zfs_key] | b64decode }}
-    mode: '0600'
+      {{ secrets.zfs_keys['key_' + zfs_pool] | b64decode }}
+    mode: u=r,go=
 
 - name: Check if ZFS pool {{ zfs_pool }} exists for /dev/{{ disk.name }}
   ansible.builtin.command: zpool list {{ zfs_pool }}
@@ -86,4 +81,10 @@
 - name: Create ZFS pool {{ zfs_pool }} for /dev/{{ disk.name }}
   when: zpool_exists.rc == 1
   ansible.builtin.command: |
-    zpool create -O encryption=on -O keyformat=raw -O keylocation=file:///etc/zfs/{{ zfs_key }}.key -m none -f {{ zfs_pool }} /dev/{{ disk.name }}
+    zpool create -O encryption=on -O keyformat=raw -O keylocation=file:///etc/zfs/{{ zfs_pool }}.key -m none \
+      -f {{ zfs_pool }} /dev/{{ disk.name }}
+
+- name: Create NFS mount /mnt/nfs/{{ zfs_pool }} for pool {{ zfs_pool }}
+  when: zpool_exists.rc == 1
+  ansible.builtin.command: |
+    zfs create -o mountpoint=/mnt/nfs/{{ zfs_pool }} -o atime=off {{ zfs_pool }}/nfs

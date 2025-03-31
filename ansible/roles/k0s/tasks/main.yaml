@@ -10,7 +10,7 @@
     dest: /etc/apk/keys/attila@dorn.haus-67093be0.rsa.pub
     owner: root
     group: root
-    mode: '0644'
+    mode: u=rw,go=r
 
 - name: Install required packages
   ansible.builtin.package:

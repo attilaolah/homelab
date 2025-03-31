@@ -23,7 +23,7 @@
   routingMode = "native";
   autoDirectNodeRoutes = true;
   ipv4.enabled = true; # default
-  ipv4NativeRoutingCIDR = cluster.network.node.cidr4;
+  ipv4NativeRoutingCIDR = cluster.network.node.routableCIDR4;
 
   ipv6.enabled = true; # default = false
   # The Swisscom Router seems to advertise this address.
