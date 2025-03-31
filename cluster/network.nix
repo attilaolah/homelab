@@ -3,12 +3,11 @@
 in {
   node = rec {
     net4 = "10.8.0.0";
-    net4Len = 8;
+    net4Len = 16;
     cidr4 = cidr net4 net4Len;
-    # A more "strict" subnet, guaranteed to contain only node IPs.
-    # Nodes are still configured with L2 routing for the /8 range.
-    # This strict range is used only when validating whether an IP belongs to a node.
-    cidr4Strict = cidr net4 16;
+
+    # L2 natively routable addresses.
+    routableCIDR4 = cidr "10.0.0.0" 8;
 
     # ULA set by the modem:
     net6 = "fdaa:bbcc:ddee::";

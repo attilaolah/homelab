@@ -1,4 +1,9 @@
 - name: Configure ZFS
   when: zfs
+  tags: [zfs]
   import_tasks: configure_zfs.yaml
-  become: true
+
+- name: Configure NFS
+  when: zfs
+  tags: [nfs]
+  import_tasks: configure_nfs.yaml

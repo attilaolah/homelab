@@ -1,0 +1,64 @@
+- name: Install NFS tools
+  community.general.apk:
+    name:
+    - nfs-utils
+    state: present
+
+- name: Ensure "nfs" group exists
+  ansible.builtin.group:
+    name: nfs
+    state: present
+    gid: 2049
+
+- name: Ensure /mnt/nfs has the right permissions
+  ansible.builtin.file:
+    path: /mnt/nfs
+    state: directory
+    owner: root
+    group: nfs
+    mode: u=rwx,g=rx,o=
+
+- name: List ZFS datasets
+  ansible.builtin.command: zfs list --json
+  register: zfs_output
+  changed_when: false
+
+- name: Get ZFS pools with datasets mounted under /mnt/nfs
+  ansible.builtin.set_fact:
+    nfs_datasets: >-
+      {{
+        zfs_output.stdout | from_json |
+        json_query("
+          datasets.* | [?contains(properties.mountpoint.value, '/mnt/nfs/')].pool
+        ")
+      }}
+
+# - name: debug
+#   ansible.builtin.lineinfile:
+#     path: /etc/exports
+#     regexp: ^/mnt/nfs
+#     state: absent
+#   tags: [debug]
+
+- name: Ensure NFS root export exists
+  when: nfs_datasets | length > 0
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    search_string: "/mnt/nfs "
+    # TODO: Use node.cidr4 to restrict further.
+    # TODO: Configure Kerberos authentication & encryption.
+    line: /mnt/nfs {{ network.node.routableCIDR4 }}(ro,nohide,subtree_check,root_squash,fsid=0)
+    state: present
+
+- name: Configure NFS volume /mnt/nfs/{{ nfs_volume }}
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/configure_nfs_volume.yaml"
+  loop: "{{ nfs_datasets }}"
+  loop_control:
+    loop_var: volume
+
+- name: Add NFS services to default runlevel
+  when: nfs_datasets | length > 0
+  ansible.builtin.service:
+    name: nfs
+    state: started
+    enabled: true

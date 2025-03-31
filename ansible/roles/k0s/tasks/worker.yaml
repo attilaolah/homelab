@@ -14,8 +14,8 @@
 - name: Enable k0s worker service
   ansible.builtin.service:
     name: k0sworker
-    enabled: true
     state: started
+    enabled: true
 
 - name: Enable Kubelet's required sysctl flags
   ansible.builtin.sysctl:

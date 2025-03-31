@@ -83,3 +83,8 @@
   ansible.builtin.command: |
     zpool create -O encryption=on -O keyformat=raw -O keylocation=file:///etc/zfs/{{ zfs_pool }}.key -m none \
       -f {{ zfs_pool }} /dev/{{ disk.name }}
+
+- name: Create NFS mount /mnt/nfs/{{ zfs_pool }} for pool {{ zfs_pool }}
+  when: zpool_exists.rc == 1
+  ansible.builtin.command: |
+    zfs create -o mountpoint=/mnt/nfs/{{ zfs_pool }} -o atime=off {{ zfs_pool }}/nfs

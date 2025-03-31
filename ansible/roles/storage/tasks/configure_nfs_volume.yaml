@@ -1,0 +1,17 @@
+- name: Ensure /mnt/nfs/{{ volume }} has the right permissions
+  ansible.builtin.file:
+    path: /mnt/nfs/{{ volume }}
+    state: directory
+    owner: root
+    group: nfs
+    mode: ug=rwx,o=
+
+- name: Configure NFS export for ZFS pool {{ volume }}
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    search_string: "/mnt/nfs/{{ volume }} "
+    # TODO: Use node.cidr4 to restrict further.
+    # TODO: Configure Kerberos authentication & encryption.
+    line: /mnt/nfs/{{ volume }} {{ network.node.routableCIDR4 }}(rw,nohide,subtree_check,root_squash)
+    state: present
+  notify: exportfs

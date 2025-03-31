@@ -1,4 +1,3 @@
----
 - name: Install ZFS tools
   community.general.apk:
     name:
@@ -37,8 +36,8 @@
   when: zfs
   ansible.builtin.service:
     name: zfs-{{ item }}
-    enabled: true
     runlevel: boot
+    enabled: true
   loop:
   - load-key
   - import

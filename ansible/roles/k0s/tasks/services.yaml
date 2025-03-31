@@ -8,8 +8,8 @@
 - name: Enable and start cgroups service
   ansible.builtin.service:
     name: "{{ item }}"
-    enabled: true
     state: started
+    enabled: true
   loop:
   - cgroups
   - dbus
@@ -17,8 +17,8 @@
 - name: Add udev services to sysinit runlevel
   ansible.builtin.service:
     name: "{{ item }}"
-    enabled: true
     runlevel: sysinit
+    enabled: true
   loop:
   - udev
   - udev-trigger
