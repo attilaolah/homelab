@@ -9,6 +9,8 @@
 
   title = "Dornhaus";
 in {
+  inherit (k.container) securityContext;
+
   config = {
     settings = {
       inherit title;
@@ -56,6 +58,7 @@ in {
 
   enableRbac = true;
   serviceAccount.create = true;
+  podSecurityContext = k.pod.securityContext;
 
   ingress.main = {
     enabled = true;
