@@ -31,9 +31,7 @@ in {
             ];
             livenessProbe.exec.command = with k.pki; [
               "curl"
-              "https://${name}/apks/key.rsa.pub"
-              "--connect-to"
-              "${name}:443:localhost:8443"
+              "https://localhost:8443/apks/key.rsa.pub"
               "--cert"
               crt
               "--key"
@@ -54,9 +52,9 @@ in {
             ];
             resources = let
               guaranteed = {
-                cpu = "50m";
-                memory = "128Mi";
-                ephemeral-storage = "128Mi";
+                cpu = "100m";
+                memory = "256Mi";
+                ephemeral-storage = "256Mi";
               };
             in {
               limits = guaranteed;
