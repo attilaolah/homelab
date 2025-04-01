@@ -22,7 +22,7 @@ map (src: let
     inherit ipv4 ipv6;
 
     hostname = "${cluster.name}-${index}";
-    net4 = "${ipv4}/${toString node.net4Len}";
+    net4 = "${ipv4}/${toString node.net4LenRoutable}";
     net6 = "${ipv6}/${toString node.net6Len}";
 
     # Defaults:

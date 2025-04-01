@@ -6,7 +6,7 @@ auto eth0
 iface eth0 inet6 static
     address {{ net6 }}
     gateway {{ network.uplink.gw6 }}
-    dns-nameservers{% for ip in network.uplink.dns6.three %} {{ ip }}{% endfor -%}
+    dns-nameservers{% for ip in network.uplink.dns6.three %} {{ ip }}{% endfor +%}
 
 iface eth0 inet static
     address {{ net4 }}
