@@ -1,4 +1,5 @@
 {
+  cluster,
   k,
   v,
   ...
@@ -23,6 +24,16 @@ in {
             name = "nginx";
             image = "nginx:${v.nginx.docker}";
             ports = [{containerPort = 8443;}];
+            livenessProbe.exec.command = with k.pki; [
+              "curl"
+              "https://localhost:8443/.well-known/webfinger?resource=acct:kubelet@${cluster.domain}"
+              "--cert"
+              crt
+              "--key"
+              key
+              "--cacert"
+              ca
+            ];
             volumeMounts = [
               k.pki.mount
               {
@@ -46,15 +57,14 @@ in {
                 mountPath = "/var/run";
               }
             ];
-            resources = let
-              guaranteed = {
+            resources = rec {
+              # Higher CPU limit for liveness probe.
+              limits = requests // {cpu = "200m";};
+              requests = {
                 cpu = "50m";
                 memory = "128Mi";
                 ephemeral-storage = "128Mi";
               };
-            in {
-              limits = guaranteed;
-              requests = guaranteed;
             };
           }
         ];

@@ -50,15 +50,14 @@ in {
                 mountPath = "/var/run/nginx";
               }
             ];
-            resources = let
-              guaranteed = {
-                cpu = "100m";
+            resources = rec {
+              # Higher CPU limit for liveness probe.
+              limits = requests // {cpu = "200m";};
+              requests = {
+                cpu = "50m";
                 memory = "256Mi";
                 ephemeral-storage = "256Mi";
               };
-            in {
-              limits = guaranteed;
-              requests = guaranteed;
             };
           }
         ];
