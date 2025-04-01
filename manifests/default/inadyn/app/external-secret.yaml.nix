@@ -1,7 +1,6 @@
 {
   cluster,
   k,
-  v,
   self,
   ...
 }: let
@@ -9,7 +8,6 @@
 in
   k.external-secret ./. {
     data."values.yaml" = yaml.format {
-      image.tag = v.inadyn.docker;
       inadynConfig = ''
         period = 480
 

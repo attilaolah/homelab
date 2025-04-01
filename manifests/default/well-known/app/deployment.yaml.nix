@@ -1,4 +1,5 @@
 {
+  cluster,
   k,
   v,
   ...
@@ -14,11 +15,25 @@ in {
     template = {
       metadata = {inherit labels;};
       spec = {
+        inherit (k.pod) automountServiceAccountToken securityContext;
+
         containers = [
           {
+            inherit (k.container) securityContext;
+
             name = "nginx";
             image = "nginx:${v.nginx.docker}";
             ports = [{containerPort = 8443;}];
+            livenessProbe.exec.command = with k.pki; [
+              "curl"
+              "https://localhost:8443/.well-known/webfinger?resource=acct:kubelet@${cluster.domain}"
+              "--cert"
+              crt
+              "--key"
+              key
+              "--cacert"
+              ca
+            ];
             volumeMounts = [
               k.pki.mount
               {
@@ -42,10 +57,14 @@ in {
                 mountPath = "/var/run";
               }
             ];
-            securityContext = {
-              allowPrivilegeEscalation = false;
-              capabilities.drop = ["ALL"];
-              readOnlyRootFilesystem = true;
+            resources = rec {
+              # Higher CPU limit for liveness probe.
+              limits = requests // {cpu = "200m";};
+              requests = {
+                cpu = "50m";
+                memory = "128Mi";
+                ephemeral-storage = "128Mi";
+              };
             };
           }
         ];
@@ -67,24 +86,6 @@ in {
             emptyDir = {};
           }
         ];
-        resources = {
-          limits = {
-            cpu = "100m";
-            memory = "128Mi";
-            ephemeral-storage = "16Mi";
-          };
-          requests = {
-            cpu = "50m";
-            memory = "64Mi";
-            ephemeral-storage = "8Mi";
-          };
-        };
-        securityContext = {
-          runAsUser = 1000;
-          runAsNonRoot = true;
-          seccompProfile.type = "RuntimeDefault";
-        };
-        automountServiceAccountToken = false;
       };
     };
   };

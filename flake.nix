@@ -79,6 +79,7 @@
             ggshield
             helmfile
             jq
+            kube-capacity
             kubectl
             renovate
             sops

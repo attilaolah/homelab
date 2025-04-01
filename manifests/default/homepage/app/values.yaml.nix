@@ -1,3 +1,4 @@
+# https://github.com/jameswynn/helm-charts/blob/main/charts/homepage/values.yaml
 {
   cluster,
   k,
@@ -8,6 +9,10 @@
 
   title = "Dornhaus";
 in {
+  inherit (k.container) securityContext;
+
+  image.tag = v.homepage.docker;
+
   config = {
     settings = {
       inherit title;
@@ -55,6 +60,7 @@ in {
 
   enableRbac = true;
   serviceAccount.create = true;
+  podSecurityContext = k.pod.securityContext;
 
   ingress.main = {
     enabled = true;
@@ -82,18 +88,16 @@ in {
   # Use Loki for logs, no need to persist a local copy.
   persistence.logs.enabled = false;
 
-  resources = {
-    requests = {
-      cpu = "20m";
-      memory = "64Mi";
-    };
-    limits = {
-      cpu = "500m";
+  resources = let
+    guaranteed = {
+      cpu = "200m";
       memory = "256Mi";
+      ephemeral-storage = "128Mi";
     };
+  in {
+    limits = guaranteed;
+    requests = guaranteed;
   };
 
   env.HOMEPAGE_ALLOWED_HOSTS = cluster.domain;
-
-  image.tag = v.homepage.docker;
 }

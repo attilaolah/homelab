@@ -11,6 +11,6 @@ in {
       name = "internal-ca";
     };
     commonName = name;
-    dnsNames = [name];
+    dnsNames = [name "localhost"];
   };
 })

@@ -12,6 +12,7 @@ in {
   external-secrets.helm = ["https://charts.external-secrets.io" "0.15.1"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.18.0"];
   flux.github-releases = ["fluxcd/flux2" "2.5.1"];
+  goldilocks.docker = ["us-docker.pkg.dev/fairwinds-ops/oss/goldilocks" "4.13.4" vp];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.0.1"];
   homepage.docker = ["ghcr.io/gethomepage/homepage" "1.1.1" vp];
   homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.0.2"];
