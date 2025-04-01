@@ -16,8 +16,6 @@ let
         memory = "2Gi";
       };
     };
-
-    revisionHistoryLimit = 2;
   };
 in {
   recommender = component;

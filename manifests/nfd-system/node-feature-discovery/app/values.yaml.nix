@@ -9,8 +9,6 @@
       cpu = "400m";
       memory = "1Gi";
     };
-
-    revisionHistoryLimit = 2;
   };
 
   worker = let

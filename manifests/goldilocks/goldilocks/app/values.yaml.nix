@@ -10,8 +10,6 @@ let
         memory = "1Gi";
       };
     };
-
-    revisionHistoryLimit = 2;
   };
 in {
   controller = component;
