@@ -1,6 +1,12 @@
 # https://github.com/philippwaller/helm-charts/blob/main/charts/inadyn/templates/deployment.yaml
-{k, ...}: {
+{
+  k,
+  v,
+  ...
+}: {
   inherit (k.container) securityContext;
+
+  image.tag = v.inadyn.docker;
 
   resources = let
     guaranteed = {

@@ -8,6 +8,7 @@
   name = k.appname ./.;
 in {
   image.tag = v.goldilocks.docker;
+
   controller.resources = rec {
     limits = requests // {cpu = "200m";};
     requests = {
@@ -16,6 +17,7 @@ in {
       ephemeral-storage = "256Mi";
     };
   };
+
   dashboard = {
     basePath = "/${name}";
     flags.enable-cost = "false";

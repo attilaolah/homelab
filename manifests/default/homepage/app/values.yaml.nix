@@ -11,6 +11,8 @@
 in {
   inherit (k.container) securityContext;
 
+  image.tag = v.homepage.docker;
+
   config = {
     settings = {
       inherit title;
@@ -98,6 +100,4 @@ in {
   };
 
   env.HOMEPAGE_ALLOWED_HOSTS = cluster.domain;
-
-  image.tag = v.homepage.docker;
 }
