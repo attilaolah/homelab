@@ -1,8 +1,5 @@
 {k, ...}:
 k.namespace ./. {
-  metadata.labels = {
-    "goldilocks.fairwinds.com/enabled" = "true";
-    # Required by Node Exporter to access the host namespace.
-    "pod-security.kubernetes.io/enforce" = "privileged";
-  };
+  # Required by Node Exporter to access the host namespace.
+  metadata.labels."pod-security.kubernetes.io/enforce" = "privileged";
 }

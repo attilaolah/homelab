@@ -9,18 +9,24 @@
 in {
   image.tag = v.goldilocks.docker;
 
-  controller.resources = rec {
-    limits = requests // {cpu = "200m";};
-    requests = {
-      cpu = "50m";
-      memory = "256Mi";
-      ephemeral-storage = "256Mi";
+  controller = {
+    flags.on-by-default = "true";
+    resources = rec {
+      limits = requests // {cpu = "200m";};
+      requests = {
+        cpu = "50m";
+        memory = "256Mi";
+        ephemeral-storage = "256Mi";
+      };
     };
   };
 
   dashboard = {
     basePath = "/${name}";
-    flags.enable-cost = "false";
+    flags = {
+      on-by-default = "true";
+      enable-cost = "false";
+    };
     resources = rec {
       limits = requests // {cpu = "100m";};
       requests = {
