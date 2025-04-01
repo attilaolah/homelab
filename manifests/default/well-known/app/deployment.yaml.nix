@@ -14,8 +14,12 @@ in {
     template = {
       metadata = {inherit labels;};
       spec = {
+        inherit (k.pod) automountServiceAccountToken securityContext;
+
         containers = [
           {
+            inherit (k.container) securityContext;
+
             name = "nginx";
             image = "nginx:${v.nginx.docker}";
             ports = [{containerPort = 8443;}];
@@ -42,10 +46,15 @@ in {
                 mountPath = "/var/run";
               }
             ];
-            securityContext = {
-              allowPrivilegeEscalation = false;
-              capabilities.drop = ["ALL"];
-              readOnlyRootFilesystem = true;
+            resources = let
+              guaranteed = {
+                cpu = "50m";
+                memory = "128Mi";
+                ephemeral-storage = "128Mi";
+              };
+            in {
+              limits = guaranteed;
+              requests = guaranteed;
             };
           }
         ];
@@ -67,24 +76,6 @@ in {
             emptyDir = {};
           }
         ];
-        resources = {
-          limits = {
-            cpu = "100m";
-            memory = "128Mi";
-            ephemeral-storage = "16Mi";
-          };
-          requests = {
-            cpu = "50m";
-            memory = "64Mi";
-            ephemeral-storage = "8Mi";
-          };
-        };
-        securityContext = {
-          runAsUser = 1000;
-          runAsNonRoot = true;
-          seccompProfile.type = "RuntimeDefault";
-        };
-        automountServiceAccountToken = false;
       };
     };
   };

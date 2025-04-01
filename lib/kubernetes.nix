@@ -130,6 +130,20 @@ in {
     };
   };
 
+  container.securityContext = {
+    allowPrivilegeEscalation = false;
+    capabilities.drop = ["ALL"];
+    readOnlyRootFilesystem = true;
+  };
+  pod = {
+    automountServiceAccountToken = false;
+    securityContext = {
+      runAsUser = 1000;
+      runAsNonRoot = true;
+      seccompProfile.type = "RuntimeDefault";
+    };
+  };
+
   kustomization = dir: overrides:
     recursiveUpdate (api "Kustomization.kustomize.config.k8s.io" {
       resources =

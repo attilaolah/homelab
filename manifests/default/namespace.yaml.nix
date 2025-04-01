@@ -1,4 +1,7 @@
 {k, ...}:
 k.namespace ./. {
-  metadata.labels."goldilocks.fairwinds.com/enabled" = "true";
+  metadata.labels = {
+    "goldilocks.fairwinds.com/enabled" = "true";
+    "pod-security.kubernetes.io/audit" = "restricted";
+  };
 }

@@ -29,11 +29,22 @@ in {
   };
 
   # Request a slightly beefier node.
-  resources.requests = {
-    cpu = "2";
-    memory = "4Gi";
+  resources = {
+    limits = {
+      cpu = "4";
+      memory = "6Gi";
+      ephemeral-storage = "64Gi";
+    };
+    requests = {
+      cpu = "2";
+      memory = "4Gi";
+      ephemeral-storage = "16Gi";
+    };
   };
-  nodeSelector."kubernetes.io/arch" = "amd64";
+  nodeSelector = {
+    "kubernetes.io/arch" = "amd64";
+    "feature.node.kubernetes.io/cpu-model.vendor_id" = "Intel";
+  };
 
   # Persist data across pod restarts.
   persistence.dataDir = {
@@ -42,6 +53,6 @@ in {
   };
 
   # Use a pre-defined IP for the service.
-  # This allows NAT-ing the service, making it available on the internet.
+  # This allows NAT-ing the service, making it available to the public.
   serviceAnnotations."lbipam.cilium.io/ips" = cluster.network.external.minecraft;
 }

@@ -1,3 +1,4 @@
+# https://github.com/jameswynn/helm-charts/blob/main/charts/homepage/values.yaml
 {
   cluster,
   k,
@@ -82,15 +83,15 @@ in {
   # Use Loki for logs, no need to persist a local copy.
   persistence.logs.enabled = false;
 
-  resources = {
-    requests = {
-      cpu = "20m";
-      memory = "64Mi";
-    };
-    limits = {
-      cpu = "500m";
+  resources = let
+    guaranteed = {
+      cpu = "200m";
       memory = "256Mi";
+      ephemeral-storage = "128Mi";
     };
+  in {
+    limits = guaranteed;
+    requests = guaranteed;
   };
 
   env.HOMEPAGE_ALLOWED_HOSTS = cluster.domain;

@@ -14,8 +14,11 @@ in {
     template = {
       metadata = {inherit labels;};
       spec = {
+        inherit (k.pod) automountServiceAccountToken;
         containers = [
           {
+            inherit (k.container) securityContext;
+
             name = "nginx";
             # TODO: remove pin after cleaning up local cache
             image = "attilaolah/k0s:${v.k0s.docker}@sha256:07a29754e55e6e5da59254aee53da597d2cbc4952cbc566600e379235e9028d6";
@@ -49,10 +52,15 @@ in {
                 mountPath = "/var/run/nginx";
               }
             ];
-            securityContext = {
-              allowPrivilegeEscalation = false;
-              capabilities.drop = ["ALL"];
-              readOnlyRootFilesystem = true;
+            resources = let
+              guaranteed = {
+                cpu = "50m";
+                memory = "128Mi";
+                ephemeral-storage = "128Mi";
+              };
+            in {
+              limits = guaranteed;
+              requests = guaranteed;
             };
           }
         ];
@@ -70,24 +78,7 @@ in {
             emptyDir = {};
           }
         ];
-        resources = {
-          limits = {
-            cpu = "200m";
-            memory = "256Mi";
-            ephemeral-storage = "64Mi";
-          };
-          requests = {
-            cpu = "50m";
-            memory = "64Mi";
-            ephemeral-storage = "8Mi";
-          };
-        };
-        securityContext = {
-          runAsNonRoot = true;
-          runAsUser = 101;
-          seccompProfile.type = "RuntimeDefault";
-        };
-        automountServiceAccountToken = false;
+        securityContext = k.pod.securityContext // {runAsUser = 101;};
       };
     };
   };
