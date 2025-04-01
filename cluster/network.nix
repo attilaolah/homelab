@@ -4,6 +4,7 @@ in {
   node = rec {
     net4 = "10.8.0.0";
     net4Len = 16;
+    net4LenRoutable = 8;
     cidr4 = cidr net4 net4Len;
 
     # L2 natively routable addresses.
