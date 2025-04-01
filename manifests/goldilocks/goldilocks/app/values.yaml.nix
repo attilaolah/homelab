@@ -1,17 +1,18 @@
-let
-  component = {
-    resources = {
-      requests = {
-        cpu = "25m";
-        memory = "256Mi";
-      };
-      limits = {
-        cpu = "100m";
-        memory = "1Gi";
-      };
+{
+  controller.resources = rec {
+    limits = requests // {cpu = "200m";};
+    requests = {
+      cpu = "50m";
+      memory = "256Mi";
+      ephemeral-storage = "256Mi";
     };
   };
-in {
-  controller = component;
-  dashboard = component;
+  dashboard.resources = rec {
+    limits = requests // {cpu = "100m";};
+    requests = {
+      cpu = "50m";
+      memory = "128Mi";
+      ephemeral-storage = "128Mi";
+    };
+  };
 }
