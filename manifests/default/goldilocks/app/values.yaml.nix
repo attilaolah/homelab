@@ -1,4 +1,5 @@
-{
+{v, ...}: {
+  image.tag = v.goldilocks.docker;
   controller.resources = rec {
     limits = requests // {cpu = "200m";};
     requests = {
