@@ -1,6 +1,5 @@
 ---
 - name: Install Tailscale
-  when: ansible_facts["os_family"] | lower == "alpine"
   community.general.apk:
     name: tailscale
     update_cache: true
