@@ -17,6 +17,8 @@
     tags: [network]
   - role: packages
     tags: [packages]
+  - role: tailscale
+    tags: [tailscale]
   - role: storage
     tags: [storage]
   - role: k0s
