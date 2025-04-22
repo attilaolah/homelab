@@ -20,8 +20,7 @@ in {
             inherit (k.container) securityContext;
 
             name = "nginx";
-            # TODO: remove pin after cleaning up local cache
-            image = "attilaolah/k0s:${v.k0s.docker}@sha256:07a29754e55e6e5da59254aee53da597d2cbc4952cbc566600e379235e9028d6";
+            image = "attilaolah/k0s:${v.k0s.docker}";
             imagePullPolicy = "Always";
             ports = [
               {
