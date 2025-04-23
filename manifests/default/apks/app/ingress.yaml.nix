@@ -20,7 +20,7 @@ in {
       })
       // (homepage {
         name = "APKs";
-        description = "Alpine APK mirrer containing k0s";
+        description = "Alpine APK mirror containing k0s";
         icon = "alpine-linux";
         group = "Cluster Management";
       });
