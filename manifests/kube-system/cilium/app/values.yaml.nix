@@ -26,8 +26,8 @@
   ipv4NativeRoutingCIDR = cluster.network.node.routableCIDR4;
 
   ipv6.enabled = true; # default = false
-  # The Swisscom Router seems to advertise this address.
-  # We should use something self-configured but this will do for now.
+  # The Sunrise router seems to advertise this address.
+  # I should use something self-configured but this will do for now.
   ipv6NativeRoutingCIDR = cluster.network.node.cidr6;
 
   # Use L2 Announcements.
