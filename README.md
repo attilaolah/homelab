@@ -83,7 +83,7 @@ domain, for free.
 
 ## 6️⃣ IPv6 networking
 
-Currently the machines in the cluster are connected to to the router that Swisscom provides us, through cheap 1 Gbps
+Currently the machines in the cluster are connected to to the router that my ISP provides, through cheap 1 Gbps
 switches that only do L2 forwarding. This router advertises two IPv6 prefixes:
 
 - A `scope global`, `dynamic` prefix that belongs to the `2000::/3` range.
