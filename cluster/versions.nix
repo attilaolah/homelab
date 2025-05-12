@@ -15,7 +15,7 @@ in {
   goldilocks.docker = ["us-docker.pkg.dev/fairwinds-ops/oss/goldilocks" "4.13.4" vp];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.0.2"];
   homepage.docker = ["ghcr.io/gethomepage/homepage" "1.2.0" vp];
-  homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.0.2"];
+  homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.1.0"];
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.2"];
