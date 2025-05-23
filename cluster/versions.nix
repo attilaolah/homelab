@@ -49,10 +49,10 @@ in {
   CiliumLoadBalancerIPPool.cilium.io = "v2alpha1";
   Cluster.postgresql.cnpg.io = "v1";
   ClusterIssuer.cert-manager.io = "v1";
-  ClusterSecretStore.external-secrets.io = "v1beta1";
+  ClusterSecretStore.external-secrets.io = "v1";
   ConfigMap = "v1";
   Deployment.apps = "v1";
-  ExternalSecret.external-secrets.io = "v1beta1";
+  ExternalSecret.external-secrets.io = "v1";
   FluxInstance.fluxcd.controlplane.io = "v1";
   GitRepository.source.toolkit.fluxcd.io = "v1";
   HelmRelease.helm.toolkit.fluxcd.io = "v2";
