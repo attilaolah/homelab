@@ -29,7 +29,7 @@ in {
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.10"];
   kubernetes.github-releases = ["kubernetes/kubernetes" "1.33.1" vp];
   local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.31" vp];
-  loki.helm = ["https://grafana.github.io/helm-charts" "6.30.0"];
+  loki.helm = ["https://grafana.github.io/helm-charts" "6.30.1"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.12.2"];
   minecraft-bedrock.helm = ["oci://ghcr.io/itzg/minecraft-server-charts" "2.8.4"];
   nginx.docker = ["nginx" "1.28.0"];
