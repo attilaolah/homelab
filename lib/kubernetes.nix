@@ -302,7 +302,7 @@ in {
             sourceRef = {
               inherit (flux) namespace;
               name = let
-                data = cluster.versions-data.${name};
+                data = cluster.versions-data.${pchart};
                 url = elemAt (data.helm or data.github-releases) 0;
               in
                 repository-name url;
