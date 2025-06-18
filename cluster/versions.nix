@@ -5,7 +5,7 @@ in {
   # dep.datasource = [repository version transform]
   # If transform is not provided, the default is used: (v: v).
   busybox.docker = ["busybox" "1.37.0"];
-  cert-manager.helm = ["https://charts.jetstack.io" "1.18.0"];
+  cert-manager.helm = ["https://charts.jetstack.io" "1.18.1"];
   cilium.helm = ["https://helm.cilium.io" "1.17.4"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.24.0"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.33.0"];
@@ -25,7 +25,7 @@ in {
   k0s.docker = ["attilaolah/k0s" "1.33.1.0"];
   k0s.github-releases = ["k0sproject/k0s" "1.33.1+k0s.0" vp];
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.7.3"];
-  kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "74.2.1"];
+  kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "75.2.0"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.10"];
   kubernetes.github-releases = ["kubernetes/kubernetes" "1.33.1" vp];
   local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.31" vp];
@@ -38,7 +38,7 @@ in {
   pause.docker = ["registry.k8s.io/pause" "3.9"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.1.3"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.3.0"];
-  talos.github-releases = ["siderolabs/talos" "1.10.3" vp];
+  talos.github-releases = ["siderolabs/talos" "1.10.4" vp];
   vector.helm = ["https://helm.vector.dev" "0.43.0"];
   vpa.helm = ["https://charts.fairwinds.com/stable" "4.7.2"];
   zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.8.0"];
