@@ -5,7 +5,7 @@ in {
   # dep.datasource = [repository version transform]
   # If transform is not provided, the default is used: (v: v).
   busybox.docker = ["busybox" "1.37.0"];
-  cert-manager.helm = ["https://charts.jetstack.io" "1.18.1"];
+  cert-manager.helm = ["https://charts.jetstack.io" "1.18.2"];
   cilium.helm = ["https://helm.cilium.io" "1.17.5"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.24.0"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.33.0"];
