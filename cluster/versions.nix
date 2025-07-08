@@ -18,7 +18,7 @@ in {
   homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.1.0"];
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
-  ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.12.3"];
+  ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.13.0"];
   jaeger-collector.docker = ["jaegertracing/jaeger-collector" "1.71.0"];
   jaeger-query.docker = ["jaegertracing/jaeger-query" "1.71.0"];
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.1"];
