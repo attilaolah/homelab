@@ -13,7 +13,9 @@
     {
       "customType": "regex",
       "description": "Cluster dependencies",
-      "fileMatch": "cluster/versions\\.nix$",
+      "managerFilePatterns": [
+        "/cluster/versions\\.nix$/"
+      ],
       "matchStrings": [
         "(?<depName>[^\\s\\.]+)\\.(?<datasource>helm) = \\[\"(?<registryUrl>https://.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
         "(?<helmChart>[^\\s\\.]+)\\.helm = \\[\"(?<scheme>oci)://(?<helmRepo>.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
@@ -27,7 +29,9 @@
     {
       "customType": "regex",
       "description": "Kubernetes API versions",
-      "fileMatch": "cluster/versions\\.nix$",
+      "managerFilePatterns": [
+        "/cluster/versions\\.nix$/"
+      ],
       "matchStrings": [
         "(?<depName>[^\\s\\.]+)(\\.(?<api>[^\\s]+))? = \"(?<currentValue>v.+?)\";"
       ],
