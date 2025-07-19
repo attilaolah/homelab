@@ -77,6 +77,7 @@ in {
           else {
             proxy-buffer-size = proxyBufferSize;
             proxy-buffers = "8 ${proxyBufferSize}";
+            proxy-busy-buffers-size = proxyBufferSize;
           }
         )
       );
