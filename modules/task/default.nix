@@ -1,8 +1,4 @@
-{
-  nixpkgs-devenv,
-  withSystem,
-  ...
-}: {self, ...}: {
+{withSystem, ...}: {self, ...}: {
   perSystem = {
     system,
     inputs',
