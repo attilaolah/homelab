@@ -16,7 +16,6 @@
     };
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-devenv.url = "github:cachix/devenv-nixpkgs/rolling";
 
     talhelper.url = "github:budimanjojo/talhelper";
   };
@@ -31,7 +30,6 @@
     flake-parts,
     devenv-root,
     nixpkgs,
-    nixpkgs-devenv,
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} (ctx @ {
@@ -44,7 +42,7 @@
         ansible = importApply ./modules/ansible ctx;
         manifests = importApply ./modules/manifests ctx;
         talhelper = importApply ./modules/talhelper ctx;
-        task = importApply ./modules/task (ctx // {inherit nixpkgs-devenv;});
+        task = importApply ./modules/task ctx;
       };
     in {
       systems = ["x86_64-linux"];
