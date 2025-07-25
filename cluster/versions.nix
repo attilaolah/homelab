@@ -7,7 +7,7 @@ in {
   busybox.docker = ["busybox" "1.37.0"];
   cert-manager.helm = ["https://charts.jetstack.io" "1.18.2"];
   cilium.helm = ["https://helm.cilium.io" "1.17.6"];
-  cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.24.0"];
+  cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.25.0"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.33.0"];
   external-secrets.helm = ["https://charts.external-secrets.io" "0.18.2"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.25.0"];
