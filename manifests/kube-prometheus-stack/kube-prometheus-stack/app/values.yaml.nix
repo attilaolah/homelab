@@ -6,17 +6,27 @@
   v,
   ...
 }: let
+  inherit (builtins) listToAttrs;
   inherit (cluster) domain;
-  inherit (lib.strings) concatStringsSep replaceStrings;
+  inherit (lib.strings) concatStringsSep;
 
   instance = k.appname ./.;
   namespace = k.nsname ./.;
   group = "Cluster Management";
 
+  origin = "https://${domain}";
+
   ingressClassName = "nginx";
   ingressSecretName = "${domain}-tls";
   secrets = "${instance}-secrets";
-  oauthConfig = "${instance}-oauth-config";
+
+  oap = "oauth2-proxy";
+  oaConfig = "${instance}-oauth-config";
+  oaComponents = [
+    "prometheus"
+    "alertmanager"
+  ];
+
   hosts = [domain];
   tls = [
     {
@@ -25,17 +35,126 @@
     }
   ];
 
-  oauth2Port = 8443;
-  prometheusPort = 9090;
+  ports = {
+    prometheus = 9090;
+    alertmanager = 9093;
+    oauth = 8443;
+  };
+
+  storage.emptyDir.sizeLimit = "64Gi";
 
   # Shared emptyDir mount for storing CA certificates.
-  # This is populated by an initContainers with root CAs.
+  # A read-only version is mounted under /etc/ssl/certs, and a read-write version
+  # under /etc/ssl/certs/new, which is populated by init-containers with a combined CA bundle.
   certsMount = {
     name = "certs";
     mountPath = "/etc/ssl/certs";
+    readOnly = true;
+  };
+  certsMountNew = {
+    inherit (certsMount) name;
+    mountPath = "${certsMount.mountPath}/new";
+  };
+  volumes = [
+    {
+      inherit (certsMount) name;
+      emptyDir.medium = "Memory";
+    }
+  ];
+
+  resources = {
+    limits = {
+      cpu = "200m";
+      memory = "256Mi";
+      ephemeral-storage = "2Gi";
+    };
+    requests = {
+      cpu = "50m";
+      memory = "128Mi";
+      ephemeral-storage = "64Mi";
+    };
+  };
+  securityContext = {
+    allowPrivilegeEscalation = false;
+    capabilities.drop = ["ALL"];
+    readOnlyRootFilesystem = true;
   };
 
   localFile = path: "$__file{${path}}";
+
+  # Component: Alertmanager / Prometheus.
+  containers = component: let
+    configFile = "oauth2_proxy.conf";
+    configPath = "/etc/${configFile}";
+  in [
+    {
+      inherit resources securityContext;
+
+      name = oap;
+      image = "quay.io/${oap}/${oap}:${v.oauth2-proxy.docker}";
+      args = ["--config" configPath];
+      env = [
+        {
+          name = "OAUTH2_PROXY_CLIENT_SECRET";
+          valueFrom.secretKeyRef = {
+            name = secrets;
+            key = "oauth2_client_secret";
+          };
+        }
+        {
+          name = "OAUTH2_PROXY_COOKIE_SECRET";
+          valueFrom.secretKeyRef = {
+            name = secrets;
+            key = "oauth2_cookie_secret";
+          };
+        }
+      ];
+      ports = [
+        {
+          name = oap;
+          containerPort = ports.oauth;
+          protocol = "TCP";
+        }
+      ];
+      # Loading files from /etc/prometheus doesn't seem to work.
+      # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
+      volumeMounts = [
+        (k.pki.mount // {name = "secret-${component}-tls";})
+        certsMount
+        {
+          name = "configmap-${oaConfig}";
+          mountPath = configPath;
+          subPath = component;
+          readOnly = true;
+        }
+      ];
+    }
+  ];
+
+  initContainers = component: [
+    {
+      inherit resources securityContext;
+
+      name = "init-ca";
+      image = "alpine:${v.alpine.docker}";
+      args = let
+        bundle = "ca-certificates.crt";
+      in [
+        "sh"
+        "-c"
+        # The internal CA is used for trusting the upstream service.
+        "cat ${certsMount.mountPath}/${bundle} ${k.pki.ca} > ${certsMountNew.mountPath}/${bundle}"
+      ];
+      volumeMounts = [
+        certsMountNew
+        {
+          name = "secret-${component}-tls";
+          mountPath = k.pki.dir;
+          readOnly = true;
+        }
+      ];
+    }
+  ];
 in {
   # Grafana subchart config defaults:
   # https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
@@ -90,7 +209,7 @@ in {
         enforce_domain = false;
       };
       "auth.generic_oauth" = let
-        idp = "https://${domain}/keycloak/realms/dh/protocol/openid-connect";
+        idp = "${origin}/keycloak/realms/dh/protocol/openid-connect";
       in {
         enabled = true;
         name = "OAuth";
@@ -121,6 +240,7 @@ in {
       extraMounts = [
         rec {
           name = "tls";
+          # TODO: Is this still required?
           mountPath = "/usr/local/share/ca-certificates/${subPath}";
           subPath = k.pki.files.ca;
           readOnly = true;
@@ -160,7 +280,7 @@ in {
         type = prometheus;
         uid = prometheus;
         editable = false;
-        url = "https://${instance}-${prometheus}:${toString prometheusPort}/${prometheus}";
+        url = "https://${instance}-${prometheus}:${toString ports."${prometheus}"}/${prometheus}";
         jsonData = {
           tlsAuth = true;
           tlsAuthWithCACert = true;
@@ -211,13 +331,7 @@ in {
       }
       (k.pki.mount // {inherit secretName;})
     ];
-
-    extraContainerVolumes = [
-      {
-        name = "certs";
-        emptyDir.medium = "Memory";
-      }
-    ];
+    extraContainerVolumes = volumes;
 
     serviceMonitor = {
       path = "${path}/metrics";
@@ -247,10 +361,6 @@ in {
     fullName = "${instance}-${name}";
     path = "/${name}";
     secretName = "${name}-tls";
-    volumeMounts = [
-      (k.pki.mount // {name = "secret-${secretName}";})
-      certsMount
-    ];
   in rec {
     ingress = {
       inherit hosts ingressClassName tls;
@@ -258,7 +368,7 @@ in {
       enabled = true;
       paths = [path];
       pathType = "ImplementationSpecific";
-      servicePort = oauth2Port;
+      servicePort = ports.oauth;
       annotations = with k.annotations;
         cert-manager
         // (ingress-nginx {
@@ -279,37 +389,32 @@ in {
 
     service.additionalPorts = [
       {
-        name = "oauth2-proxy";
-        port = oauth2Port;
-        targetPort = oauth2Port;
+        name = oap;
+        port = ports.oauth;
+        targetPort = ports.oauth;
         appProtocol = "https";
       }
     ];
 
     prometheusSpec = let
-      resources = {
-        limits = {
-          cpu = "200m";
-          memory = "256Mi";
-          ephemeral-storage = "2Gi";
-        };
-        requests = {
-          cpu = "50m";
-          memory = "128Mi";
-          ephemeral-storage = "64Mi";
-        };
-      };
-      securityContext = {
-        allowPrivilegeEscalation = false;
-        capabilities.drop = ["ALL"];
-        readOnlyRootFilesystem = true;
-      };
     in {
+      inherit volumes;
+
+      nodeSelector."feature.node.kubernetes.io/system-os_release.ID" = "talos";
+
       retention = "28d";
       routePrefix = path;
-      externalUrl = "https://${domain}${path}";
+      externalUrl = "${origin}${path}";
 
-      storageSpec.emptyDir.sizeLimit = "64Gi";
+      enableOTLPReceiver = true;
+      additionalArgs = [
+        {
+          name = "web.cors.origin";
+          value = origin;
+        }
+      ];
+
+      storageSpec = storage;
 
       web.tlsConfig = {
         cert.secret = {
@@ -328,85 +433,11 @@ in {
         clientAuthType = "VerifyClientCertIfGiven";
       };
 
-      containers = let
-        configFile = "oauth2_proxy.conf";
-        configPath = "/etc/${configFile}";
-      in [
-        {
-          inherit resources securityContext;
-
-          name = "oauth2-proxy";
-          image = "quay.io/oauth2-proxy/oauth2-proxy:${v.oauth2-proxy.docker}";
-          args = ["--config" configPath];
-          env = [
-            {
-              name = "OAUTH2_PROXY_CLIENT_SECRET";
-              valueFrom.secretKeyRef = {
-                name = secrets;
-                key = "oauth2_client_secret";
-              };
-            }
-            {
-              name = "OAUTH2_PROXY_COOKIE_SECRET";
-              valueFrom.secretKeyRef = {
-                name = secrets;
-                key = "oauth2_cookie_secret";
-              };
-            }
-          ];
-          ports = [
-            {
-              name = "oauth2-proxy";
-              containerPort = oauth2Port;
-              protocol = "TCP";
-            }
-          ];
-          # Loading files from /etc/prometheus doesn't seem to work.
-          # Maybe because of the multiple levels of symbolic links, who knows, but avoiding symlinks seems to work.
-          volumeMounts =
-            volumeMounts
-            ++ [
-              {
-                name = "configmap-${oauthConfig}";
-                mountPath = configPath;
-                subPath = name;
-                readOnly = true;
-              }
-            ];
-        }
-      ];
-      initContainers = let
-        ingressCrt = "/etc/ssl/ingress.crt";
-      in [
-        {
-          inherit resources securityContext;
-
-          name = "init-ca-certificates";
-          image = "busybox:${v.busybox.docker}";
-          # The ingress certificate is used only for trusting Keycloak.
-          # The internal CA is used for trusting the upstream service (Prometheus).
-          args = ["sh" "-c" "cat ${ingressCrt} ${k.pki.ca} > ${certsMount.mountPath}/ca-certificates.crt"];
-          volumeMounts =
-            volumeMounts
-            ++ [
-              {
-                name = "secret-${replaceStrings ["."] ["-"] ingressSecretName}";
-                mountPath = ingressCrt;
-                subPath = k.pki.files.crt;
-                readOnly = true;
-              }
-            ];
-        }
-      ];
+      containers = containers name;
+      initContainers = initContainers name;
 
       secrets = [secretName ingressSecretName];
-      configMaps = [oauthConfig];
-      volumes = [
-        {
-          name = "certs";
-          emptyDir.medium = "Memory";
-        }
-      ];
+      configMaps = [oaConfig];
     };
 
     serviceMonitor = {
@@ -422,55 +453,55 @@ in {
   cleanPrometheusOperatorObjectNames = true;
 
   extraManifests =
-    (map (name:
-      k.api "Certificate.cert-manager.io" {
-        metadata = {inherit name;};
-        spec = {
-          secretName = "${name}-tls";
-          issuerRef = {
-            kind = "ClusterIssuer";
-            name = "internal-ca";
-          };
-          commonName = name;
-          dnsNames = [
-            "${instance}-${name}"
-            # Allow sidecars to connect via the loopback interface:
-            "localhost"
-          ];
-        };
-      }) [
-      "grafana"
-      "prometheus"
-      "alertmanager"
-    ])
-    ++ [
+    [
       (k.api "ConfigMap" {
-        metadata.name = oauthConfig;
-        data.prometheus = let
-          name = "prometheus";
-        in ''
-          provider = "keycloak-oidc"
-          client_id = "monitoring"
-          oidc_issuer_url = "https://${domain}/keycloak/realms/dh"
-          redirect_url = "https://${domain}/${name}/auth/callback"
-          code_challenge_method = "S256"
-          email_domains = "${domain}"
+        metadata.name = oaConfig;
+        data = listToAttrs (map (name: {
+            inherit name;
+            value = ''
+              provider = "keycloak-oidc"
+              client_id = "monitoring"
+              oidc_issuer_url = "${origin}/keycloak/realms/dh"
+              redirect_url = "${origin}/${name}/auth/callback"
+              code_challenge_method = "S256"
+              email_domains = "${domain}"
 
-          reverse_proxy = true
-          proxy_prefix = "/${name}/auth"
+              reverse_proxy = true
+              proxy_prefix = "/${name}/auth"
 
-          https_address = "[::]:${toString oauth2Port}"
-          tls_cert_file = "${k.pki.crt}"
-          tls_key_file = "${k.pki.key}"
+              https_address = "[::]:${toString ports.oauth}"
+              tls_cert_file = "${k.pki.crt}"
+              tls_key_file = "${k.pki.key}"
 
-          cookie_secure = "true"
-          cookie_samesite = "strict"
-          cookie_name = "__Host-${name}"
+              cookie_secure = "true"
+              cookie_samesite = "strict"
+              cookie_name = "__Host-${name}"
 
-          upstreams = ["https://localhost:${toString prometheusPort}"]
+              upstreams = ["https://localhost:${toString ports."${name}"}"]
 
-          skip_provider_button = "true"
-        '';
+              skip_provider_button = "true"
+            '';
+          })
+          oaComponents);
       })
-    ];
+    ]
+    ++ (
+      map (name:
+        k.api "Certificate.cert-manager.io" {
+          metadata = {inherit name;};
+          spec = {
+            secretName = "${name}-tls";
+            issuerRef = {
+              kind = "ClusterIssuer";
+              name = "internal-ca";
+            };
+            commonName = name;
+            dnsNames = [
+              "${instance}-${name}"
+              # Allow sidecars to connect via the loopback interface:
+              "localhost"
+            ];
+          };
+        }) (oaComponents ++ ["grafana"])
+    );
 }
