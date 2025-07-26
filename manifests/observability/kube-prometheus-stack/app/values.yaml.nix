@@ -401,7 +401,7 @@ in {
         })
       ((unique "jaeger")
         // {
-          url = "https://jaeger-query-https.observability.svc/jaeger";
+          url = "https://jaeger-query-https/jaeger";
           jsonData =
             jsonData
             // {
@@ -410,7 +410,7 @@ in {
         })
       ((unique "loki")
         // {
-          url = "http://loki.observability.svc:3100";
+          url = "http://loki:3100";
         })
     ];
 
