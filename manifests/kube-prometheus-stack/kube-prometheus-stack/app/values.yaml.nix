@@ -68,10 +68,10 @@ in {
     };
 
     admin = let
-      prefix = "${name}-admin";
+      prefix = "${name}_admin";
     in {
-      userKey = "${prefix}-user";
-      passwordKey = "${prefix}-password";
+      userKey = "${prefix}_user";
+      passwordKey = "${prefix}_password";
       existingSecret = "${instance}-secrets";
     };
 
@@ -104,7 +104,7 @@ in {
         name_attribute_path = "join(' ', [firstName, lastName])";
         role_attribute_path = "('Admin')"; # everyone is an admin, for now
         client_id = "monitoring";
-        client_secret = localFile "/etc/secrets/oauth2-client-secret";
+        client_secret = localFile "/etc/secrets/oauth2_client_secret";
         allow_sign_up = true;
         allowed_domains = hosts;
         auth_url = "${idp}/auth";
@@ -343,14 +343,14 @@ in {
               name = "OAUTH2_PROXY_CLIENT_SECRET";
               valueFrom.secretKeyRef = {
                 name = secrets;
-                key = "oauth2-client-secret";
+                key = "oauth2_client_secret";
               };
             }
             {
               name = "OAUTH2_PROXY_COOKIE_SECRET";
               valueFrom.secretKeyRef = {
                 name = secrets;
-                key = "oauth2-cookie-secret";
+                key = "oauth2_cookie_secret";
               };
             }
           ];
