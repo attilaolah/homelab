@@ -122,9 +122,6 @@
         inherit namespace;
         name = fullName component;
         secret = secretName component;
-        # Increase header size to fit auth cookies.
-        # TODO: Remove when switching to redis oauth backend.
-        proxyBufferSize = "16k";
       })
       // (homepage {
         inherit group;
@@ -198,6 +195,13 @@
           valueFrom.secretKeyRef = {
             name = secrets;
             key = "oauth2_cookie_secret";
+          };
+        }
+        {
+          name = "OAUTH2_PROXY_REDIS_PASSWORD";
+          valueFrom.secretKeyRef = {
+            name = secrets;
+            key = "oauth2_redis_password";
           };
         }
       ];
@@ -492,6 +496,11 @@ in {
               cookie_secure = "true"
               cookie_samesite = "strict"
               cookie_name = "__Host-${name}"
+
+              session_store_type = "redis"
+              redis_connection_url = "rediss://oauth-db.redis.svc:6379"
+              # TODO: Use an init-container to construct a CA bundle to avoid this.
+              redis_insecure_skip_tls_verify = true
 
               upstreams = ["${local}:${toString ports."${name}"}"]
 
