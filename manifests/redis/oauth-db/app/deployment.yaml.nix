@@ -34,6 +34,7 @@ k.api "Deployment.apps" (let
     k.pki.key
     "--pass"
     pwRef
+    "--no-auth-warning"
     "ping"
   ];
 in {
