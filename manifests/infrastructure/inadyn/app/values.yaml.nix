@@ -16,7 +16,7 @@
     };
   in {
     inherit requests;
-    limits = requests // {cpu = "500m";};
+    limits = requests // {cpu = "1";};
   };
   podSecurityContext = k.pod.securityContext;
 }
