@@ -499,8 +499,6 @@ in {
 
               session_store_type = "redis"
               redis_connection_url = "rediss://oauth-db.redis.svc:6379"
-              # TODO: Use an init-container to construct a CA bundle to avoid this.
-              redis_insecure_skip_tls_verify = true
 
               upstreams = ["${local}:${toString ports."${name}"}"]
 
