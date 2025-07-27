@@ -12,7 +12,7 @@ in {
   controller = {
     flags.on-by-default = "true";
     resources = rec {
-      limits = requests // {cpu = "200m";};
+      limits = requests // {cpu = "500m";};
       requests = {
         cpu = "50m";
         memory = "256Mi";
