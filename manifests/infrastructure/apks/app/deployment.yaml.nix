@@ -49,14 +49,15 @@ in {
                 mountPath = "/var/run/nginx";
               }
             ];
-            resources = rec {
-              # Higher CPU limit for liveness probe.
-              limits = requests // {cpu = "200m";};
+            resources = let
               requests = {
                 cpu = "50m";
                 memory = "256Mi";
                 ephemeral-storage = "256Mi";
               };
+            in {
+              inherit requests;
+              limits = requests // {cpu = "1";};
             };
           }
         ];
