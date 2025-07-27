@@ -8,6 +8,8 @@ in {
     port 0
     tls-port 6379
 
+    save ""
+
     tls-cert-file /etc/tls/tls.crt
     tls-key-file /etc/tls/tls.key
     # NOTE: OAuth2 Proxy currently can't send client certificates.

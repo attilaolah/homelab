@@ -83,11 +83,6 @@
       ephemeral-storage = "64Mi";
     };
   };
-  securityContext = {
-    allowPrivilegeEscalation = false;
-    capabilities.drop = ["ALL"];
-    readOnlyRootFilesystem = true;
-  };
 
   path = component: "/${component}";
   fullName = component: "${instance}-${component}";
@@ -177,7 +172,8 @@
     configPath = "/etc/${configFile}";
   in [
     {
-      inherit resources securityContext;
+      inherit resources;
+      inherit (k.container) securityContext;
 
       name = oap;
       image = "quay.io/${oap}/${oap}:${v.oauth2-proxy.docker}";
@@ -229,7 +225,8 @@
 
   initContainers = component: [
     {
-      inherit resources securityContext;
+      inherit resources;
+      inherit (k.container) securityContext;
 
       name = "init-ca";
       image = "alpine:${v.alpine.docker}";
@@ -405,7 +402,7 @@ in {
         })
       ((unique "jaeger")
         // {
-          url = "https://jaeger-query-https/jaeger";
+          url = "https://jaeger/jaeger";
           jsonData =
             jsonData
             // {

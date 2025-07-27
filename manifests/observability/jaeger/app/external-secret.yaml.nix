@@ -7,8 +7,9 @@
 in
   k.external-secret ./. {
     data = {
-      oauth2-client-secret = "{{ .monitoring_client_secret }}";
-      oauth2-cookie-secret = "{{ .jaeger_cookie_secret }}";
+      oauth2_client_secret = "{{ .monitoring_client_secret }}";
+      oauth2_cookie_secret = "{{ .jaeger_cookie_secret }}";
+      oauth2_redis_password = "{{ .redis_oauth_db_password }}";
 
       # Additional Helm values:
       "values.yaml" = yaml.format {};
