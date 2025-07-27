@@ -64,6 +64,7 @@ in {
                 ephemeral-storage = "128Mi";
               };
             in {
+              inherit requests;
               limits = requests // {cpu = "1";};
             };
           }
