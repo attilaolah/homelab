@@ -57,14 +57,15 @@ in {
                 mountPath = "/var/run";
               }
             ];
-            resources = rec {
-              # Higher CPU limit for liveness probe.
-              limits = requests // {cpu = "200m";};
+            resources = let
               requests = {
                 cpu = "50m";
                 memory = "128Mi";
                 ephemeral-storage = "128Mi";
               };
+            in {
+              inherit requests;
+              limits = requests // {cpu = "1";};
             };
           }
         ];

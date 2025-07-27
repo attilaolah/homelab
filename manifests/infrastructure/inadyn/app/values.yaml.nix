@@ -9,14 +9,14 @@
   image.tag = v.inadyn.docker;
 
   resources = let
-    guaranteed = {
+    requests = {
       cpu = "20m";
       memory = "128Mi";
       ephemeral-storage = "128Mi";
     };
   in {
-    limits = guaranteed;
-    requests = guaranteed;
+    inherit requests;
+    limits = requests // {cpu = "1";};
   };
   podSecurityContext = k.pod.securityContext;
 }

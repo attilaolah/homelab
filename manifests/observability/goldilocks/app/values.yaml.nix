@@ -6,34 +6,30 @@
   ...
 }: let
   name = k.appname ./.;
+  resources = let
+    requests = {
+      cpu = "50m";
+      memory = "256Mi";
+      ephemeral-storage = "256Mi";
+    };
+  in {
+    inherit requests;
+    limits = requests // {cpu = "1";};
+  };
 in {
   image.tag = v.goldilocks.docker;
 
   controller = {
+    inherit resources;
     flags.on-by-default = "true";
-    resources = rec {
-      limits = requests // {cpu = "200m";};
-      requests = {
-        cpu = "50m";
-        memory = "256Mi";
-        ephemeral-storage = "256Mi";
-      };
-    };
   };
 
   dashboard = {
+    inherit resources;
     basePath = "/${name}";
     flags = {
       on-by-default = "true";
       enable-cost = "false";
-    };
-    resources = rec {
-      limits = requests // {cpu = "100m";};
-      requests = {
-        cpu = "50m";
-        memory = "128Mi";
-        ephemeral-storage = "128Mi";
-      };
     };
   };
 }

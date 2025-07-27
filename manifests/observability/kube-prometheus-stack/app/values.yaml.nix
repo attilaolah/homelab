@@ -14,20 +14,22 @@
   namespace = k.nsname ./.;
   group = "Cluster Management";
 
+  # Core Components:
+  gr = "grafana";
+  pr = "prometheus";
+  am = "alertmanager";
+
   https = host: "https://${host}";
   origin = https domain;
   local = https "localhost";
 
   ingressClassName = "nginx";
   ingressSecretName = secretName domain;
-  secrets = "${instance}-secrets";
+  secrets = fullName "secrets";
 
   oap = "oauth2-proxy";
-  oaConfig = "${instance}-oauth-config";
-  oaComponents = [
-    "prometheus"
-    "alertmanager"
-  ];
+  oaConfig = fullName "oauth-config";
+  oaComponents = [pr am];
   oaIngress = {
     pathType = "ImplementationSpecific";
     servicePort = ports.oauth;
@@ -43,9 +45,9 @@
 
   hosts = [domain];
   ports = {
-    grafana = 3000;
-    prometheus = 9090;
-    alertmanager = 9093;
+    ${gr} = 3000;
+    ${pr} = 9090;
+    ${am} = 9093;
     oauth = 8443;
   };
 
@@ -88,15 +90,15 @@
   fullName = component: "${instance}-${component}";
   secretName = component: "${component}-tls";
   pretty = {
-    grafana = {
+    ${gr} = {
       name = "Grafana";
       description = "Observability platform";
     };
-    prometheus = {
+    ${pr} = {
       name = "Prometheus";
       description = "Metric collection & storage";
     };
-    alertmanager = {
+    ${am} = {
       name = "Alertmanager";
       description = "Alerting configuration & dispatch";
     };
@@ -154,9 +156,9 @@
     };
   };
   tlsClientConfig = component:
-    (tlsConfig component)
+    (tlsConfig pr)
     // {
-      ca = caConfig component;
+      ca = caConfig pr;
       serverName = fullName component;
     };
   tlsServerConfig = component:
@@ -285,25 +287,24 @@ in {
   # Grafana subchart config defaults:
   # https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
   grafana = let
-    component = "grafana";
-    port = ports."${component}";
+    port = ports."${gr}";
     localAddr = "${local}:${toString port}";
   in {
-    ingress = ingress component;
+    ingress = ingress gr;
 
     admin = let
-      prefix = "${component}_admin";
+      prefix = "${gr}_admin";
     in {
       userKey = "${prefix}_user";
       passwordKey = "${prefix}_password";
-      existingSecret = "${instance}-secrets";
+      existingSecret = secrets;
     };
 
     # Grafana's primary configuration.
     "grafana.ini" = {
       server = {
         serve_from_sub_path = true;
-        root_url = "${origin}${path component}";
+        root_url = "${origin}${path gr}";
         protocol = "https";
         cert_file = k.pki.crt;
         cert_key = k.pki.key;
@@ -352,7 +353,7 @@ in {
         certsMount
       ];
 
-      reload = what: "${localAddr}${path component}/api/admin/provisioning/${what}/reload";
+      reload = what: "${localAddr}${path gr}/api/admin/provisioning/${what}/reload";
     in {
       dashboards = {
         inherit env extraMounts script;
@@ -384,19 +385,19 @@ in {
         type = name;
         uid = name;
         editable = false;
-        url = "https://${instance}-${name}:${toString ports."${name}"}/${name}";
+        url = "https://${fullName name}:${toString ports."${name}"}/${name}";
       };
     in [
-      ((unique "prometheus")
+      ((unique pr)
         // {
           inherit jsonData;
         })
-      ((unique "alertmanager")
+      ((unique am)
         // {
           jsonData =
             jsonData
             // {
-              implementation = "prometheus";
+              implementation = pr;
               handleGrafanaManagedAlerts = true;
             };
         })
@@ -406,7 +407,7 @@ in {
           jsonData =
             jsonData
             // {
-              tracesToMetrics.datasourceUid = "prometheus";
+              tracesToMetrics.datasourceUid = pr;
             };
         })
       ((unique "loki")
@@ -415,36 +416,34 @@ in {
         })
     ];
 
-    livenessProbe = probe component;
-    readinessProbe = probe component;
+    livenessProbe = probe gr;
+    readinessProbe = probe gr;
 
     extraSecretMounts = [
       {
         name = "secrets";
         mountPath = secretsMount;
-        secretName = "${instance}-secrets";
+        secretName = secrets;
         readOnly = true;
       }
-      (k.pki.mount // {secretName = secretName component;})
+      (k.pki.mount // {secretName = secretName gr;})
     ];
     extraContainerVolumes = volumes;
 
     serviceMonitor = {
-      path = "${path component}/metrics";
+      path = "${path gr}/metrics";
       scheme = "https";
-      tlsConfig = tlsClientConfig component;
+      tlsConfig = tlsClientConfig gr;
     };
   };
 
   # Prometheus subchart config defaults:
   # https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/values.yaml
-  prometheus = let
-    component = "prometheus";
-  in
-    (common component)
+  prometheus =
+    (common pr)
     // {
       prometheusSpec =
-        (spec component)
+        (spec pr)
         // {
           retention = "28d";
           enableOTLPReceiver = true;
@@ -456,16 +455,25 @@ in {
           ];
 
           storageSpec = storage;
+          alertingEndpoints = [
+            {
+              inherit namespace;
+              name = fullName am;
+              apiVersion = "v2";
+              pathPrefix = path am;
+              port = "http-web";
+              scheme = "https";
+              tlsConfig = tlsClientConfig am;
+            }
+          ];
         };
     };
 
   # Alertmanager subchart config defaults:
   # https://github.com/prometheus-community/helm-charts/blob/main/charts/alertmanager/values.yaml
-  alertmanager = let
-    component = "alertmanager";
-  in
-    (common component)
-    // {alertmanagerSpec = (spec component) // {inherit storage;};};
+  alertmanager =
+    (common am)
+    // {alertmanagerSpec = (spec am) // {inherit storage;};};
 
   cleanPrometheusOperatorObjectNames = true;
 

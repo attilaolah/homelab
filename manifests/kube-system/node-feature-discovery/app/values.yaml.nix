@@ -1,3 +1,4 @@
+# https://github.com/kubernetes-sigs/node-feature-discovery/blob/master/deployment/helm/node-feature-discovery/values.yaml
 {lib, ...}: {
   master = {
     # TODO: Add a second replica.
@@ -26,9 +27,17 @@
     };
 
     # Lower resource limits for workers.
-    resources.limits = {
-      cpu = "50m";
-      memory = "128Mi";
+    resources = {
+      requests = {
+        cpu = "5m"; # default
+        memory = "64Mi"; # default
+        ephemeral-storage = "64Mi";
+      };
+      limits = {
+        cpu = "1";
+        memory = "128Mi"; # default: 512Mi
+        ephemeral-storage = "256Mi";
+      };
     };
   };
 
