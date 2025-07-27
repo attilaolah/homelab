@@ -250,9 +250,8 @@ in {
         selector = labels;
         ports = [
           {
+            inherit (k.defaults) port protocol;
             name = "query";
-            port = 443;
-            protocol = "TCP";
             targetPort = queryPort;
           }
         ];

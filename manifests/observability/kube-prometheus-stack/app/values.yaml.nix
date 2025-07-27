@@ -203,9 +203,9 @@
       ];
       ports = [
         {
+          inherit (k.defaults) protocol;
           name = oap;
           containerPort = ports.oauth;
-          protocol = "TCP";
         }
       ];
       # Loading files from /etc/prometheus doesn't seem to work.

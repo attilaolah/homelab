@@ -367,6 +367,7 @@ in {
     }) (filterAttrs (name: value: !(elem name ["data" "name"])) overrides);
 
   defaults = {
+    port = 443;
     appProtocol = "https";
     imagePullPolicy = "IfNotPresent";
     protocol = "TCP";
