@@ -1,3 +1,5 @@
+# https://artifacthub.io/packages/helm/vector/vector#values
+# https://github.com/vectordotdev/helm-charts/blob/develop/charts/vector/values.yaml
 {cluster, ...}: {
   service = {
     # Expose the service externally.
@@ -9,6 +11,18 @@
   autoscaling = {
     enabled = true;
     maxReplicas = 2;
+  };
+  resources = {
+    requests = {
+      cpu = "50m";
+      memory = "64Mi";
+      ephemeral-storage = "64Mi";
+    };
+    limits = {
+      cpu = "200m";
+      memory = "256Mi";
+      ephemeral-storage = "256Mi";
+    };
   };
 
   customConfig = {
