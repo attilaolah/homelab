@@ -83,11 +83,6 @@
       ephemeral-storage = "64Mi";
     };
   };
-  securityContext = {
-    allowPrivilegeEscalation = false;
-    capabilities.drop = ["ALL"];
-    readOnlyRootFilesystem = true;
-  };
 
   path = component: "/${component}";
   fullName = component: "${instance}-${component}";
@@ -122,9 +117,6 @@
         inherit namespace;
         name = fullName component;
         secret = secretName component;
-        # Increase header size to fit auth cookies.
-        # TODO: Remove when switching to redis oauth backend.
-        proxyBufferSize = "16k";
       })
       // (homepage {
         inherit group;
@@ -180,7 +172,8 @@
     configPath = "/etc/${configFile}";
   in [
     {
-      inherit resources securityContext;
+      inherit resources;
+      inherit (k.container) securityContext;
 
       name = oap;
       image = "quay.io/${oap}/${oap}:${v.oauth2-proxy.docker}";
@@ -200,12 +193,19 @@
             key = "oauth2_cookie_secret";
           };
         }
+        {
+          name = "OAUTH2_PROXY_REDIS_PASSWORD";
+          valueFrom.secretKeyRef = {
+            name = secrets;
+            key = "oauth2_redis_password";
+          };
+        }
       ];
       ports = [
         {
+          inherit (k.defaults) protocol;
           name = oap;
           containerPort = ports.oauth;
-          protocol = "TCP";
         }
       ];
       # Loading files from /etc/prometheus doesn't seem to work.
@@ -225,7 +225,8 @@
 
   initContainers = component: [
     {
-      inherit resources securityContext;
+      inherit resources;
+      inherit (k.container) securityContext;
 
       name = "init-ca";
       image = "alpine:${v.alpine.docker}";
@@ -401,7 +402,7 @@ in {
         })
       ((unique "jaeger")
         // {
-          url = "https://jaeger-query-https/jaeger";
+          url = "https://jaeger/jaeger";
           jsonData =
             jsonData
             // {
@@ -492,6 +493,9 @@ in {
               cookie_secure = "true"
               cookie_samesite = "strict"
               cookie_name = "__Host-${name}"
+
+              session_store_type = "redis"
+              redis_connection_url = "rediss://oauth-db.redis.svc:6379"
 
               upstreams = ["${local}:${toString ports."${name}"}"]
 

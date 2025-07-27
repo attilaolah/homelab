@@ -11,7 +11,21 @@
   name = k.appname ./.;
   namespace = k.nsname ./.;
 
-  oauth2Port = 8443;
+  oaPort = 8443;
+  queryPort = 16686;
+
+  # Shared emptyDir mount for storing CA certificates.
+  # A read-only version is mounted under /etc/ssl/certs, and a read-write version
+  # under /etc/ssl/certs/new, which is populated by init-containers with a combined CA bundle.
+  certsMount = {
+    name = "certs";
+    mountPath = "/etc/ssl/certs";
+    readOnly = true;
+  };
+  certsMountNew = {
+    inherit (certsMount) name;
+    mountPath = "${certsMount.mountPath}/new";
+  };
 
   tlsParams = prefix: {
     "${prefix}.tls.enabled" = "true";
@@ -29,8 +43,8 @@ in {
     image.tag = v.jaeger-collector.docker;
     basePath = "/${name}";
     service = {
-      port = oauth2Port;
-      targetPort = oauth2Port;
+      port = oaPort;
+      targetPort = oaPort;
     };
 
     # HTTP Client CA cannot be enabled since oauth-proxy cannot pass it.
@@ -81,21 +95,28 @@ in {
         tag = v.oauth2-proxy.docker;
       };
       pullPolicy = "IfNotPresent";
-      containerPort = 8443;
+      containerPort = oaPort;
       args = ["--config" "/etc/oauth2-proxy/oauth2-proxy.cfg"];
       extraEnv = [
         {
           name = "OAUTH2_PROXY_CLIENT_SECRET";
           valueFrom.secretKeyRef = {
             name = "${name}-secrets";
-            key = "oauth2-client-secret";
+            key = "oauth2_client_secret";
           };
         }
         {
           name = "OAUTH2_PROXY_COOKIE_SECRET";
           valueFrom.secretKeyRef = {
             name = "${name}-secrets";
-            key = "oauth2-cookie-secret";
+            key = "oauth2_cookie_secret";
+          };
+        }
+        {
+          name = "OAUTH2_PROXY_REDIS_PASSWORD";
+          valueFrom.secretKeyRef = {
+            name = "${name}-secrets";
+            key = "oauth2_redis_password";
           };
         }
       ];
@@ -110,7 +131,7 @@ in {
         reverse_proxy = true
         proxy_prefix = "/${name}/auth"
 
-        https_address = "[::]:${toString oauth2Port}"
+        https_address = "[::]:${toString oaPort}"
         tls_cert_file = "${k.pki.crt}"
         tls_key_file = "${k.pki.key}"
 
@@ -118,9 +139,10 @@ in {
         cookie_samesite = "strict"
         cookie_name = "__Host-${name}"
 
-        upstreams = ["https://localhost:16686"]
-        # TODO: Use caFiles from alpha config.
-        ssl_upstream_insecure_skip_verify = true
+        session_store_type = "redis"
+        redis_connection_url = "rediss://oauth-db.redis.svc:6379"
+
+        upstreams = ["https://localhost:${toString queryPort}"]
 
         skip_provider_button = "true"
       '';
@@ -145,6 +167,46 @@ in {
         };
       };
     };
+
+    initContainers = [
+      {
+        inherit (k.container) securityContext;
+
+        name = "init-ca";
+        image = "alpine:${v.alpine.docker}";
+        args = let
+          bundle = "ca-certificates.crt";
+        in [
+          "sh"
+          "-c"
+          # The internal CA is used for trusting the upstream service.
+          "cat ${certsMount.mountPath}/${bundle} ${k.pki.ca} > ${certsMountNew.mountPath}/${bundle}"
+        ];
+        resources = {
+          limits = {
+            cpu = "200m";
+            memory = "256Mi";
+            ephemeral-storage = "2Gi";
+          };
+          requests = {
+            cpu = "50m";
+            memory = "128Mi";
+            ephemeral-storage = "64Mi";
+          };
+        };
+        volumeMounts = [
+          certsMountNew
+          k.pki.mount
+        ];
+      }
+    ];
+
+    extraVolumes = [
+      {
+        inherit (certsMount) name;
+        emptyDir.medium = "Memory";
+      }
+    ];
   };
 
   collector = let
@@ -174,4 +236,26 @@ in {
     elasticsearch = false;
     kafka = false;
   };
+
+  extraObjects = [
+    (k.api "Service" (let
+      labels = k.annotations.group "app.kubernetes.io" {
+        inherit name;
+        instance = name;
+        component = "query";
+      };
+    in {
+      metadata = {inherit name labels;};
+      spec = {
+        selector = labels;
+        ports = [
+          {
+            inherit (k.defaults) port protocol;
+            name = "query";
+            targetPort = queryPort;
+          }
+        ];
+      };
+    }))
+  ];
 }

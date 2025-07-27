@@ -11,6 +11,7 @@ in
       grafana_admin_password = "{{ .grafana_admin_password }}";
       oauth2_client_secret = "{{ .monitoring_client_secret }}";
       oauth2_cookie_secret = "{{ .monitoring_cookie_secret }}";
+      oauth2_redis_password = "{{ .redis_oauth_db_password }}";
 
       # Additional Helm values:
       "values.yaml" = yaml.format {};

@@ -8,8 +8,8 @@ in {
     selector = labels;
     ports = [
       rec {
+        inherit (k.defaults) protocol;
         name = "https";
-        protocol = "TCP";
         port = 8443;
         targetPort = port;
       }
