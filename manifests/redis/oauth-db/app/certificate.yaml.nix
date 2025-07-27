@@ -11,6 +11,11 @@ in {
       name = "internal-ca";
     };
     commonName = name;
-    dnsNames = [name "localhost"];
+    dnsNames = [
+      # Used by OAuth2 Proxy instances:
+      "${name}.${k.nsname ./.}.svc"
+      # Used by redis-cli probes:
+      "localhost"
+    ];
   };
 })
