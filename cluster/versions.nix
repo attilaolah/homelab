@@ -48,6 +48,7 @@ in {
   Certificate.cert-manager.io = "v1";
   CiliumL2AnnouncementPolicy.cilium.io = "v2alpha1";
   CiliumLoadBalancerIPPool.cilium.io = "v2alpha1";
+  CiliumNetworkPolicy.cilium.io = "v2";
   Cluster.postgresql.cnpg.io = "v1";
   ClusterIssuer.cert-manager.io = "v1";
   ClusterSecretStore.external-secrets.io = "v1";

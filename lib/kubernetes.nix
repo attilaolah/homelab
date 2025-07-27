@@ -44,8 +44,15 @@
       name = concatStringsSep "/" [group name];
       value = attrs.${name};
     }) (attrNames attrs));
+
+  defaults = {
+    port = 443;
+    appProtocol = "https";
+    imagePullPolicy = "IfNotPresent";
+    protocol = "TCP";
+  };
 in {
-  inherit api;
+  inherit api defaults;
 
   appname = parentDirName;
   nsname = dir: parentDirName (dirOf dir);
@@ -229,7 +236,7 @@ in {
           spec = {
             path = "./${namespace}/${name}/${subdir}";
             targetNamespace = namespace;
-            commonMetadata.labels."app.kubernetes.io/name" = name;
+            commonMetadata.labels = attrGroup "app.kubernetes.io" {inherit name;};
             prune = true;
             sourceRef = {
               kind = "OCIRepository";
@@ -366,10 +373,35 @@ in {
       };
     }) (filterAttrs (name: value: !(elem name ["data" "name"])) overrides);
 
-  defaults = {
-    port = 443;
-    appProtocol = "https";
-    imagePullPolicy = "IfNotPresent";
-    protocol = "TCP";
-  };
+  allow-prom-scrape = dir: port:
+    api "CiliumNetworkPolicy.cilium.io" (let
+      name = parentDirName dir;
+    in {
+      metadata.name = "${name}-prom-scrape";
+      spec = {
+        endpointSelector.matchLabels = attrGroup "app.kubernetes.io" {inherit name;};
+        ingress = [
+          {
+            fromEndpoints = [
+              {
+                matchLabels = attrGroup "app.kubernetes.io" {
+                  name = "prometheus";
+                  instance = "kube-prometheus-stack";
+                };
+              }
+            ];
+            toPorts = [
+              {
+                ports = [
+                  {
+                    inherit (defaults) protocol;
+                    port = toString port;
+                  }
+                ];
+              }
+            ];
+          }
+        ];
+      };
+    });
 }
