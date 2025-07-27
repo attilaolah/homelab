@@ -4,5 +4,6 @@
 /.direnv
 /.env.local
 /age.key
+/etcd
 /result
 /venv
