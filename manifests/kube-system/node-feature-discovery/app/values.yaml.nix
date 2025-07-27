@@ -34,7 +34,7 @@
         ephemeral-storage = "64Mi";
       };
       limits = {
-        cpu = "200m";
+        cpu = "1";
         memory = "128Mi"; # default: 512Mi
         ephemeral-storage = "256Mi";
       };
