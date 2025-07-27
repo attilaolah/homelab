@@ -469,6 +469,14 @@ in {
 
   cleanPrometheusOperatorObjectNames = true;
 
+  defaultRules.rules = {
+    # On Talos, etcd does not run in a container.
+    etcd = false;
+    # Using Cilium's KubeProxyReplacement:
+    # https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
+    kubeProxy = false;
+  };
+
   extraManifests =
     [
       (k.api "ConfigMap" {
