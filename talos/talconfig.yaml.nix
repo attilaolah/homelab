@@ -76,7 +76,11 @@ in {
 
   patches = map yaml.format [
     {
-      cluster = {
+      cluster = let
+        scheduler.extraArgs."bind-address" = "0.0.0.0";
+      in {
+        inherit scheduler;
+        controllerManager = scheduler;
         network = with cluster.network; {
           podSubnets = with pod; [cidr4 cidr6];
           serviceSubnets = with service; [cidr4 cidr6];
