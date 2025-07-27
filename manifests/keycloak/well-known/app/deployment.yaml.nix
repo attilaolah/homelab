@@ -59,7 +59,7 @@ in {
             ];
             resources = rec {
               # Higher CPU limit for liveness probe.
-              limits = requests // {cpu = "200m";};
+              limits = requests // {cpu = "500m";};
               requests = {
                 cpu = "50m";
                 memory = "128Mi";
