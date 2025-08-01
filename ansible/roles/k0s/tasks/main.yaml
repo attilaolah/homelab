@@ -10,7 +10,9 @@
     dest: /etc/apk/keys/attila@dorn.haus-67093be0.rsa.pub
     owner: root
     group: root
-    mode: u=rw,go=r
+    # Keys under /etc/apk/keys are 644 by default.
+    # However, o+r is not really necessary it is ommitted here.
+    mode: 0o640
 
 - name: Install required packages
   ansible.builtin.package:

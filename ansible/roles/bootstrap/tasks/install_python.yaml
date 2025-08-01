@@ -1,7 +1,7 @@
 ---
 - name: Ensure main repository is present
   vars:
-    mirror: http://dl-cdn.alpinelinux.org/alpine/{{ alpine_version }}/main
+    mirror: https://dl-cdn.alpinelinux.org/alpine/{{ alpine_version }}/main
   raw: |
     if ! grep -q "{{ mirror }}" /etc/apk/repositories; then
       echo "{{ mirror }}" > /etc/apk/repositories
