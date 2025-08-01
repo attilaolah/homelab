@@ -31,8 +31,8 @@ jobs:
 
     - name: Extract manifests from archive
       run: |
-        tar -xvf manifests-*
-        rm manifests-*
+        mkdir build
+        mv manifests-* build/manifests
 
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v5
