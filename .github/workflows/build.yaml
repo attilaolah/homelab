@@ -1,5 +1,5 @@
 ---
-name: Build
+name: Build & Check
 
 on:
   push:
@@ -12,12 +12,17 @@ on:
 
 jobs:
   build:
-    name: Manifests
+    name: Flux Manifests
     runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        # For SonarQube:
+        # Shallow clones should be disabled for a better relevancy of analysis.
+        # Still, don't pull the entire history as it is likely unnecessary; just pull the last couple commits.
+        fetch-depth: 100
 
     - name: Install Nix
       uses: cachix/install-nix-action@v31
@@ -36,6 +41,15 @@ jobs:
         echo -n artifact_dir= >> "$GITHUB_OUTPUT"
         nix build --print-out-paths | tee -a "$GITHUB_OUTPUT"
 
+    - name: Extract manifests from archive
+      run: |
+        cp -rf "${{ steps.build.outputs.artifact_dir }}"/* manifests
+
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
     - name: Detect artifact version
       id: ghd
       uses: proudust/gh-describe@v2
@@ -48,30 +62,3 @@ jobs:
         if-no-files-found: error
         compression-level: 9
         retention-days: 8
-
-  sonarqube:
-    name: SonarQube
-    needs: build
-    runs-on: ubuntu-24.04
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        # Shallow clones should be disabled for a better relevancy of analysis.
-        fetch-depth: 0
-
-    - name: Download manifests archive
-      uses: actions/download-artifact@v4
-      with:
-        run-id: ${{ github.event.workflow_run.id }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Extract manifests from archive
-      run: |
-        cp -rf manifests-*/* manifests
-        rmdir manifests-*
-
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v5
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
