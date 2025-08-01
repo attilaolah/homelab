@@ -101,5 +101,7 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --remote-repo-url="${{ github.repositoryUrl }}" --report
+        args: >
+          --remote-repo-url=https://github.com/attilaolah/homelab
+          --report
         file: manifests
