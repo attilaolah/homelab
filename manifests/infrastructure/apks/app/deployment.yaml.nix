@@ -14,7 +14,7 @@ in {
     template = {
       metadata = {inherit labels;};
       spec = {
-        inherit (k.pod) automountServiceAccountToken;
+        inherit (k.pod) securityContext automountServiceAccountToken;
         containers = [
           {
             inherit (k.container) securityContext;
@@ -75,7 +75,6 @@ in {
             emptyDir = {};
           }
         ];
-        securityContext = k.pod.securityContext // {runAsUser = 101;};
       };
     };
   };
