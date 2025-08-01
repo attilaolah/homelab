@@ -45,14 +45,18 @@ jobs:
       run: |
         cp -rf "${{ steps.build.outputs.artifact_dir }}"/* manifests
 
+    - name: Detect artifact version
+      id: ghd
+      uses: proudust/gh-describe@v2
+
+    - name: Set SonarQube project version
+      run: |
+        echo "sonar.projectVersion=${{ steps.ghd.outputs.describe }}" >> sonar-project.properties
+
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-    - name: Detect artifact version
-      id: ghd
-      uses: proudust/gh-describe@v2
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
