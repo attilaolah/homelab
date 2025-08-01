@@ -1,0 +1,93 @@
+---
+name: Quality Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_artifacts:
+    name: Build artifacts
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Nix
+      uses: cachix/install-nix-action@v31
+      with:
+        install_url: https://nixos.org/nix/install
+        extra_nix_config: |
+          auto-optimise-store = true
+          experimental-features = nix-command flakes
+
+    - name: Build Flux manifests archive
+      id: build_flux
+      run: |
+        echo -n flux_artifact_dir= >> "$GITHUB_OUTPUT"
+        nix build --print-out-paths | tee -a "$GITHUB_OUTPUT"
+
+    - name: Build Helm manifests archive
+      id: build_helm
+      run: |
+        nix run .#expand
+
+    - name: Upload Flux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: flux
+        path: ${{ steps.build.outputs.flux_artifact_dir }}
+        if-no-files-found: error
+        compression-level: 9
+        retention-days: 8
+
+    - name: Upload Helm artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: helm
+        path: helm
+        if-no-files-found: error
+        compression-level: 9
+        retention-days: 8
+
+  sonarqube:
+    name: Run SonarQube scan
+    runs-on: ubuntu-24.04
+    needs: build_artifacts
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        # Shallow clones should be disabled for a better relevancy of analysis.
+        fetch-depth: 0
+
+    - name: Download manifests archive
+      uses: actions/download-artifact@v4
+
+    - name: Run SonarQube scan
+      uses: SonarSource/sonarqube-scan-action@v5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
+
+  snyk:
+    name: Run Snyk scan
+    runs-on: ubuntu-24.04
+    needs: build_artifacts
+
+    steps:
+    - name: Download manifests archive
+      uses: actions/download-artifact@v4
+
+    - name: Run Snyk IaC scan
+      uses: snyk/actions/iac@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: >
+          --remote-repo-url=https://github.com/attilaolah/homelab
+          --report
+        file: flux helm

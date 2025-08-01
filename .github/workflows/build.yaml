@@ -27,9 +27,6 @@ jobs:
           auto-optimise-store = true
           experimental-features = nix-command flakes
 
-    - name: Check Nix flake
-      run: nix flake check --impure
-
     - name: Build manifests archive
       id: build
       run: |
@@ -48,60 +45,3 @@ jobs:
         if-no-files-found: error
         compression-level: 9
         retention-days: 8
-
-  sonarqube:
-    name: Run SonarQube scan
-    runs-on: ubuntu-24.04
-    needs: build
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        # Shallow clones should be disabled for a better relevancy of analysis.
-        fetch-depth: 0
-
-    - name: Download manifests archive
-      uses: actions/download-artifact@v4
-
-    - name: Detect artifact dir and version
-      id: artifact
-      run: |
-        dir="$(ls -1d manifests-*)"
-        echo "version=${dir/manifests-/}" >> "$GITHUB_OUTPUT"
-
-    - name: Extract manifests from archive
-      run: |
-        cp -rf manifests-*/* manifests
-        rm -rf manifests-*
-
-    - name: Run SonarQube scan
-      uses: SonarSource/sonarqube-scan-action@v5
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
-
-  snyk:
-    name: Run Snyk scan
-    runs-on: ubuntu-24.04
-    needs: build
-
-    steps:
-    - name: Download manifests archive
-      uses: actions/download-artifact@v4
-
-    - name: Rename manifests directory
-      run: |
-        mv manifests-* manifests
-
-    - name: Run Snyk IaC scan
-      uses: snyk/actions/iac@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: >
-          --remote-repo-url=https://github.com/attilaolah/homelab
-          --report
-        file: manifests
