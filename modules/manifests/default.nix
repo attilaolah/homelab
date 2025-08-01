@@ -98,7 +98,7 @@
           runtimeInputs = with pkgs; [coreutils fluxcd git];
           text = ''
             TEMP_DIR="$(mktemp --directory)"
-            cp --recursive "${manifests-oci}"/* "$TEMP_DIR"
+            cp --recursive "${manifests-yaml}"/* "$TEMP_DIR"
             chmod --recursive +w "$TEMP_DIR"
             flux push artifact "${artifactURI}" \
               --path="$TEMP_DIR" \
