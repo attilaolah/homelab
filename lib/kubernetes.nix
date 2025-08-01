@@ -148,7 +148,10 @@ in {
   pod = {
     automountServiceAccountToken = false;
     securityContext = {
-      runAsUser = 1000;
+      # User ID matches that of the distroless non-root images.
+      # It really shouldn't matter that much with user-namespaces,
+      # but this value keeps most of the linters / security scanners happy.
+      runAsUser = 65532;
       runAsNonRoot = true;
       seccompProfile.type = "RuntimeDefault";
     };
