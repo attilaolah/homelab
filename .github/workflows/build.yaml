@@ -61,7 +61,8 @@ jobs:
         # Shallow clones should be disabled for a better relevancy of analysis.
         fetch-depth: 0
 
-    - name: Download manifests archive
+    - &download_artifact
+      name: Download manifests archive
       uses: actions/download-artifact@v4
 
     - name: Detect artifact dir and version
@@ -70,8 +71,10 @@ jobs:
         dir="$(ls -1d manifests-*)"
         echo "version=${dir/manifests-/}" >> "$GITHUB_OUTPUT"
 
-    - name: Extract manifests from archive
+    - &extract_artifact
+      name: Extract manifests from archive
       run: |
+        mkdir -p manifests
         cp -rf manifests-*/* manifests
         rm -rf manifests-*
 
@@ -82,3 +85,20 @@ jobs:
       with:
         args: >
           -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
+
+  snyk:
+    name: Snyk scan
+    runs-on: ubuntu-24.04
+    needs: build
+
+    steps:
+    - *download_artifact
+    - *extract_artifact
+
+    - name: Run Snyk IaC scan
+      uses: snyk/actions/iac@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --report
+        file: manifests
