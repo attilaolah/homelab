@@ -61,8 +61,7 @@ jobs:
         # Shallow clones should be disabled for a better relevancy of analysis.
         fetch-depth: 0
 
-    - &download_artifact
-      name: Download manifests archive
+    - name: Download manifests archive
       uses: actions/download-artifact@v4
 
     - name: Detect artifact dir and version
@@ -71,10 +70,8 @@ jobs:
         dir="$(ls -1d manifests-*)"
         echo "version=${dir/manifests-/}" >> "$GITHUB_OUTPUT"
 
-    - &extract_artifact
-      name: Extract manifests from archive
+    - name: Extract manifests from archive
       run: |
-        mkdir -p manifests
         cp -rf manifests-*/* manifests
         rm -rf manifests-*
 
@@ -92,8 +89,12 @@ jobs:
     needs: build
 
     steps:
-    - *download_artifact
-    - *extract_artifact
+    - name: Download manifests archive
+      uses: actions/download-artifact@v4
+
+    - name: Rename manifests directory
+      run: |
+        mv manifests-* manifests
 
     - name: Run Snyk IaC scan
       uses: snyk/actions/iac@master
