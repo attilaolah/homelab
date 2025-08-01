@@ -48,7 +48,9 @@
   defaults = {
     port = 443;
     appProtocol = "https";
-    imagePullPolicy = "IfNotPresent";
+    # All images are tagged, so IfNotPresent should also do.
+    # However Spegel will cache the images so we might as wall pull them always.
+    imagePullPolicy = "Always";
     protocol = "TCP";
   };
 in {

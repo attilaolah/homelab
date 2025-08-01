@@ -17,11 +17,10 @@ in {
         inherit (k.pod) securityContext automountServiceAccountToken;
         containers = [
           {
-            inherit (k.container) securityContext;
+            inherit (k.container) imagePullPolicy securityContext;
 
             name = "nginx";
             image = "attilaolah/k0s:${v.k0s.docker}";
-            imagePullPolicy = "Always";
             ports = [
               {
                 name = "https";
