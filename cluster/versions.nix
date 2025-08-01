@@ -6,7 +6,7 @@ in {
   # If transform is not provided, the default is used: (v: v).
   alpine.docker = ["alpine" "3.22.1"];
   cert-manager.helm = ["https://charts.jetstack.io" "1.18.2"];
-  cilium.helm = ["https://helm.cilium.io" "1.17.6"];
+  cilium.helm = ["https://helm.cilium.io" "1.18.0"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.25.0"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.33.0"];
   external-secrets.helm = ["https://charts.external-secrets.io" "0.18.2"];
