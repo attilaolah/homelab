@@ -64,11 +64,11 @@ jobs:
     - name: Download manifests archive
       uses: actions/download-artifact@v4
 
-    - name: Detect artifact dir and version
-      id: artifact
-      run: |
-        dir="$(ls -1d manifests-*)"
-        echo "version=${dir/manifests-/}" >> "$GITHUB_OUTPUT"
+    # - name: Detect artifact dir and version
+    #   id: artifact
+    #   run: |
+    #     dir="$(ls -1d manifests-*)"
+    #     echo "version=${dir/manifests-/}" >> "$GITHUB_OUTPUT"
 
     - name: Extract manifests from archive
       run: |
@@ -79,6 +79,6 @@ jobs:
       uses: SonarSource/sonarqube-scan-action@v5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
+      # with:
+      #   args: >
+      #     -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
