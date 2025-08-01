@@ -33,13 +33,6 @@
         ")
       }}
 
-# - name: debug
-#   ansible.builtin.lineinfile:
-#     path: /etc/exports
-#     regexp: ^/mnt/nfs
-#     state: absent
-#   tags: [debug]
-
 - name: Ensure NFS root export exists
   when: nfs_datasets | length > 0
   ansible.builtin.lineinfile:
