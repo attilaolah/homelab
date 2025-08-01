@@ -5,6 +5,5 @@
 /.env.local
 /age.key
 /etcd
-/manifests/**/*.yaml
 /result
 /venv
