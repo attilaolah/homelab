@@ -58,34 +58,34 @@
 
     # OCI tar archive containing all manifests, used as build output.
     manifests-oci = pkgs.stdenv.mkDerivation (finalAttrs: {
-      pname = "manifests";
-      version = "latest";
+      name = "manifests.tar.gz";
 
       src = manifests-dir;
       phases = ["installPhase"];
       nativeBuildInputs = with pkgs; [fluxcd];
       installPhase = ''
-        temp_tgz="$(mktemp -d)/manifests.tgz"
-        flux build artifact --path="$src" --output="$temp_tgz"
-        mkdir --parents "$out"
-        tar --directory="$out" --file="$temp_tgz" --extract --gzip
+        flux build artifact --path="$src" --output="$out"
       '';
+    });
 
-      meta = let
-        inherit (pkgs) lib;
-      in {
-        description = "Kubernetes Manifests";
-        homepage = with cluster.github; "https://github.com/${owner}/${repository}";
-        license = with lib.licenses; [asl20 mit];
-        maintainers = with lib.maintainers; [attila];
-      };
+    # FluxCD YAML manifests, extracted from the OCI artifact.
+    manifests-yaml = pkgs.stdenv.mkDerivation (finalAttrs: {
+      name = "manifests-yaml";
+
+      src = manifests-oci;
+      phases = ["installPhase"];
+      nativeBuildInputs = with pkgs; [gnutar];
+      installPhase = ''
+        mkdir --parents "$out"
+        tar --directory="$out" --file="$src" --extract --gzip
+      '';
     });
   in {
     devenv.shells.default.env.MANIFESTS = manifests-dir;
 
     packages = {
-      inherit manifests-oci;
-      default = manifests-oci;
+      inherit manifests-oci manifests-yaml;
+      default = manifests-yaml;
     };
 
     apps = let
