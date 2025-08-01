@@ -1,5 +1,5 @@
 ---
-name: Build & Check
+name: Build
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Flux Manifests
+    name: Build Flux manifests
     runs-on: ubuntu-24.04
 
     steps:
@@ -50,7 +50,7 @@ jobs:
         retention-days: 8
 
   sonarqube:
-    name: SonarQube scan
+    name: Run SonarQube scan
     runs-on: ubuntu-24.04
     needs: build
 
@@ -82,3 +82,26 @@ jobs:
       with:
         args: >
           -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
+
+  snyk:
+    name: Run Snyk scan
+    runs-on: ubuntu-24.04
+    needs: build
+
+    steps:
+    - name: Download manifests archive
+      uses: actions/download-artifact@v4
+
+    - name: Rename manifests directory
+      run: |
+        mv manifests-* manifests
+
+    - name: Run Snyk IaC scan
+      uses: snyk/actions/iac@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: >
+          --remote-repo-url=https://github.com/attilaolah/homelab
+          --report
+        file: manifests

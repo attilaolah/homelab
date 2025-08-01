@@ -14,14 +14,13 @@ in {
     template = {
       metadata = {inherit labels;};
       spec = {
-        inherit (k.pod) automountServiceAccountToken;
+        inherit (k.pod) securityContext automountServiceAccountToken;
         containers = [
           {
-            inherit (k.container) securityContext;
+            inherit (k.container) imagePullPolicy securityContext;
 
             name = "nginx";
             image = "attilaolah/k0s:${v.k0s.docker}";
-            imagePullPolicy = "Always";
             ports = [
               {
                 name = "https";
@@ -75,7 +74,6 @@ in {
             emptyDir = {};
           }
         ];
-        securityContext = k.pod.securityContext // {runAsUser = 101;};
       };
     };
   };

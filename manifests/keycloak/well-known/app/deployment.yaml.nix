@@ -19,7 +19,7 @@ in {
 
         containers = [
           {
-            inherit (k.container) securityContext;
+            inherit (k.container) imagePullPolicy securityContext;
 
             name = "nginx";
             image = "nginx:${v.nginx.docker}";

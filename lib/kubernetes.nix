@@ -48,7 +48,6 @@
   defaults = {
     port = 443;
     appProtocol = "https";
-    imagePullPolicy = "IfNotPresent";
     protocol = "TCP";
   };
 in {
@@ -138,17 +137,26 @@ in {
     };
   };
 
-  container.securityContext = {
-    allowPrivilegeEscalation = false;
-    capabilities.drop = ["ALL"];
-    readOnlyRootFilesystem = true;
-  };
+  # Secure defaults.
   pod = {
     automountServiceAccountToken = false;
     securityContext = {
-      runAsUser = 1000;
+      # User ID matches that of the distroless non-root images.
+      # It really shouldn't matter that much with user-namespaces,
+      # but this value keeps most of the linters / security scanners happy.
+      runAsUser = 65532;
       runAsNonRoot = true;
       seccompProfile.type = "RuntimeDefault";
+    };
+  };
+  container = {
+    # All images are tagged, so IfNotPresent should also do.
+    # However Spegel will cache the images so we might as wall pull them always.
+    imagePullPolicy = "Always";
+    securityContext = {
+      allowPrivilegeEscalation = false;
+      capabilities.drop = ["ALL"];
+      readOnlyRootFilesystem = true;
     };
   };
 

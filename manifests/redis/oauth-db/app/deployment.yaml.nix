@@ -48,8 +48,7 @@ in {
         inherit (k.pod) automountServiceAccountToken securityContext;
         containers = [
           {
-            inherit (k.defaults) imagePullPolicy;
-            inherit (k.container) securityContext;
+            inherit (k.container) imagePullPolicy securityContext;
             name = app;
             image = "${app}:${v."${app}".docker}";
             args = shell ["redis-server" configPath "--requirepass" pwRef];
