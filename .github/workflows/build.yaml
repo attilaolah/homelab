@@ -1,5 +1,5 @@
 ---
-name: Build & Check
+name: Build
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Flux Manifests
+    name: Build Flux manifests
     runs-on: ubuntu-24.04
 
     steps:
@@ -50,7 +50,7 @@ jobs:
         retention-days: 8
 
   sonarqube:
-    name: SonarQube scan
+    name: Run SonarQube scan
     runs-on: ubuntu-24.04
     needs: build
 
@@ -84,7 +84,7 @@ jobs:
           -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
 
   snyk:
-    name: Snyk scan
+    name: Run Snyk scan
     runs-on: ubuntu-24.04
     needs: build
 
