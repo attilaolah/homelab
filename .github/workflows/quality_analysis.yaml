@@ -36,7 +36,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: flux
-        path: ${{ steps.build.outputs.flux_artifact_dir }}
+        path: ${{ steps.build_flux.outputs.flux_artifact_dir }}
         if-no-files-found: error
         compression-level: 9
         retention-days: 8
