@@ -11,8 +11,8 @@
     owner: root
     group: root
     # Keys under /etc/apk/keys are 644 by default.
-    # However, technically o=r is not needed, so we further restrict it.
-    mode: u=rw,g=r
+    # However, o+r is not really necessary it is ommitted here.
+    mode: 0o640
 
 - name: Install required packages
   ansible.builtin.package:
