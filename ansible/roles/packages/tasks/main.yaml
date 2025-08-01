@@ -1,9 +1,18 @@
 ---
-- name: Set repository mirror
+- name: Set HTTPS repository mirrors
   ansible.builtin.lineinfile:
     path: /etc/apk/repositories
-    line: http://dl-cdn.alpinelinux.org/alpine/{{ alpine_version }}/community
+    line: https://dl-cdn.alpinelinux.org/alpine/{{ alpine_version }}/{{ item }}
     state: present
+  loop:
+  - main
+  - community
+
+- name: Remove HTTP repository mirrors
+  ansible.builtin.lineinfile:
+    path: /etc/apk/repositories
+    regexp: ^http://
+    state: absent
 
 - name: Update APK packages
   community.general.apk:
