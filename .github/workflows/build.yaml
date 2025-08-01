@@ -48,3 +48,30 @@ jobs:
         if-no-files-found: error
         compression-level: 9
         retention-days: 8
+
+  sonarqube:
+    name: SonarQube
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        # Shallow clones should be disabled for a better relevancy of analysis.
+        fetch-depth: 0
+
+    - name: Download manifests archive
+      uses: actions/download-artifact@v4
+      with:
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract manifests from archive
+      run: |
+        cp -rf manifests-*/* manifests
+        rmdir manifests-*
+
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
