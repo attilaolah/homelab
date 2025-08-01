@@ -48,9 +48,6 @@
   defaults = {
     port = 443;
     appProtocol = "https";
-    # All images are tagged, so IfNotPresent should also do.
-    # However Spegel will cache the images so we might as wall pull them always.
-    imagePullPolicy = "Always";
     protocol = "TCP";
   };
 in {
@@ -140,11 +137,7 @@ in {
     };
   };
 
-  container.securityContext = {
-    allowPrivilegeEscalation = false;
-    capabilities.drop = ["ALL"];
-    readOnlyRootFilesystem = true;
-  };
+  # Secure defaults.
   pod = {
     automountServiceAccountToken = false;
     securityContext = {
@@ -154,6 +147,16 @@ in {
       runAsUser = 65532;
       runAsNonRoot = true;
       seccompProfile.type = "RuntimeDefault";
+    };
+  };
+  container = {
+    # All images are tagged, so IfNotPresent should also do.
+    # However Spegel will cache the images so we might as wall pull them always.
+    imagePullPolicy = "Always";
+    securityContext = {
+      allowPrivilegeEscalation = false;
+      capabilities.drop = ["ALL"];
+      readOnlyRootFilesystem = true;
     };
   };
 
