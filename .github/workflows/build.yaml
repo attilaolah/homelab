@@ -101,5 +101,5 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --report
+        args: --remote-repo-url="${{ github.repositoryUrl }}" --report
         file: manifests
