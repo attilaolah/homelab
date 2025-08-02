@@ -1,4 +1,4 @@
-# https://github.com/philippwaller/helm-charts/blob/main/charts/inadyn/templates/deployment.yaml
+# https://github.com/philippwaller/helm-charts/blob/main/charts/inadyn/values.yaml
 {
   k,
   v,
@@ -6,7 +6,10 @@
 }: {
   inherit (k.container) securityContext;
 
-  image.tag = v.inadyn.docker;
+  image = {
+    tag = v.inadyn.docker;
+    pullPolicy = k.container.imagePullPolicy;
+  };
 
   resources = let
     requests = {
@@ -19,4 +22,5 @@
     limits = requests // {cpu = "1";};
   };
   podSecurityContext = k.pod.securityContext;
+  serviceAccount.create = false;
 }

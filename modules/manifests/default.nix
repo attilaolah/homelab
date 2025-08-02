@@ -117,12 +117,12 @@
         type = "app";
         program = pkgs.writeShellApplication {
           name = "deploy";
-          runtimeInputs = with pkgs; [coreutils yq];
+          runtimeInputs = with pkgs; [coreutils kubectl kubernetes-helm yq-go];
           text = ''
             find "${manifests-yaml}" -name helm-release.yaml -print0 |
               while IFS= read -r -d "" helm_release
               do
-              repo_kind="$(yq < "$helm_release" --raw-output .spec.chart.spec.sourceRef.kind)"
+              repo_kind="$(yq < "$helm_release" .spec.chart.spec.sourceRef.kind)"
               if [[ "$repo_kind" == "GitRepository" ]]; then
                 # TODO: Support Git Helm repositories.
                 continue
@@ -134,7 +134,7 @@
               namespace="$(basename "$namespace_dir")"
 
               # Sanity check: make sure a namespace manifest is generated.
-              namespace_name="$(yq < "$namespace_dir/namespace.yaml" --raw-output .metadata.name)"
+              namespace_name="$(yq < "$namespace_dir/namespace.yaml" .metadata.name)"
               if [[ "$namespace_name" != "$namespace" ]]; then
                 echo >&2 "ERROR: while processing release $helm_release:"
                 echo >&2 "ERROR: unexpected namespace: $namespace_name != $namespace"
@@ -143,7 +143,7 @@
 
               # Sanity check: make sure the release name matches directory name.
               release_name="$(basename "$release_dir")"
-              release="$(yq < "$helm_release" --raw-output .metadata.name)"
+              release="$(yq < "$helm_release" .metadata.name)"
               if [[ "$release_name" != "$release" ]]; then
                 echo >&2 "ERROR: while processing release $helm_release:"
                 echo >&2 "ERROR: unexpected release: $release_name != $release"
@@ -152,15 +152,15 @@
 
               repo_url="$(
                 cat "${manifests-yaml}/flux-system"/*-repository.yaml |
-                yq --raw-output '
-                  select(.kind=='"$(yq < "$helm_release" .spec.chart.spec.sourceRef.kind)"') |
-                  select(.metadata.namespace=='"$(yq < "$helm_release" .spec.chart.spec.sourceRef.namespace)"') |
-                  select(.metadata.name=='"$(yq < "$helm_release" .spec.chart.spec.sourceRef.name)"') |
+                yq '
+                  select(.kind=='"$(yq < "$helm_release" -o=json .spec.chart.spec.sourceRef.kind)"') |
+                  select(.metadata.namespace=='"$(yq < "$helm_release" -o=json .spec.chart.spec.sourceRef.namespace)"') |
+                  select(.metadata.name=='"$(yq < "$helm_release" -o=json .spec.chart.spec.sourceRef.name)"') |
                   .spec.url
                 '
               )"
-              chart="$(yq < "$helm_release" --raw-output .spec.chart.spec.chart)"
-              version="$(yq < "$helm_release" --raw-output .spec.chart.spec.version)"
+              chart="$(yq < "$helm_release" .spec.chart.spec.chart)"
+              version="$(yq < "$helm_release" .spec.chart.spec.version)"
 
               helm_flags=(
                 "--namespace=$namespace"
@@ -175,12 +175,12 @@
               while IFS= read -r config_map; do
                 while IFS= read -r values_yaml; do
                   helm_flags+=("--values=$app_dir/$values_yaml")
-                done < <(yq < "$app_dir/kustomization.yaml" --raw-output '
+                done < <(yq < "$app_dir/kustomization.yaml" -o=json -r '
                   .configMapGenerator[] |
                   select(.name=='"$config_map"') |
                   .files[]
                 ')
-              done < <(yq < "$helm_release" '
+              done < <(yq < "$helm_release" -o=json '
                 .spec.valuesFrom[] |
                 select(.kind=="ConfigMap") |
                 .name
@@ -188,8 +188,19 @@
 
               out_dir="helm/$namespace"
               mkdir --parents "$out_dir"
-              echo "Running: helm template $release $chart ..."
-              helm template "$release" "$chart" "''${helm_flags[@]}" > "$out_dir/$release.yaml"
+              echo "Running: helm template $release $chart ''${helm_flags[*]}"
+              helm template "$release" "$chart" "''${helm_flags[@]}" |
+                yq -s '"'"$out_dir/$release/"'" + (.kind | downcase) + "/" + (.metadata.name | sub(":", "-")) + ".yaml"'
+
+              while IFS= read -r -d "" patch; do
+                target="$out_dir/$release/$(
+                  yq '(.target.kind | downcase) + "/" + (.target.name | sub(":", "-"))' <<< "$patch"
+                ).yaml"
+                kubectl patch --local --filename="$target" --type=json --output=yaml --patch="$(
+                  yq .patch <<< "$patch"
+                )" > "$target.tmp"
+                mv "$target.tmp" "$target"
+              done < <(yq < "$helm_release" -0 -o=json '.spec.postRenderers[].kustomize.patches[]')
             done
           '';
         };
