@@ -68,6 +68,11 @@ jobs:
     - name: Download manifests archive
       uses: actions/download-artifact@v4
 
+    - name: Commit generated files
+      run: |
+        git add flux helm
+        git commit --amend --no-edit
+
     - name: Run SonarQube scan
       uses: SonarSource/sonarqube-scan-action@v5
       env:
