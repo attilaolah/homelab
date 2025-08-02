@@ -188,7 +188,7 @@
 
               out_dir="helm/$namespace"
               mkdir --parents "$out_dir"
-              echo "Running: helm template $release $chart ..."
+              echo "Running: helm template $release $chart ''${helm_flags[*]}"
               helm template "$release" "$chart" "''${helm_flags[@]}" > "$out_dir/$release.yaml"
             done
           '';
