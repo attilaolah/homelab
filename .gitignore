@@ -5,5 +5,7 @@
 /.env.local
 /age.key
 /etcd
+/flux
+/helm
 /result
 /venv

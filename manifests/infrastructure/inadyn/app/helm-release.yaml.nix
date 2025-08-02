@@ -4,6 +4,8 @@
   ...
 }:
 k.fluxcd.helm-release ./. {
+  # TODO: remove when upstream merges:
+  # https://github.com/philippwaller/helm-charts/pull/64
   spec.postRenderers = [
     {
       kustomize.patches = [

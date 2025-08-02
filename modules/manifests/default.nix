@@ -120,8 +120,7 @@
           runtimeInputs = with pkgs; [coreutils kubectl kubernetes-helm yq-go];
           text = ''
             find "${manifests-yaml}" -name helm-release.yaml -print0 |
-              while IFS= read -r -d "" helm_release
-              do
+              while IFS= read -r -d "" helm_release; do
               repo_kind="$(yq < "$helm_release" .spec.chart.spec.sourceRef.kind)"
               if [[ "$repo_kind" == "GitRepository" ]]; then
                 # TODO: Support Git Helm repositories.
@@ -186,12 +185,14 @@
                 .name
               ')
 
+              # Generate manifests using Helm.
               out_dir="helm/$namespace"
               mkdir --parents "$out_dir"
               echo "Running: helm template $release $chart ''${helm_flags[*]}"
               helm template "$release" "$chart" "''${helm_flags[@]}" |
                 yq -s '"'"$out_dir/$release/"'" + (.kind | downcase) + "/" + (.metadata.name | sub(":", "-")) + ".yaml"'
 
+              # Apply Kustimeze post-renderer patches.
               while IFS= read -r -d "" patch; do
                 target="$out_dir/$release/$(
                   yq '(.target.kind | downcase) + "/" + (.target.name | sub(":", "-"))' <<< "$patch"
@@ -200,7 +201,34 @@
                   yq .patch <<< "$patch"
                 )" > "$target.tmp"
                 mv "$target.tmp" "$target"
-              done < <(yq < "$helm_release" -0 -o=json '.spec.postRenderers[].kustomize.patches[]')
+              done < <(yq < "$helm_release" -0 -o=json '
+                .spec.postRenderers[].kustomize.patches[]
+              ')
+
+              # Set namespaces metadata attributes on certain manifests.
+              # This is necessary for SonarQube kubernetes:S6865 checks to detect bindings.
+              # NOTE: Ideally we'd set namespace attributes on all namespace-scoped resources.
+              # But doing so would require figuring out which resources are namespace-scoped, which is non-trivial.
+              namespace_kinds=(
+                "cronjob"
+                "daemonset"
+                "deployment"
+                "job"
+                "pod"
+                "replicaset"
+                "replicationcontroller"
+                "role"
+                "rolebinding"
+                "serviceaccount"
+                "statefulset"
+              )
+              for kind in "''${namespace_kinds[@]}"; do
+                shopt -s nullglob
+                for resource in "$out_dir/$release/$kind"/*.yaml; do
+                  yq -i '.metadata.namespace="'"$namespace"'"' "$resource"
+                done
+                shopt -u nullglob
+              done
             done
           '';
         };
