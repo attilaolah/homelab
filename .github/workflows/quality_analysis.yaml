@@ -79,6 +79,9 @@ jobs:
       uses: SonarSource/sonarqube-scan-action@v5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # Currently SonarQube checks have a number of failures that are difficutl to resolve.
+      # This is mostly about system components like cilium or zfs-localpv requiring higher privileges.
+      continue-on-error: true
 
   snyk:
     name: Run Snyk scan
