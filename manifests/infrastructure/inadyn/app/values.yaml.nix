@@ -1,4 +1,4 @@
-# https://github.com/philippwaller/helm-charts/blob/main/charts/inadyn/templates/deployment.yaml
+# https://github.com/philippwaller/helm-charts/blob/main/charts/inadyn/values.yaml
 {
   k,
   v,
