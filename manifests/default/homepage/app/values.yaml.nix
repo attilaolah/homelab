@@ -11,7 +11,10 @@
 in {
   inherit (k.container) securityContext;
 
-  image.tag = v.homepage.docker;
+  image = {
+    tag = v.homepage.docker;
+    pullPolicy = k.container.imagePullPolicy;
+  };
 
   config = {
     settings = {
