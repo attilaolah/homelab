@@ -70,7 +70,7 @@ jobs:
 
     - name: Commit generated files
       run: |
-        git add flux helm
+        git add flux helm --force
         git commit --amend --no-edit
 
     - name: Run SonarQube scan
