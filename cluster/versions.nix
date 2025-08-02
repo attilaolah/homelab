@@ -8,6 +8,7 @@ in {
   cert-manager.helm = ["https://charts.jetstack.io" "1.18.2"];
   cilium.helm = ["https://helm.cilium.io" "1.18.0"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.25.0"];
+  descheduler.docker = ["registry.k8s.io/descheduler/descheduler" "0.33.0"];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.33.0"];
   external-secrets.helm = ["https://charts.external-secrets.io" "0.18.2"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.26.0"];
