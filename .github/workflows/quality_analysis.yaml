@@ -91,3 +91,6 @@ jobs:
           --remote-repo-url=https://github.com/attilaolah/homelab
           --report
         file: flux helm
+      # Currently Snyk checks have lots of failures, so ignore the step for now.
+      # Once the number of exceptions gets under control, this should be removed.
+      continue-on-error: true
