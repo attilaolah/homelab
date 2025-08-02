@@ -71,7 +71,9 @@ jobs:
     - name: Commit generated files
       run: |
         git add flux helm --force
-        git commit --amend --no-edit --author="$(git log -1 --pretty=format:'%an <%ae>')"
+        git config user.name ci
+        git config user.email ci@dorn.haus
+        git commit -m "chore: generate flux & helm manifests"
 
     - name: Run SonarQube scan
       uses: SonarSource/sonarqube-scan-action@v5
