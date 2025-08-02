@@ -190,11 +190,11 @@
               mkdir --parents "$out_dir"
               echo "Running: helm template $release $chart ''${helm_flags[*]}"
               helm template "$release" "$chart" "''${helm_flags[@]}" |
-                yq -s '"'"$out_dir/$release/"'" + (.kind | downcase) + "/" + .metadata.name + ".yaml"'
+                yq -s '"'"$out_dir/$release/"'" + (.kind | downcase) + "/" + (.metadata.name | sub(":", "-")) + ".yaml"'
 
               while IFS= read -r -d "" patch; do
                 target="$out_dir/$release/$(
-                  yq '(.target.kind | downcase) + "/" + .target.name' <<< "$patch"
+                  yq '(.target.kind | downcase) + "/" + (.target.name | sub(":", "-"))' <<< "$patch"
                 ).yaml"
                 kubectl patch --local --filename="$target" --type=json --output=yaml --patch="$(
                   yq .patch <<< "$patch"
