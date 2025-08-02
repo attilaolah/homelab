@@ -6,6 +6,6 @@
 }: {
   image.tag = v.descheduler.docker;
 
-  securityContext = {inherit (k.container.securityContext) runAsUser;};
+  securityContext = {inherit (k.pod.securityContext) runAsUser;};
   podSecurityContext = k.pod.securityContext;
 }
