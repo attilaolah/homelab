@@ -117,7 +117,7 @@
         type = "app";
         program = pkgs.writeShellApplication {
           name = "deploy";
-          runtimeInputs = with pkgs; [coreutils kubectl yq-go];
+          runtimeInputs = with pkgs; [coreutils kubectl kubernetes-helm yq-go];
           text = ''
             find "${manifests-yaml}" -name helm-release.yaml -print0 |
               while IFS= read -r -d "" helm_release
