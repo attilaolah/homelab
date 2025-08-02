@@ -72,9 +72,6 @@ jobs:
       uses: SonarSource/sonarqube-scan-action@v5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.projectVersion=${{ steps.artifact.outputs.version }}
 
   snyk:
     name: Run Snyk scan
