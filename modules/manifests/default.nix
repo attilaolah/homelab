@@ -117,7 +117,7 @@
         type = "app";
         program = pkgs.writeShellApplication {
           name = "deploy";
-          runtimeInputs = with pkgs; [coreutils yq-go];
+          runtimeInputs = with pkgs; [coreutils kubectl yq-go];
           text = ''
             find "${manifests-yaml}" -name helm-release.yaml -print0 |
               while IFS= read -r -d "" helm_release
@@ -191,6 +191,16 @@
               echo "Running: helm template $release $chart ''${helm_flags[*]}"
               helm template "$release" "$chart" "''${helm_flags[@]}" |
                 yq -s '"'"$out_dir/$release/"'" + (.kind | downcase) + "/" + .metadata.name + ".yaml"'
+
+              while IFS= read -r -d "" patch; do
+                target="$out_dir/$release/$(
+                  yq '(.target.kind | downcase) + "/" + .target.name' <<< "$patch"
+                ).yaml"
+                kubectl patch --local --filename="$target" --type=json --output=yaml --patch="$(
+                  yq .patch <<< "$patch"
+                )" > "$target.tmp"
+                mv "$target.tmp" "$target"
+              done < <(yq < "$helm_release" -0 -o=json '.spec.postRenderers[].kustomize.patches[]')
             done
           '';
         };
