@@ -51,6 +51,7 @@ jobs:
 
   deploy_test:
     runs-on: ubuntu-24.04
+    needs: build
 
     steps:
     - name: Download manifests archive
