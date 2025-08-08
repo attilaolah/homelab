@@ -55,4 +55,5 @@ jobs:
 
     - name: Deploy Kubernetes manifests to prod
       run: |
-        flux tag artifact $OCI_REPO:${{ steps.artifact.outputs.version }} --tag latest
+        flux tag artifact "$OCI_REPO:${{ steps.artifact.outputs.version }}" --tag latest
+      if: github.ref == 'refs/heads/main'
