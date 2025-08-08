@@ -45,11 +45,25 @@
   ],
   "packageRules": [
     {
-      "description": "Merge GitHub actions updates",
+      "description": "Automatically merge GitHub actions minor updates",
       "matchManagers": [
         "github-actions"
       ],
-      "automerge": false
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Automatically merge Helm + Docker patch updates",
+      "matchManagers": [
+        "regex"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true
     }
   ]
 }
