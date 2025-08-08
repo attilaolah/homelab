@@ -30,15 +30,21 @@ jobs:
         echo -n artifact_dir= >> "$GITHUB_OUTPUT"
         nix build --print-out-paths | tee -a "$GITHUB_OUTPUT"
 
-    - name: Detect artifact version
+    - name: Detect version
       id: ghd
       uses: proudust/gh-describe@v2
+
+    - name: Write version to version.txt file
+      run: |
+        echo "${{ steps.ghd.outputs.describe }}" > version.txt
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: manifests-${{ steps.ghd.outputs.describe }}
-        path: ${{ steps.build.outputs.artifact_dir }}
+        name: manifests
+        path: |
+          ${{ steps.build.outputs.artifact_dir }}
+          version.txt
         if-no-files-found: error
         compression-level: 9
         retention-days: 8
