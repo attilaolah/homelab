@@ -101,6 +101,11 @@ jobs:
           --remote-repo-url=https://github.com/attilaolah/homelab
           --report
         file: flux helm
-      # Currently Snyk checks have lots of failures, so ignore the step for now.
-      # Once the number of exceptions gets under control, this should be removed.
+      # Snyk can be used to break the build when it detects security issues.
+      # In this case we want to upload the issues to GitHub Code Scanning instead.
       continue-on-error: true
+
+    - name: Upload result to GitHub Code Scanning
+      uses: github/codeql-action/upload-sarif@v2.22.3
+      with:
+        sarif_file: snyk.sarif
