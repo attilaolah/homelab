@@ -45,7 +45,7 @@
   ],
   "packageRules": [
     {
-      "description": "Automatically merge GitHub actions minor updates",
+      "description": "Auto-merge GitHub actions minor updates",
       "matchManagers": [
         "github-actions"
       ],
@@ -56,11 +56,25 @@
       "automerge": true
     },
     {
-      "description": "Automatically merge Helm + Docker patch updates",
+      "description": "Auto-merge Helm + Docker patch updates",
       "matchManagers": [
         "regex"
       ],
       "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Auto-merge minor updates of frequently updated charts",
+      "matchPackageNames": [
+        "kube-prometheus-stack"
+      ],
+      "matchManagers": [
+        "regex"
+      ],
+      "matchUpdateTypes": [
+        "minor",
         "patch"
       ],
       "automerge": true
