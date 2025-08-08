@@ -45,11 +45,11 @@
   ],
   "packageRules": [
     {
-      "description": "Merge GitHub actions updates",
-      "matchManagers": [
-        "github-actions"
+      "description": "Automatically merge patch updates",
+      "matchUpdateTypes": [
+        "patch"
       ],
-      "automerge": false
+      "automerge": true
     }
   ]
 }
