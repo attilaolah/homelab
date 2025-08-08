@@ -22,17 +22,16 @@ jobs:
 
     steps:
     - name: Download manifests archive
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
+        name: manifests
         run-id: ${{ github.event.workflow_run.id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Detect artifact dir and version
       id: artifact
       run: |
-        dir="$(ls -1d manifests-*)"
-        echo "dir=${dir}" >> "$GITHUB_OUTPUT"
-        echo "version=${dir/manifests-/}" >> "$GITHUB_OUTPUT"
+        echo "version=$(cat manifests/version.txt)" >> "$GITHUB_OUTPUT"
 
     - name: Install Flux
       uses: fluxcd/flux2/action@main
@@ -48,7 +47,7 @@ jobs:
     - name: Push Kubernetes manifests
       run: |
         flux push artifact "$OCI_REPO:${{ steps.artifact.outputs.version }}" \
-          --path="${{ steps.artifact.outputs.dir }}" \
+          --path=manifests \
           --source="${{ github.repositoryUrl }}" \
           --revision="${{ github.ref_name }}@sha1:${{ github.sha }}" \
           --reproducible
