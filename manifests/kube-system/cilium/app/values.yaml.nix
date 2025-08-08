@@ -9,7 +9,7 @@
 
   # Tell Cilium to only manage the physical interface.
   # This will implicitly exclude others like the Tailscale interface.
-  devices = ["eth+"];
+  devices = ["eno+", "enp+", "eth+"];
 
   cgroup = {
     # Mount CGroup at a different location.
