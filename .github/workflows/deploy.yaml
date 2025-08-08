@@ -22,7 +22,6 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v5
       with:
-        name: manifests
         run-id: ${{ github.event.workflow_run.id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
