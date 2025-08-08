@@ -1,4 +1,3 @@
-search {{ cluster.name }}.{{ cluster.domain }}
 {% for ip in network.uplink.dns6.two + network.uplink.dns4.one %}
 nameserver {{ ip }}
 {% endfor +%}
