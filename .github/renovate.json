@@ -49,7 +49,7 @@
       "matchManagers": [
         "github-actions"
       ],
-      "automerge": true
+      "automerge": false
     }
   ]
 }
