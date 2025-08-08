@@ -14,10 +14,10 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
 
     - name: Install Nix
-      uses: cachix/install-nix-action@v31
+      uses: cachix/install-nix-action@v31.5.2
       with:
         install_url: https://nixos.org/nix/install
         extra_nix_config: |
@@ -36,7 +36,7 @@ jobs:
         nix run .#expand
 
     - name: Upload Flux artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: flux
         path: ${{ steps.build_flux.outputs.flux_artifact_dir }}
@@ -45,7 +45,7 @@ jobs:
         retention-days: 8
 
     - name: Upload Helm artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: helm
         path: helm
@@ -60,13 +60,13 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
       with:
         # Shallow clones should be disabled for a better relevancy of analysis.
         fetch-depth: 0
 
     - name: Download manifests archive
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v5.0.0
 
     - name: Commit generated files
       run: |
@@ -76,7 +76,7 @@ jobs:
         git commit -m "chore: generate flux & helm manifests"
 
     - name: Run SonarQube scan
-      uses: SonarSource/sonarqube-scan-action@v5
+      uses: SonarSource/sonarqube-scan-action@v5.3.0
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       # Currently SonarQube checks have a number of failures that are difficutl to resolve.
@@ -90,7 +90,7 @@ jobs:
 
     steps:
     - name: Download manifests archive
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v5.0.0
 
     - name: Run Snyk IaC scan
       uses: snyk/actions/iac@master
