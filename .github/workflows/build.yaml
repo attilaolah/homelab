@@ -55,25 +55,3 @@ jobs:
         if-no-files-found: error
         compression-level: 9
         retention-days: 2
-
-  deploy_test:
-    runs-on: ubuntu-24.04
-    needs: build
-
-    steps:
-    - name: Download manifests archive
-      uses: actions/download-artifact@v5
-
-    - name: debug
-      run: |
-        pwd
-        echo $GITHUB_WORKSPACE
-        echo ---
-        find $GITHUB_WORKSPACE
-        echo ---
-        find .
-
-    - name: Detect artifact dir and version
-      id: artifact
-      run: |
-        echo "version=$(cat version.txt)" >> "$GITHUB_OUTPUT"
