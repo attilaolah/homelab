@@ -27,15 +27,24 @@ in {
     }
   ];
 
-  env = {
-    OIDC_CLIENT_ID = name;
-    OIDC_ISSUER_URL = "todo";
-    OIDC_SCOPES = concatStringsSep " " [
-      "email"
-      "openid"
-      "profile"
-    ];
-  };
+  env = [
+    {
+      name = "OIDC_CLIENT_ID";
+      value = name;
+    }
+    {
+      name = "OIDC_ISSUER_URL";
+      value = "todo";
+    }
+    {
+      name = "OIDC_SCOPES";
+      value = concatStringsSep " " [
+        "email"
+        "openid"
+        "profile"
+      ];
+    }
+  ];
 
   ingress = {
     enabled = true;
