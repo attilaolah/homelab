@@ -16,10 +16,16 @@ in {
     extraArgs.default-ssl-certificate = "${namespace}/${certificate.spec.secretName}";
 
     # Add & remove headers:
-    addHeaders."content-security-policy" = "frame-ancestors 'self'";
+    addHeaders = {
+      "content-security-policy" = "frame-ancestors 'self'";
+      "x-content-type-options" = "nosniff";
+    };
     config.hide-headers = concatStringsSep "," [
+      # NextJS (Homepage) headers:
       "x-nextjs-cache"
       "x-powered-by"
+      # Old XSS protection headers:
+      "x-xss-protection"
     ];
   };
 }
