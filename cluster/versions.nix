@@ -20,7 +20,7 @@ in {
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.13.0"];
-  jaeger-collector.docker = ["jaegertracing/jaeger-collector" "1.71.0"];
+  jaeger-collector.docker = ["jaegertracing/jaeger-collector" "1.72.0"];
   jaeger-query.docker = ["jaegertracing/jaeger-query" "1.72.0"];
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.1"];
   k0s.docker = ["attilaolah/k0s" "1.33.3.0"];
