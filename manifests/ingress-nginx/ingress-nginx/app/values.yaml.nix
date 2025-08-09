@@ -15,7 +15,6 @@ in {
     service.annotations."lbipam.cilium.io/ips" = cluster.network.external.ingress;
     extraArgs.default-ssl-certificate = "${namespace}/${certificate.spec.secretName}";
 
-    # Add & remove headers:
     addHeaders = {
       "content-security-policy" = "frame-ancestors 'self'";
       "x-content-type-options" = "nosniff";
