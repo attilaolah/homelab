@@ -3,6 +3,7 @@
 /.devenv
 /.direnv
 /.env.local
+/.scannerwork
 /age.key
 /etcd
 /flux
