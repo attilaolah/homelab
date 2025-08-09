@@ -98,7 +98,7 @@ jobs:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
         args: >
-          --remote-repo-url=https://github.com/attilaolah/homelab
+          --remote-repo-url=https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}
           --report
         file: flux helm
       # Currently Snyk checks have lots of failures, so ignore the step for now.
