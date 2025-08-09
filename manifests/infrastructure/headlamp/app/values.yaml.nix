@@ -1,9 +1,11 @@
 # https://github.com/kubernetes-sigs/headlamp/blob/main/charts/headlamp/values.yaml
 {
+  cluster,
   k,
   lib,
   ...
 }: let
+  inherit (cluster) domain;
   inherit (lib.strings) concatStringsSep;
   name = k.appname ./.;
 in {
@@ -32,6 +34,29 @@ in {
       "email"
       "openid"
       "profile"
+    ];
+  };
+
+  ingress = {
+    enabled = true;
+    ingressClassName = "nginx";
+    hosts = [
+      {
+        host = domain;
+        paths = [
+          {
+            path = "/";
+            pathType = "Prefix";
+          }
+        ];
+      }
+    ];
+    annotations = k.annotations.cert-manager;
+    tls = [
+      {
+        hosts = [domain];
+        secretName = "${domain}-tls";
+      }
     ];
   };
 
