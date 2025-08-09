@@ -16,7 +16,12 @@ in {
     extraArgs.default-ssl-certificate = "${namespace}/${certificate.spec.secretName}";
 
     addHeaders = {
-      "content-security-policy" = "frame-ancestors 'self'";
+      "content-security-policy" = concatStringsSep "; " [
+        "default-src 'self'"
+        "form-action 'self'"
+        "frame-ancestors 'self'"
+        "object-src 'none'"
+      ];
       "x-content-type-options" = "nosniff";
     };
     config.hide-headers = concatStringsSep "," [
