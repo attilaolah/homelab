@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  OCI_REPO: oci://ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}
+  OCI_REPO: oci://ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
 
 jobs:
   build:
@@ -81,7 +81,7 @@ jobs:
       uses: docker/login-action@v3.5.0
       with:
         registry: ghcr.io
-        username: ${{ github.actor }}
+        username: ${{ github.repository_owner }}
         # Token is set explicitly for the prod environment only.
         password: ${{ secrets.GHCR_TOKEN }}
 
