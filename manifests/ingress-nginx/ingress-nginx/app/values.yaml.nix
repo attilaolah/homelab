@@ -18,6 +18,10 @@ in {
     addHeaders = {
       "content-security-policy" = concatStringsSep "; " [
         "default-src 'self'"
+        # Homepage service icons are served from jsdelivr.
+        "img-src 'self' https://cdn.jsdelivr.net"
+        "script-src 'self' 'unsafe-inline'"
+        "style-src 'self' 'unsafe-inline'"
         "form-action 'self'"
         "frame-ancestors 'self'"
         "object-src 'none'"
