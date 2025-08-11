@@ -54,8 +54,8 @@ in {
         host = domain;
         paths = [
           {
-            path = "/${name}(/.*)?";
-            type = "ImplementationSpecific";
+            path = "/${name}";
+            type = "Prefix";
           }
         ];
       }
