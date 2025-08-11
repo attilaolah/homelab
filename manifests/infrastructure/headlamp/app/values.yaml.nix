@@ -34,7 +34,7 @@ in {
     }
     {
       name = "OIDC_ISSUER_URL";
-      value = "todo";
+      value = "https://${domain}/keycloak/realms/dh";
     }
     {
       name = "OIDC_SCOPES";
@@ -54,8 +54,8 @@ in {
         host = domain;
         paths = [
           {
-            path = "/";
-            pathType = "Prefix";
+            path = "/${name}(/.*)?";
+            type = "ImplementationSpecific";
           }
         ];
       }
