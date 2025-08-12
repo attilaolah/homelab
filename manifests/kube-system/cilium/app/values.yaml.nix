@@ -18,6 +18,14 @@
     hostRoot = "/sys/fs/cgroup";
   };
 
+  # Use eBPF-based masquerading.
+  # Requires disabling host DNS forwarding.
+  bpf.masquerade = true;
+
+  # Do not install iptables rules for connection tracking.
+  # https://docs.cilium.io/en/stable/operations/performance/tuning/#bypass-iptables-connection-tracking
+  installNoConntrackIptablesRules = true;
+
   # Enable use of per endpoint routes instead of routing via the cilium_host interface.
   endpointRoutes.enabled = true;
 

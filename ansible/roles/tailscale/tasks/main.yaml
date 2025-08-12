@@ -35,6 +35,9 @@
     - --accept-routes=false
     - --accept-dns=false
     - --ssh
+    # Avoid configuring nftabels firewall rules.
+    # They clash with Cilium iptables rules, causing connectivity problems.
+    - --netfilter-mode=off
 
 - name: Configure IPv4/IPv6 forwarding
   ansible.posix.sysctl:
