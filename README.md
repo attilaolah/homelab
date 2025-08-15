@@ -94,8 +94,8 @@ router advertises two IPv6 prefixes:
 The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of the
 load balancers and provides IPv4 connectivity
 
-For now, most networks run in dual-stack mode, all networks being part of the `10.0.0.0/8` & `fd10::/8` subnets, which
-are both routable locally.
+For now, most networks run in dual-stack mode, with all networks in the `10.0.0.0/8` and `fd10::/8` subnets, both
+routable locally.
 
 ## 🧑‍💻️ Dev/Ops
 
