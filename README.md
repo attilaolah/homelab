@@ -57,7 +57,7 @@ while NATing outbound traffic and verifying that the Let's Encrypt certificate i
 
 ```bash
 export PASSWORD="$(openssl rand -base64 18)"
-echo "admin password: $PASSWORD (temporary)"
+echo "Keycloak temporary admin password: $PASSWORD"
 podman run \
   --name keycloak \
   -p 8080:8080 \
@@ -65,12 +65,12 @@ podman run \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD="$PASSWORD" \
   -e PROXY_ADDRESS_FORWARDING=true \
-  -v /path/to/certs:/etc/certs:z \
+  -v /path/to/certs:/etc/tls:z \
   quay.io/keycloak/keycloak start \
   --proxy-headers forwarded \
   --hostname=https://dorn.haus/keycloak/ \
-  --https-certificate-file=/etc/certs/cert.pem \
-  --https-certificate-key-file=/etc/certs/privkey.pem \
+  --https-certificate-file=/etc/tls/cert.pem \
+  --https-certificate-key-file=/etc/tls/privkey.pem \
   --log-level=INFO \
   --verbose
 ```
