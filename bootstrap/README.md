@@ -25,7 +25,8 @@ An easy way to get started is to manually get an initial certificate:
 certbot certonly --preferred-challenges dns --manual -d dorn.haus
 ```
 
-Then manually add & remove the TXT record in the Cloudflare UI.
+Then manually add & remove the TXT record in the Cloudflare UI. (This could be automated bt it is a one-time setup
+anyway. All further Cloudflare DNS challenges will be automated anyway.)
 
 I then set up a simple Nginx reverse-proxy and NAT port 443. This will be needed to serve the OIDC authorization flow
 via Keycloak (next step).
@@ -33,7 +34,8 @@ via Keycloak (next step).
 ### 4. Start a temporary Keycloak server
 
 Fire up a Keycloak development server using Podman to create an initial user, `attila@dorn.haus`. I do this at home
-while NATing outbound traffic and verifying that the Let's Encrypt certificate is still functional.
+while exposing it via NAT and verifying that the Let's Encrypt certificate is still functional. Note that `--hostname`
+below actually accepts a full URL, not just the hostname.
 
 ```bash
 export PASSWORD="$(openssl rand -base64 18)"
@@ -44,12 +46,11 @@ podman run \
   -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
   -e KC_BOOTSTRAP_ADMIN_PASSWORD="$PASSWORD" \
   -v /path/to/certs:/etc/tls:z \
-  quay.io/keycloak/keycloak start \
+  quay.io/keycloak/keycloak:latest start \
   --proxy-headers=forwarded \
   --hostname=https://dorn.haus/keycloak \
   --https-certificate-file=/etc/tls/cert.pem \
   --https-certificate-key-file=/etc/tls/privkey.pem \
-  --log-level=INFO \
   --verbose
 ```
 
