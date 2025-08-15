@@ -41,12 +41,12 @@ echo "Keycloak temporary admin password: $PASSWORD"
 podman run \
   --name keycloak \
   -p 8443:8443 \
-  -e KEYCLOAK_ADMIN=admin \
-  -e KEYCLOAK_ADMIN_PASSWORD="$PASSWORD" \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD="$PASSWORD" \
   -v /path/to/certs:/etc/tls:z \
   quay.io/keycloak/keycloak start \
   --proxy-headers=forwarded \
-  --hostname=https://dorn.haus/keycloak/ \
+  --hostname=https://dorn.haus/keycloak \
   --https-certificate-file=/etc/tls/cert.pem \
   --https-certificate-key-file=/etc/tls/privkey.pem \
   --log-level=INFO \
