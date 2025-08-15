@@ -91,8 +91,8 @@ router advertises two IPv6 prefixes:
 - A Unique Local Address (ULA) prefix in `fd00::/8` (often shown as `scope global` in `ip addr`). On these modems this
   appears as `fdaa:bbcc:ddee:0/64`.
 
-The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of
-them and provides IPv4 connectivity.
+The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of the
+load balancers and provides IPv4 connectivity
 
 For now, most networks run in dual-stack mode, all networks being part of the `10.0.0.0/8` & `fd10::/8` subnets, which
 are both routable locally.
