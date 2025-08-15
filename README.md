@@ -84,8 +84,8 @@ domain, for free.
 
 ## 6️⃣ IPv6 networking
 
-Currently the machines in the cluster are connected to to the router that my ISP provides, through cheap 1 Gbps
-switches that only do L2 forwarding. This router advertises two IPv6 prefixes:
+Currently the machines in the cluster are connected to the router that my ISP provides, through cheap 1 Gbps switches
+that only do L2 forwarding. This router advertises two IPv6 prefixes:
 
 - A `scope global`, `dynamic` prefix that belongs to the `2000::/3` range.
 - A `scope global` static prefix in the `fd00::/8` range. This appears to be the prefix `fdaa:bbcc:ddee:0/64` on these
