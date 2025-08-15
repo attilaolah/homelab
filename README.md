@@ -115,8 +115,3 @@ Much of this was inspired by a number of similar repos:
 [Euvaz/GitOps-Home]: https://github.com/Euvaz/GitOps-Home
 [toboshii/home-ops]: https://github.com/toboshii/home-ops
 [onedr0p/home-ops]: https://github.com/onedr0p/home-ops
-
-## 🚧 Under Construction
-
-There is an existing repository where I already have most of these configs, however it contains various secrets that
-are not properly extracted out. This is an attempt to migrate existing configs and redact any secrets.
