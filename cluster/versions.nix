@@ -14,7 +14,7 @@ in {
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.27.0"];
   flux.github-releases = ["fluxcd/flux2" "2.6.4"];
   goldilocks.docker = ["us-docker.pkg.dev/fairwinds-ops/oss/goldilocks" "4.14.2" vp];
-  goldilocks.helm = ["https://charts.fairwinds.com/stable" "9.2.0"];
+  goldilocks.helm = ["https://charts.fairwinds.com/stable" "10.0.0"];
   homepage.docker = ["ghcr.io/gethomepage/homepage" "1.4.5" vp];
   homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.1.0"];
   inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
