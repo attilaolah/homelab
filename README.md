@@ -82,7 +82,7 @@ Next, configure WebFinger in Nginx (see `bootstrap/nginx.conf`). Create a new Ke
 Once connected, we can sign in to Tailscale using Keycloak as the OIDC provider, and create a personal tailnet for our
 domain, for free.
 
-## 6️⃣ IPv6 networking
+## 🚧 IPv6 networking
 
 Currently the machines in the cluster are connected to the router that my ISP provides, through cheap 1 Gbps switches
 that only do L2 forwarding. This router advertises two IPv6 prefixes:
