@@ -40,7 +40,6 @@ export PASSWORD="$(openssl rand -base64 18)"
 echo "Keycloak temporary admin password: $PASSWORD"
 podman run \
   --name keycloak \
-  -p 8080:8080 \
   -p 8443:8443 \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD="$PASSWORD" \
@@ -48,7 +47,6 @@ podman run \
   quay.io/keycloak/keycloak start \
   --proxy-headers=forwarded \
   --hostname=https://dorn.haus/keycloak/ \
-  --http-relative-path=/keycloak \
   --https-certificate-file=/etc/tls/cert.pem \
   --https-certificate-key-file=/etc/tls/privkey.pem \
   --log-level=INFO \
@@ -62,8 +60,8 @@ needed when connecting.
 Once connected, we can sign in to Tailscale using Keycloak as the OIDC provider, and create a personal tailnet for our
 domain, for free.
 
-*IMPORTANT:* After creating a Tailscale org, a backup user should be added, in case the Keycloak client gets lots or
-corrupted. Alternatively a hardware security key can be added as a login method for the admin user.
+*IMPORTANT:* After creating a Tailscale org, a backup user should be added, in case the Keycloak client gets lost or
+corrupted. Alternatively, a hardware security key can be added as a login method for the admin user.
 
 ---
 
