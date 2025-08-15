@@ -44,22 +44,26 @@ podman run \
   -p 8443:8443 \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD="$PASSWORD" \
-  -e PROXY_ADDRESS_FORWARDING=true \
   -v /path/to/certs:/etc/tls:z \
   quay.io/keycloak/keycloak start \
-  --proxy-headers forwarded \
+  --proxy-headers=forwarded \
   --hostname=https://dorn.haus/keycloak/ \
+  --http-relative-path=/keycloak \
   --https-certificate-file=/etc/tls/cert.pem \
   --https-certificate-key-file=/etc/tls/privkey.pem \
   --log-level=INFO \
   --verbose
 ```
 
-Next, configure WebFinger in Nginx (see `bootstrap/nginx.conf`). Create a new Keycloak realm, add a user (e.g.
-`attila@dorn.haus`), and add the Tailscale client. The Tailscale Client ID & secret will be needed when connecting.
+Next, configure WebFinger in Nginx (see `manifests/keycloak/well-known/app/config-map.yaml.nix`). Create a new Keycloak
+realm, add a user (e.g. `attila@dorn.haus`), and add the Tailscale client. The Tailscale Client ID & secret will be
+needed when connecting.
 
 Once connected, we can sign in to Tailscale using Keycloak as the OIDC provider, and create a personal tailnet for our
 domain, for free.
+
+*IMPORTANT:* After creating a Tailscale org, a backup user should be added, in case the Keycloak client gets lots or
+corrupted. Alternatively a hardware security key can be added as a login method for the admin user.
 
 ---
 
