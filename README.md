@@ -41,7 +41,7 @@ But the main reason for registering early is to get an SSL certificate. My ISP l
 
 An easy way to get started is to manually get an initial certificate:
 
-```fish
+```bash
 certbot certonly --preferred-challenges dns --manual -d dorn.haus
 ```
 
@@ -55,7 +55,7 @@ Keycloak (next step).
 Fire up a Keycloak development server using Podman to create an initial user, `attila@dorn.haus`. I do this at home
 while NATing outbound traffic and verifying that the Let's Encrypt certificate is still functional.
 
-```fish
+```bash
 export PASSWORD="$(pwgen -1sy 12)"
 echo "admin password: $PASSWORD (temporary)"
 podman run \
