@@ -56,7 +56,7 @@ Fire up a Keycloak development server using Podman to create an initial user, `a
 while NATing outbound traffic and verifying that the Let's Encrypt certificate is still functional.
 
 ```bash
-export PASSWORD="$(pwgen -1sy 12)"
+export PASSWORD="$(openssl rand -base64 18)"
 echo "admin password: $PASSWORD (temporary)"
 podman run \
   --name keycloak \
