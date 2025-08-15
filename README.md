@@ -91,7 +91,7 @@ that only do L2 forwarding. This router advertises two IPv6 prefixes:
 - A `scope global` static prefix in the `fd00::/8` range. This appears to be the prefix `fdaa:bbcc:ddee:0/64` on these
 modems.
 
-The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of the
+The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of
 them and provides IPv4 connectivity.
 
 For now, most networks run in dual-stack mode, all networks being part of the `10./8` & `fd10::/8` subnets, which are
