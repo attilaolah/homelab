@@ -37,11 +37,11 @@ having to register with an email provider or manage an exchange server.
 But the main reason for registering early is to get an SSL certificate. My ISP likes to block incoming traffic on port
 80 from time to time, making it impossible to get/renew certificates using Certbot with the HTTP challenge.
 
-### 3. Get a temporary Let's Encrypt certificate on the domain
+### 3. Get a temporary Let's Encrypt certificate for the domain
 
 An easy way to get started is to manually get an initial certificate:
 
-```
+```fish
 certbot certonly --preferred-challenges dns --manual -d dorn.haus
 ```
 
@@ -53,9 +53,9 @@ Keycloak (next step).
 ### 4. Start a temporary Keycloak server
 
 Fire up a Keycloak development server using Podman to create an initial user, `attila@dorn.haus`. I do this at home
-while NAT'ing myself to the outside world, as well as making sure my Let's Encrypt cert is still functional.
+while NATing outbound traffic and verifying that the Let's Encrypt certificate is still functional.
 
-```
+```fish
 export PASSWORD="$(pwgen -1sy 12)"
 echo "admin password: $PASSWORD (temporary)"
 podman run \
