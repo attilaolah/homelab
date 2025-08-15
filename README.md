@@ -88,8 +88,8 @@ Currently, the cluster machines are connected to my ISP‑provided router via in
 router advertises two IPv6 prefixes:
 
 - A `scope global`, `dynamic` prefix that belongs to the `2000::/3` range.
-- A `scope global` static prefix in the `fd00::/8` range. This appears to be the prefix `fdaa:bbcc:ddee:0/64` on these
-  modems.
+- A Unique Local Address (ULA) prefix in `fd00::/8` (often shown as `scope global` in `ip addr`). On these modems this
+  appears as `fdaa:bbcc:ddee:0/64`.
 
 The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of
 them and provides IPv4 connectivity.
