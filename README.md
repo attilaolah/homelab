@@ -65,7 +65,7 @@ podman run \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD="$PASSWORD" \
   -e PROXY_ADDRESS_FORWARDING=true \
-  -v /path/to/certs:/etc/certs \
+  -v /path/to/certs:/etc/certs:z \
   quay.io/keycloak/keycloak start \
   --proxy-headers forwarded \
   --hostname=https://dorn.haus/keycloak/ \
