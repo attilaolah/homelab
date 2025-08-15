@@ -9,12 +9,13 @@
 This repository contains Infrastructure as Code (IaC) and GitOps config files for managing my hobby cluster in the
 basement. Inspired by popular repos like [toboshii/home-ops], with a few additional considerations:
 
-
 - **🛠️ Unconventional hardware:** As much as I enjoy automating the software infrastructure, I also really like
   building custom hardware to power it all. I spend maybe half the time in front of the ⌨️ keyboard and half the time
   using 🪚🪛 power tools.
 - **🌳 Low footprint:** All of the nodes are either old machines I am no longer using, or used machines I bought for
   next to nothing. Many use passive cooling, and there are a fair bit of x86 (mostly i686) CPUs involved.
+
+For bootstrapping with a custom domain, see: [“Custom Domain (one-time)”](bootstrap/README.md#custom-domain-one-time).
 
 ## 🚧 IPv6 networking
 
