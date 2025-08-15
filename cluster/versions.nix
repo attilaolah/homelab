@@ -33,7 +33,7 @@ in {
   loki.helm = ["https://grafana.github.io/helm-charts" "6.35.1"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.13.0"];
   minecraft-bedrock.helm = ["oci://ghcr.io/itzg/minecraft-server-charts" "2.8.4"];
-  nginx.docker = ["nginx" "1.29.0"];
+  nginx.docker = ["nginx" "1.29.1"];
   node-feature-discovery.helm = ["https://kubernetes-sigs.github.io/node-feature-discovery/charts" "0.17.3"];
   oauth2-proxy.docker = ["quay.io/oauth2-proxy/oauth2-proxy" "7.11.0" vp];
   pause.docker = ["registry.k8s.io/pause" "3.9"];
