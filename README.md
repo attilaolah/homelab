@@ -32,7 +32,7 @@ I'll be using Cloudflare services later on, most notably DNS, so I always start 
 Cloudflare.
 
 An additional perk with Cloudflare is the free email forwarding of wildcard addresses, allowing incoming emails without
-having to register with at enail provider or managing an exchange server.
+having to register with an email provider or managing an exchange server.
 
 But the main reason for registering early is to get an SSL certificate. My ISP likes to block incoming traffic on port
 80 from time to time, making it impossible to get/renew certificates using Certbot with the HTTP challenge.
