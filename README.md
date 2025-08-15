@@ -119,4 +119,4 @@ Much of this was inspired by a number of similar repos:
 ## 🚧 Under Construction
 
 There is an existing repository where I already have most of these configs, however it contains various secrets that
-are not properly extracted out. This is an attempt to migrate exsting configs and redact any secrets.
+are not properly extracted out. This is an attempt to migrate existing configs and redact any secrets.
