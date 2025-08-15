@@ -58,9 +58,9 @@ while NAT'ing myself to the outside world, as well as making sure my LetsEncrypt
 ```
 export PASSWORD="$(pwgen -1sy 12)"
 echo "admin password: $PASSWORD (temporary)"
-podman run -p 8080:8080 \
-docker run \
+podman run \
   --name keycloak \
+  -p 8080:8080 \
   -p 8443:8443 \
   -p 9000:9000 \
   -e KEYCLOAK_ADMIN=admin \
