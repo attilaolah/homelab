@@ -34,8 +34,8 @@ Cloudflare.
 An additional perk with Cloudflare is the free email forwarding of wildcard addresses, allowing incoming emails without
 having to register with an email provider or manage an exchange server.
 
-But the main reason for registering early is to get an SSL certificate. My ISP likes to block incoming traffic on port
-80 from time to time, making it impossible to get/renew certificates using Certbot with the HTTP challenge.
+But the main reason for registering early is to get an SSL certificate. CGNAT occasionally causes incoming traffic on
+port 80 to be blocked, making it impossible to get/renew certificates using Certbot with the HTTP challenge.
 
 ### 3. Get a temporary Let's Encrypt certificate for the domain
 
@@ -47,8 +47,8 @@ certbot certonly --preferred-challenges dns --manual -d dorn.haus
 
 Then manually add & remove the TXT record in the Cloudflare UI.
 
-I then set up a simple Nginx reverse-proxy and NAT port 443. This will be needed to serve the OpenID challenge via
-Keycloak (next step).
+I then set up a simple Nginx reverse-proxy and NAT port 443. This will be needed to serve the OIDC authorization flow
+via Keycloak (next step).
 
 ### 4. Start a temporary Keycloak server
 
@@ -62,7 +62,6 @@ podman run \
   --name keycloak \
   -p 8080:8080 \
   -p 8443:8443 \
-  -p 9000:9000 \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD="$PASSWORD" \
   -e PROXY_ADDRESS_FORWARDING=true \
