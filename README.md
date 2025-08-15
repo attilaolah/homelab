@@ -37,7 +37,7 @@ having to register with an email provider or manage an exchange server.
 But the main reason for registering early is to get an SSL certificate. My ISP likes to block incoming traffic on port
 80 from time to time, making it impossible to get/renew certificates using Certbot with the HTTP challenge.
 
-### 3. Get a temporary LetsEncrypt certificate on the domain
+### 3. Get a temporary Let's Encrypt certificate on the domain
 
 An easy way to get started is to manually get an initial certificate:
 
@@ -53,7 +53,7 @@ Keycloak (next step).
 ### 4. Start a temporary Keycloak server
 
 Fire up a Keycloak development server using Podman to create an initial user, `attila@dorn.haus`. I do this at home
-while NAT'ing myself to the outside world, as well as making sure my LetsEncrypt cert is still functional.
+while NAT'ing myself to the outside world, as well as making sure my Let's Encrypt cert is still functional.
 
 ```
 export PASSWORD="$(pwgen -1sy 12)"
@@ -85,7 +85,7 @@ domain, for free.
 ## 🚧 IPv6 networking
 
 Currently the machines in the cluster are connected to the router that my ISP provides, through cheap 1 Gbps switches
-that only do L2 forwarding. This router advertises two IPv6 prefixes:
+that only do Layer 2 forwarding. This router advertises two IPv6 prefixes:
 
 - A `scope global`, `dynamic` prefix that belongs to the `2000::/3` range.
 - A `scope global` static prefix in the `fd00::/8` range. This appears to be the prefix `fdaa:bbcc:ddee:0/64` on these
@@ -94,8 +94,8 @@ modems.
 The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of
 them and provides IPv4 connectivity.
 
-For now, most networks run in dual-stack mode, all networks being part of the `10./8` & `fd10::/8` subnets, which are
-both routable locally.
+For now, most networks run in dual-stack mode, all networks being part of the `10.0.0.0/8` & `fd10::/8` subnets, which
+are both routable locally.
 
 ## 🧑‍💻️ Dev/Ops
 
