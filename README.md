@@ -26,7 +26,7 @@ router advertises two IPv6 prefixes:
   appears as `fdaa:bbcc:ddee:0/64`.
 
 The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of the
-load balancers and provides IPv4 connectivity
+load balancers and provides IPv4 connectivity.
 
 For now, most networks run in dual-stack mode, with all networks in the `10.0.0.0/8` and `fd10::/8` subnets, both
 routable locally.
