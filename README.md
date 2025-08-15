@@ -1,12 +1,13 @@
 # Home Kubernetes Cluster
 
-> IPv6-friendly Kubernetes cluster running on commodity hardware in a locker (yes, an actual locker) in our basement.
+> IPv6-friendly Kubernetes cluster running on commodity hardware in a locker (yes, an actual locker).
+
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/attilaolah/homelab?labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 ## 📖 Overview
 
-This repository contains Infrastructure as Code (IaC) and GitOps config files
-for managing my hobby cluster in the basement. Inspired by popular repos like
-[toboshii/home-ops], with a few additional considerations:
+This repository contains Infrastructure as Code (IaC) and GitOps config files for managing my hobby cluster in the
+basement. Inspired by popular repos like [toboshii/home-ops], with a few additional considerations:
 
 
 - **🛠️ Unconventional hardware:** As much as I enjoy automating the software infrastructure, I also really like
