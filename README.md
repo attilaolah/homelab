@@ -15,7 +15,7 @@ basement. Inspired by popular repos like [toboshii/home-ops], with a few additio
 - **🌳 Low footprint:** All of the nodes are either old machines I am no longer using, or used machines I bought for
   next to nothing. Many use passive cooling, and there are a fair bit of x86 (mostly i686) CPUs involved.
 
-For bootstrapping with a custom domain, see: [“Custom Domain (one-time)”](bootstrap/README.md#custom-domain-one-time).
+For bootstrapping with a custom domain, see: ["Custom Domain (one-time)"](bootstrap/README.md#custom-domain-one-time).
 
 ## 🚧 IPv6 networking
 
