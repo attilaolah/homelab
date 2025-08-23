@@ -93,7 +93,7 @@ jobs:
       uses: actions/download-artifact@v5.0.0
 
     - name: Run Snyk IaC scan
-      uses: snyk/actions/iac@11384dc39d2136498e1f955c5f240cbcf7e739b4 # master
+      uses: snyk/actions/iac@2f3c869154a3036de8e53db79251b67d10cfb91f # master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
