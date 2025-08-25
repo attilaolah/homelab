@@ -3,11 +3,13 @@
   cluster,
   k,
   lib,
+  self,
   v,
   ...
 }: let
   inherit (cluster) domain;
   inherit (lib.strings) concatStringsSep;
+  inherit (self.lib) yaml;
   name = k.appname ./.;
 in {
   inherit (k.container) securityContext;
@@ -41,9 +43,8 @@ in {
     }
     {
       name = "OIDC_SCOPES";
-      value = concatStringsSep " " [
+      value = concatStringsSep "," [
         "email"
-        "openid"
         "profile"
       ];
     }
@@ -93,4 +94,8 @@ in {
     inherit requests;
     limits = requests // {cpu = "1";};
   };
+
+  extraManifests = map yaml.format [
+    (k.external-secret ./. {data.OIDC_CLIENT_SECRET = "{{`{{ .headlamp_client_secret }}`}}";})
+  ];
 }
