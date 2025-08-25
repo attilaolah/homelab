@@ -3,6 +3,7 @@
   cluster,
   k,
   lib,
+  v,
   ...
 }: let
   inherit (cluster) domain;
@@ -11,6 +12,8 @@
 in {
   inherit (k.container) securityContext;
   podSecurityContext = k.pod.securityContext;
+
+  image.tag = v.headlamp.docker;
 
   volumes = map (name: {
     inherit name;
