@@ -79,4 +79,15 @@ in {
       };
     };
   };
+
+  resources = let
+    requests = {
+      cpu = "200m";
+      memory = "256Mi";
+      ephemeral-storage = "1Gi";
+    };
+  in {
+    inherit requests;
+    limits = requests // {cpu = "1";};
+  };
 }
