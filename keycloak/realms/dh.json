@@ -686,7 +686,7 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "https://dorn.haus/headlamp/*"
+        "https://dorn.haus/headlamp/oidc-callback"
       ],
       "webOrigins": [
         "https://dorn.haus"
