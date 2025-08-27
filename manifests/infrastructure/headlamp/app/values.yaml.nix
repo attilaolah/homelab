@@ -41,6 +41,8 @@ in {
     }
     {
       name = "OIDC_SCOPES";
+      # Headlamp will request the mandatory "openid" scope by default:
+      # https://headlamp.dev/docs/latest/installation/in-cluster/oidc/#scopes
       value = concatStringsSep "," [
         "email"
         "profile"
