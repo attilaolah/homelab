@@ -107,7 +107,7 @@ in {
     inherit (builtins) attrValues mapAttrs;
     role = "${name}-ro";
   in [
-    # External secret holding the OIDC Client ID:
+    # External secret holding the OIDC Client secret:
     (k.external-secret ./. {
       data.OIDC_CLIENT_SECRET = "{{`{{ .headlamp_client_secret }}`}}";
     })
@@ -176,9 +176,6 @@ in {
           batch = [
             "cronjobs"
             "jobs"
-          ];
-          extensions = [
-            "ingresses"
           ];
           policy = [
             "poddisruptionbudgets"
