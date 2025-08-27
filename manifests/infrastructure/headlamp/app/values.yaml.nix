@@ -62,7 +62,15 @@ in {
         ];
       }
     ];
-    annotations = k.annotations.cert-manager;
+    annotations = with k.annotations;
+      cert-manager
+      // (homepage {
+        name = "Headlamp";
+        description = "Extensible Kubernetes UI";
+        icon = name;
+        group = "Cluster Management";
+      });
+
     tls = [
       {
         hosts = [domain];
