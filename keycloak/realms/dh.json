@@ -675,8 +675,8 @@
     {
       "id": "da050415-e27a-4a38-bb89-fe22c03dcd80",
       "clientId": "kubernetes",
-      "name": "Dornhaus Headlamp",
-      "description": "Headlamp access.",
+      "name": "Kubernetes API Server",
+      "description": "Dornhaus Kubernetes API server access. Headlamp also uses this client to proxy credentials to the API server.",
       "rootUrl": "https://dorn.haus/headlamp",
       "adminUrl": "https://dorn.haus/headlamp",
       "baseUrl": "",
