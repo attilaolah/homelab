@@ -54,6 +54,8 @@ in {
   CiliumNetworkPolicy.cilium.io = "v2";
   Cluster.postgresql.cnpg.io = "v1";
   ClusterIssuer.cert-manager.io = "v1";
+  ClusterRole.rbac.authorization.k8s.io = "v1";
+  ClusterRoleBinding.rbac.authorization.k8s.io = "v1";
   ClusterSecretStore.external-secrets.io = "v1";
   ConfigMap = "v1";
   Deployment.apps = "v1";
