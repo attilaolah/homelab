@@ -90,7 +90,7 @@
       }
     ],
     "client": {
-      "headlamp": [],
+      "kubernetes": [],
       "realm-management": [
         {
           "id": "6b6ab649-f2ba-41d4-af74-ee1a403d11ba",
@@ -674,7 +674,7 @@
     },
     {
       "id": "da050415-e27a-4a38-bb89-fe22c03dcd80",
-      "clientId": "headlamp",
+      "clientId": "kubernetes",
       "name": "Dornhaus Headlamp",
       "description": "Headlamp access.",
       "rootUrl": "https://dorn.haus/headlamp",
