@@ -140,13 +140,18 @@ in {
   # Secure defaults.
   pod = {
     automountServiceAccountToken = false;
-    securityContext = {
+    securityContext = let
       # User ID matches that of the distroless non-root images.
       # It really shouldn't matter that much with user-namespaces,
       # but this value keeps most of the linters / security scanners happy.
-      runAsUser = 65532;
+      id = 65532;
+    in {
+      runAsUser = id;
+      runAsGroup = id;
       runAsNonRoot = true;
       seccompProfile.type = "RuntimeDefault";
+      fsGroup = id;
+      fsGroupChangePolicy = "OnRootMismatch";
     };
   };
   container = {

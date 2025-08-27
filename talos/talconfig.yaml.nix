@@ -86,6 +86,15 @@ in {
       in {
         inherit scheduler;
         controllerManager = scheduler;
+        apiServer.extraArgs = {
+          # Enable OIDC authentication against the Kubernetes API server.
+          # Headlamp will forward the user's email address (see claim below) as the principal.
+          oidc-client-id = "kubernetes";
+          # This endpoint won't be available until Keycloak is up and running, but that's fine.
+          # Once Keycloak and Headlamp are up and running, this will allow credential forwarding.
+          oidc-issuer-url = "https://${cluster.domain}/keycloak/realms/dh";
+          oidc-username-claim = "email";
+        };
         network = with cluster.network; {
           podSubnets = with pod; [cidr4 cidr6];
           serviceSubnets = with service; [cidr4 cidr6];
