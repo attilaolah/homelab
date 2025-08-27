@@ -107,6 +107,39 @@ in {
     inherit (builtins) attrValues mapAttrs;
     role = "${name}-ro";
   in [
+    # External secret holding the OIDC Client ID:
+    (k.external-secret ./. {
+      data.OIDC_CLIENT_SECRET = "{{`{{ .headlamp_client_secret }}`}}";
+    })
+    # Additional ingress to redirect /headlamp to /headlamp/ including the trailing slash:
+    (k.api "Ingress.networking.k8s.io" {
+      metadata = {
+        name = "${name}-redirect";
+        annotations = with k.annotations;
+          group "nginx.ingress.kubernetes.io" {
+            permanent-redirect = "https://${domain}/${name}/";
+          };
+      };
+      spec = {
+        ingressClassName = "nginx";
+        rules = [
+          {
+            host = domain;
+            http.paths = [
+              {
+                path = "/${name}";
+                pathType = "Exact";
+                backend.service = {
+                  inherit name;
+                  port.name = "http";
+                };
+              }
+            ];
+          }
+        ];
+      };
+    })
+    # RBAC read-only role:
     (k.api "ClusterRole.rbac.authorization.k8s.io" {
       metadata.name = role;
       rules = attrValues (mapAttrs (group: resources: {
@@ -327,6 +360,7 @@ in {
           ];
         });
     })
+    # RBAC binding assigning the role to admin users:
     (k.api "ClusterRoleBinding.rbac.authorization.k8s.io" {
       metadata.name = role;
       roleRef = {
@@ -342,9 +376,6 @@ in {
           name = "attila@${domain}";
         }
       ];
-    })
-    (k.external-secret ./. {
-      data.OIDC_CLIENT_SECRET = "{{`{{ .headlamp_client_secret }}`}}";
     })
   ]);
 }
