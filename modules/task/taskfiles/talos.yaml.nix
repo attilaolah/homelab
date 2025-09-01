@@ -7,6 +7,8 @@
   inherit (pkgs) lib;
   inherit (self.lib) cluster;
 
+  talosctl = import ../../talosctl.nix pkgs;
+
   silent = true;
   state = "$DEVENV_STATE/talos";
   writeShellApplication = inputs: let
@@ -215,7 +217,7 @@ in {
       inherit silent;
       desc = "Wait for Talos cluster to become healthy";
       cmd = writeShellApplication {
-        runtimeInputs = [pkgs.talosctl];
+        runtimeInputs = [talosctl];
         text = ''
           talosctl health --server=false
         '';
@@ -399,7 +401,7 @@ in {
       in [''"${cmd}" "{{.node}}" "{{.version}}"''];
       cmd = let
         cmd = writeShellApplication {
-          runtimeInputs = with pkgs; [talosctl];
+          runtimeInputs = [talosctl];
           text = ''
             node="$1"
             version="$2"
