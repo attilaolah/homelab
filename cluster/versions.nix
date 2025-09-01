@@ -30,7 +30,7 @@ in {
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.9.0"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "77.1.3"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.10"];
-  kubernetes.github-releases = ["kubernetes/kubernetes" "1.33.4" vp];
+  kubernetes.github-releases = ["kubernetes/kubernetes" "1.34.0" vp];
   local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.32" vp];
   loki.helm = ["https://grafana.github.io/helm-charts" "6.38.0"];
   metrics-server.helm = ["https://kubernetes-sigs.github.io/metrics-server" "3.13.0"];
