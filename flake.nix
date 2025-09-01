@@ -55,11 +55,11 @@
         ...
       }: let
         talhelper = inputs'.talhelper.packages.default;
+        talosctl = import ./modules/talosctl.nix pkgs;
       in {
         # The devenv shell.
         # Contains tooling and modules to effectively manage the cluster.
         devenv.shells.default = {
-          name = self.lib.github.repo;
           devenv.root = let
             devenvRootFileContent = builtins.readFile devenv-root.outPath;
           in
@@ -74,7 +74,6 @@
             ansible
             cilium-cli
             fluxcd
-            ggshield
             helmfile
             jq
             kube-capacity
