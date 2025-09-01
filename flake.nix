@@ -59,7 +59,6 @@
         # The devenv shell.
         # Contains tooling and modules to effectively manage the cluster.
         devenv.shells.default = {
-          name = self.lib.github.repo;
           devenv.root = let
             devenvRootFileContent = builtins.readFile devenv-root.outPath;
           in
@@ -68,13 +67,36 @@
           packages = with pkgs; [
             (python3.withPackages (ps: with ps; [jmespath]))
             (wrapHelm kubernetes-helm {plugins = with kubernetes-helmPlugins; [helm-diff];})
+            (talosctl.overrideAttrs (old: (let
+              versions = import ./cluster/versions.nix;
+              version = builtins.elemAt versions.talos.github-releases 1;
+            in {
+              inherit version;
+              src = fetchTarball {
+                url = "https://github.com/siderolabs/talos/archive/refs/tags/v${version}.tar.gz";
+                sha256 = "06rn4vjfgwvy1v63xrrjiwjgp467lrv9j9cdvv473b0yfpa6gr1h";
+              };
+              vendorHash = "sha256-6UVhWh53pHo6xZOXw/uncDL1AvnsFG27G4FX/qPfedU=";
+            })))
+            # TODO: fix ggshield build!
+            # (ggshield.overrideAttrs (old: (let
+            #   version = "1.43.0";
+            # in {
+            #   inherit version;
+            #   src = fetchFromGitHub {
+            #     owner = "GitGuardian";
+            #     repo = "ggshield";
+            #     tag = "v${version}";
+            #     hash = "sha256-5uvHDw11Br8/FrxD/aOx6U9ZxFGljqQcoHB113d6EBQ=";
+            #   };
+            # })))
+            # ggshield
 
             age
             alejandra
             ansible
             cilium-cli
             fluxcd
-            ggshield
             helmfile
             jq
             kube-capacity
@@ -82,7 +104,6 @@
             renovate
             sops
             talhelper
-            talosctl
             vector
             yq
           ];
