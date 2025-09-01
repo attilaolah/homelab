@@ -78,19 +78,6 @@
               };
               vendorHash = "sha256-6UVhWh53pHo6xZOXw/uncDL1AvnsFG27G4FX/qPfedU=";
             })))
-            # TODO: fix ggshield build!
-            # (ggshield.overrideAttrs (old: (let
-            #   version = "1.43.0";
-            # in {
-            #   inherit version;
-            #   src = fetchFromGitHub {
-            #     owner = "GitGuardian";
-            #     repo = "ggshield";
-            #     tag = "v${version}";
-            #     hash = "sha256-5uvHDw11Br8/FrxD/aOx6U9ZxFGljqQcoHB113d6EBQ=";
-            #   };
-            # })))
-            # ggshield
 
             age
             alejandra
