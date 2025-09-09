@@ -106,38 +106,66 @@ in {
   extraManifests = map yaml.format (let
     inherit (builtins) attrValues mapAttrs;
     role = "${name}-ro";
+    subjects = [
+      {
+        kind = "User";
+        apiGroup = "rbac.authorization.k8s.io";
+        # NOTE: Maybe it would be neat to configure usernames instead of emails here.
+        name = "attila@${domain}";
+      }
+    ];
   in [
     # External secret holding the OIDC Client secret:
     (k.external-secret ./. {
       data.OIDC_CLIENT_SECRET = "{{`{{ .headlamp_client_secret }}`}}";
     })
     # Additional ingress to redirect /headlamp to /headlamp/ including the trailing slash:
-    (k.api "Ingress.networking.k8s.io" {
-      metadata = {
-        name = "${name}-redirect";
-        annotations = with k.annotations;
-          group "nginx.ingress.kubernetes.io" {
-            permanent-redirect = "https://${domain}/${name}/";
-          };
-      };
-      spec = {
-        ingressClassName = "nginx";
-        rules = [
-          {
-            host = domain;
-            http.paths = [
-              {
-                path = "/${name}";
-                pathType = "Exact";
-                backend.service = {
-                  inherit name;
-                  port.name = "http";
-                };
-              }
-            ];
-          }
-        ];
-      };
+    # (k.api "Ingress.networking.k8s.io" {
+    #   metadata = {
+    #     name = "${name}-redirect";
+    #     annotations = with k.annotations;
+    #       group "nginx.ingress.kubernetes.io" {
+    #         permanent-redirect = "https://${domain}/${name}/";
+    #       };
+    #   };
+    #   spec = {
+    #     ingressClassName = "nginx";
+    #     rules = [
+    #       {
+    #         host = domain;
+    #         http.paths = [
+    #           {
+    #             path = "/${name}";
+    #             pathType = "Exact";
+    #             backend.service = {
+    #               inherit name;
+    #               port.name = "http";
+    #             };
+    #           }
+    #         ];
+    #       }
+    #     ];
+    #   };
+    # })
+    # RBAC basic access role:
+    (k.api "ClusterRole.rbac.authorization.k8s.io" {
+      metadata = {inherit name;};
+      rules = attrValues (mapAttrs (group: resources: {
+          inherit resources;
+          apiGroups = [group];
+          verbs = ["create"];
+        }) {
+          # For OIDC authentication validation:
+          "authentication.k8s.io" = [
+            "tokenreviews"
+            "subjectaccessreviews"
+          ];
+          # Self-subject access reviews, needed to check permissions:
+          "authorization.k8s.io" = [
+            "selfsubjectaccessreviews"
+            "selfsubjectrulesreviews"
+          ];
+        });
     })
     # RBAC read-only role:
     (k.api "ClusterRole.rbac.authorization.k8s.io" {
@@ -357,22 +385,24 @@ in {
           ];
         });
     })
-    # RBAC binding assigning the role to admin users:
+    # RBAC binding assigning both roles to admin users:
     (k.api "ClusterRoleBinding.rbac.authorization.k8s.io" {
+      inherit subjects;
+      metadata = {inherit name;};
+      roleRef = {
+        inherit name;
+        apiGroup = "rbac.authorization.k8s.io";
+        kind = "ClusterRole";
+      };
+    })
+    (k.api "ClusterRoleBinding.rbac.authorization.k8s.io" {
+      inherit subjects;
       metadata.name = role;
       roleRef = {
         apiGroup = "rbac.authorization.k8s.io";
         kind = "ClusterRole";
         name = role;
       };
-      subjects = [
-        {
-          kind = "User";
-          apiGroup = "rbac.authorization.k8s.io";
-          # NOTE: Maybe it would be neat to configure usernames instead of emails here.
-          name = "attila@${domain}";
-        }
-      ];
     })
   ]);
 }
