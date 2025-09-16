@@ -40,7 +40,7 @@ in {
   oauth2-proxy.docker = ["quay.io/oauth2-proxy/oauth2-proxy" "7.12.0" vp];
   pause.docker = ["registry.k8s.io/pause" "3.9"];
   redis.docker = ["redis" "8.2.1"];
-  reloader.helm = ["oci://ghcr.io/stakater/charts" "2.2.2"];
+  reloader.helm = ["oci://ghcr.io/stakater/charts" "2.2.3"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.4.0"];
   talos.github-releases = ["siderolabs/talos" "1.11.1" vp];
   vector.helm = ["https://helm.vector.dev" "0.45.0"];
