@@ -20,7 +20,7 @@ jobs:
       uses: actions/checkout@v5.0.0
 
     - name: Install Nix
-      uses: cachix/install-nix-action@a809471b5c7c913aa67bec8f459a11a0decc3fce # v31.6.2
+      uses: cachix/install-nix-action@9280e7aca88deada44c930f1e2c78e21c3ae3edd # v31.7.0
       with:
         install_url: https://nixos.org/nix/install
         extra_nix_config: |
