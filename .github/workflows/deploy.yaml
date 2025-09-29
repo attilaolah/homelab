@@ -78,7 +78,7 @@ jobs:
       uses: fluxcd/flux2/action@b6e0e8fd6321181d83f1afd08f5f88dc3ed4e238 # main
 
     - name: Sign in to GitHub container registry
-      uses: docker/login-action@v3.5.0
+      uses: docker/login-action@v3.6.0
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
