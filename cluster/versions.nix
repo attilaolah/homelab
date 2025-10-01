@@ -43,7 +43,7 @@ in {
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.2.3"];
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.4.0"];
   talos.github-releases = ["siderolabs/talos" "1.11.2" vp];
-  vector.helm = ["https://helm.vector.dev" "0.45.0"];
+  vector.helm = ["https://helm.vector.dev" "0.46.0"];
   vpa.helm = ["https://charts.fairwinds.com/stable" "4.9.0"];
   zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.8.0"];
 
