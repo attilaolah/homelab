@@ -12,7 +12,7 @@ in {
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.33.0"];
   external-secrets.helm = ["https://charts.external-secrets.io" "0.20.1"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.30.0"];
-  flux.github-releases = ["fluxcd/flux2" "2.7.0"];
+  flux.github-releases = ["fluxcd/flux2" "2.7.1"];
   goldilocks.docker = ["us-docker.pkg.dev/fairwinds-ops/oss/goldilocks" "4.14.4" vp];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "10.1.0"];
   headlamp.docker = ["ghcr.io/headlamp-k8s/headlamp" "0.34.0" vp];
