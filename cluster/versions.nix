@@ -4,7 +4,7 @@ in {
   # Format:
   # dep.datasource = [repository version transform]
   # If transform is not provided, the default is used: (v: v).
-  alpine.docker = ["alpine" "3.22.1"];
+  alpine.docker = ["alpine" "3.22.2"];
   cert-manager.helm = ["https://charts.jetstack.io" "1.18.2"];
   cilium.helm = ["https://helm.cilium.io" "1.18.2"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.26.0"];
