@@ -5,7 +5,7 @@ in {
   # dep.datasource = [repository version transform]
   # If transform is not provided, the default is used: (v: v).
   alpine.docker = ["alpine" "3.22.2"];
-  cert-manager.helm = ["https://charts.jetstack.io" "1.19.0"];
+  cert-manager.helm = ["https://charts.jetstack.io" "1.19.1"];
   cilium.helm = ["https://helm.cilium.io" "1.18.2"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.26.0"];
   descheduler.docker = ["registry.k8s.io/descheduler/descheduler" "0.33.0" vp];
