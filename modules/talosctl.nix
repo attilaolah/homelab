@@ -6,7 +6,7 @@ in {
   inherit version;
   src = fetchTarball {
     url = "https://github.com/siderolabs/talos/archive/refs/tags/v${version}.tar.gz";
-    sha256 = "0fv828api36pvw6f82w6r1ihrvj00iklszsgn4mg59v48zajxsqv";
+    sha256 = "0snz8hs92lx858w0iwn6plc46p1n85wbwrcrr0fpaf0d04mb8yga";
   };
-  vendorHash = "sha256-x9In+TaEuYMB0swuMzyXQRRnWgP1Krg7vKQH4lqDf+c=";
+  vendorHash = "sha256-NLyWzkagiP6zeeB4o6CI9UBPH6a5JGhPu1QGyiovBfM=";
 }))
