@@ -27,7 +27,7 @@ in {
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.1"];
   k0s.docker = ["attilaolah/k0s" "1.33.3.0"];
   k0s.github-releases = ["k0sproject/k0s" "1.33.4+k0s.0" vp];
-  keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.9.0"];
+  keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "25.2.0"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "78.5.0"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.11"];
   kubernetes.github-releases = ["kubernetes/kubernetes" "1.34.1" vp];
