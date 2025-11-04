@@ -11,7 +11,7 @@
     owner: root
     group: root
     # Keys under /etc/apk/keys are 644 by default.
-    # However, o+r is not really necessary so it is ommitted here.
+    # However, o+r is not really necessary so it is omitted here.
     mode: 0o640
 
 - name: Install required packages
