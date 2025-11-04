@@ -11,7 +11,7 @@
     owner: root
     group: root
     # Keys under /etc/apk/keys are 644 by default.
-    # However, o+r is not really necessary it is ommitted here.
+    # However, o+r is not really necessary so it is omitted here.
     mode: 0o640
 
 - name: Install required packages
@@ -20,6 +20,8 @@
     - dbus
     - k0s
     - udev
+    # Even with --iptables-mode=nft, k0s seems to require the legacy iptables as well in order to start.
+    - iptables-legacy
     state: present
 
 - name: Configure IPv6 iptables
