@@ -20,6 +20,8 @@
     - dbus
     - k0s
     - udev
+    # Even with --iptables-mode=nft, k0s seems to require the legacy iptables as well in order to start.
+    - iptables-legacy
     state: present
 
 - name: Configure IPv6 iptables
