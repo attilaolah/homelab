@@ -37,7 +37,7 @@
     ];
 
     patches =
-      (map yaml.format [
+      map yaml.format [
         {
           machine = {
             # Disable DNS forwarding, for two reasons:
@@ -57,11 +57,11 @@
             ];
           };
         }
-      ])
-      ++ (map (src: "@${yaml.write src {inherit cluster pkgs;}}") (flatten [
+      ]
+      ++ map (src: "@${yaml.write src {inherit cluster pkgs;}}") (flatten [
         (optional node.watchdog ./manifests/watchdog.yaml.nix)
         ./manifests/vector.yaml.nix
-      ]));
+      ]);
 
     nodeLabels =
       {"feature.node.kubernetes.io/system-os_release.ID" = "talos";}
