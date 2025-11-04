@@ -36,32 +36,32 @@
       (optional node.zfs "siderolabs/zfs")
     ];
 
-    extraManifests = map (src: yaml.write src {inherit cluster pkgs;}) (flatten [
-      (optional node.watchdog ./manifests/watchdog.yaml.nix)
-      ./manifests/vector.yaml.nix
-    ]);
-
-    patches = map yaml.format [
-      {
-        machine = {
-          # Disable DNS forwarding, for two reasons:
-          # 1. Configuring it on Alpine nodes requires a non-trivial amount of effort.
-          # 2. It clashes with Cilium's eBPF-based masquerading: https://github.com/siderolabs/talos/issues/8836
-          features.hostDNS.forwardKubeDNSToHost = false;
-          # Elasticsearch minimum requirements.
-          # https://www.elastic.co/guide/en/elasticsearch/reference/8.17/bootstrap-checks-max-map-count.html
-          sysctls."vm.max_map_count" = "262144";
-          # Redirect logs to Vector.
-          logging.destinations = [
-            {
-              endpoint = "udp://${cluster.network.external.vector}:6051/";
-              format = "json_lines";
-              extraTags.node = node.hostname;
-            }
-          ];
-        };
-      }
-    ];
+    patches =
+      (map yaml.format [
+        {
+          machine = {
+            # Disable DNS forwarding, for two reasons:
+            # 1. Configuring it on Alpine nodes requires a non-trivial amount of effort.
+            # 2. It clashes with Cilium's eBPF-based masquerading: https://github.com/siderolabs/talos/issues/8836
+            features.hostDNS.forwardKubeDNSToHost = false;
+            # Elasticsearch minimum requirements.
+            # https://www.elastic.co/guide/en/elasticsearch/reference/8.17/bootstrap-checks-max-map-count.html
+            sysctls."vm.max_map_count" = "262144";
+            # Redirect logs to Vector.
+            logging.destinations = [
+              {
+                endpoint = "udp://${cluster.network.external.vector}:6051/";
+                format = "json_lines";
+                extraTags.node = node.hostname;
+              }
+            ];
+          };
+        }
+      ])
+      ++ (map (src: "@${yaml.write src {inherit cluster pkgs;}}") (flatten [
+        (optional node.watchdog ./manifests/watchdog.yaml.nix)
+        ./manifests/vector.yaml.nix
+      ]));
 
     nodeLabels =
       {"feature.node.kubernetes.io/system-os_release.ID" = "talos";}
