@@ -25,7 +25,7 @@ in {
   jaeger-collector.docker = ["jaegertracing/jaeger-collector" "1.73.0"];
   jaeger-query.docker = ["jaegertracing/jaeger-query" "1.73.0"];
   jaeger.helm = ["https://jaegertracing.github.io/helm-charts" "3.4.1"];
-  k0s.docker = ["attilaolah/k0s" "1.33.3.0"];
+  k0s.docker = ["attilaolah/k0s" "1.34.1.0"];
   k0s.github-releases = ["k0sproject/k0s" "1.34.1+k0s.0" vp];
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.9.0"];
   kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "78.5.0"];
