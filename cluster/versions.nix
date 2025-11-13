@@ -9,7 +9,7 @@ in {
   cilium.helm = ["https://helm.cilium.io" "1.18.3"];
   cloudnative-pg.helm = ["https://cloudnative-pg.io/charts" "0.26.1"];
   descheduler.docker = ["registry.k8s.io/descheduler/descheduler" "0.34.0" vp];
-  descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.33.0"];
+  descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.34.0"];
   external-secrets.helm = ["https://charts.external-secrets.io" "0.20.4"];
   flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.33.0"];
   flux.github-releases = ["fluxcd/flux2" "2.7.3"];
