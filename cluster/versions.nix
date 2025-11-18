@@ -19,7 +19,7 @@ in {
   headlamp.helm = ["https://kubernetes-sigs.github.io/headlamp" "0.34.0"];
   homepage.docker = ["ghcr.io/gethomepage/homepage" "1.7.0" vp];
   homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.1.0"];
-  inadyn.docker = ["troglobit/inadyn" "2.12.0" vp];
+  inadyn.docker = ["troglobit/inadyn" "2.13.0" vp];
   inadyn.helm = ["https://charts.philippwaller.com" "1.1.0"];
   ingress-nginx.helm = ["https://kubernetes.github.io/ingress-nginx" "4.14.0"];
   jaeger-collector.docker = ["jaegertracing/jaeger-collector" "1.73.0"];
