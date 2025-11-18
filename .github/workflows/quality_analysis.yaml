@@ -66,7 +66,7 @@ jobs:
         fetch-depth: 0
 
     - name: Download manifests archive
-      uses: actions/download-artifact@v5.0.0
+      uses: actions/download-artifact@v6.0.0
 
     - name: Commit generated files
       run: |
@@ -90,7 +90,7 @@ jobs:
 
     steps:
     - name: Download manifests archive
-      uses: actions/download-artifact@v5.0.0
+      uses: actions/download-artifact@v6.0.0
 
     - name: Run Snyk IaC scan
       uses: snyk/actions/iac@9adf32b1121593767fc3c057af55b55db032dc04 # master
