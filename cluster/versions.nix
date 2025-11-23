@@ -44,7 +44,7 @@ in {
   spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.5.1"];
   talos.github-releases = ["siderolabs/talos" "1.11.5" vp];
   vector.helm = ["https://helm.vector.dev" "0.47.0"];
-  vpa.helm = ["https://charts.fairwinds.com/stable" "4.9.0"];
+  vpa.helm = ["https://charts.fairwinds.com/stable" "4.10.0"];
   zfs-localpv.helm = ["https://openebs.github.io/zfs-localpv" "2.9.0"];
 
   # Kubernetes API versions
