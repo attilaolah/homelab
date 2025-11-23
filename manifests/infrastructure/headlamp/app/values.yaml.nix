@@ -126,7 +126,7 @@ in {
       rules = attrValues (mapAttrs (group: resources: {
           inherit resources;
           apiGroups = [group];
-          verbs = ["create"];
+          verbs = ["create" "get" "list" "watch"];
         }) {
           # For OIDC authentication validation:
           "authentication.k8s.io" = [
