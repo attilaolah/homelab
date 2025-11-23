@@ -71,6 +71,7 @@ in {
         description = "Extensible Kubernetes UI";
         icon = name;
         group = "Cluster Management";
+        href = "/${name}/c/main";
       });
 
     tls = [
@@ -119,34 +120,6 @@ in {
     (k.external-secret ./. {
       data.OIDC_CLIENT_SECRET = "{{`{{ .headlamp_client_secret }}`}}";
     })
-    # Additional ingress to redirect /headlamp to /headlamp/ including the trailing slash:
-    # (k.api "Ingress.networking.k8s.io" {
-    #   metadata = {
-    #     name = "${name}-redirect";
-    #     annotations = with k.annotations;
-    #       group "nginx.ingress.kubernetes.io" {
-    #         permanent-redirect = "https://${domain}/${name}/";
-    #       };
-    #   };
-    #   spec = {
-    #     ingressClassName = "nginx";
-    #     rules = [
-    #       {
-    #         host = domain;
-    #         http.paths = [
-    #           {
-    #             path = "/${name}";
-    #             pathType = "Exact";
-    #             backend.service = {
-    #               inherit name;
-    #               port.name = "http";
-    #             };
-    #           }
-    #         ];
-    #       }
-    #     ];
-    #   };
-    # })
     # RBAC basic access role:
     (k.api "ClusterRole.rbac.authorization.k8s.io" {
       metadata = {inherit name;};
