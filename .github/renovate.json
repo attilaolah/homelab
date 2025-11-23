@@ -58,7 +58,7 @@
     {
       "description": "Auto-merge Helm + Docker patch updates",
       "matchManagers": [
-        "regex"
+        "custom.regex"
       ],
       "matchUpdateTypes": [
         "patch"
@@ -71,7 +71,7 @@
         "kube-prometheus-stack"
       ],
       "matchManagers": [
-        "regex"
+        "custom.regex"
       ],
       "matchUpdateTypes": [
         "minor",
