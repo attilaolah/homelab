@@ -15,8 +15,8 @@ in {
   flux.github-releases = ["fluxcd/flux2" "2.7.3"];
   goldilocks.docker = ["us-docker.pkg.dev/fairwinds-ops/oss/goldilocks" "4.14.7" vp];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "10.1.0"];
-  headlamp.docker = ["ghcr.io/headlamp-k8s/headlamp" "0.34.0" vp];
-  headlamp.helm = ["https://kubernetes-sigs.github.io/headlamp" "0.34.0"];
+  headlamp.docker = ["ghcr.io/headlamp-k8s/headlamp" "0.38.0" vp];
+  headlamp.helm = ["https://kubernetes-sigs.github.io/headlamp" "0.38.0"];
   homepage.docker = ["ghcr.io/gethomepage/homepage" "1.7.0" vp];
   homepage.helm = ["https://jameswynn.github.io/helm-charts" "2.1.0"];
   inadyn.docker = ["troglobit/inadyn" "2.13.0" vp];
