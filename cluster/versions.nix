@@ -11,7 +11,7 @@ in {
   descheduler.docker = ["registry.k8s.io/descheduler/descheduler" "0.34.0" vp];
   descheduler.helm = ["https://kubernetes-sigs.github.io/descheduler" "0.34.0"];
   external-secrets.helm = ["https://charts.external-secrets.io" "1.1.0"];
-  flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.33.0"];
+  flux-operator.helm = ["oci://ghcr.io/controlplaneio-fluxcd/charts" "0.34.0"];
   flux.github-releases = ["fluxcd/flux2" "2.7.3"];
   goldilocks.docker = ["us-docker.pkg.dev/fairwinds-ops/oss/goldilocks" "4.14.7" vp];
   goldilocks.helm = ["https://charts.fairwinds.com/stable" "10.1.0"];
