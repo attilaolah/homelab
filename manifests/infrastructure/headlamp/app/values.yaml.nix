@@ -91,6 +91,7 @@ in {
         name = "${name}-secrets";
       };
     };
+    enableHelm = true;
   };
 
   resources = let
