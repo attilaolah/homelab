@@ -75,7 +75,7 @@ jobs:
         echo "version=$(cat version/version.txt)" >> "$GITHUB_OUTPUT"
 
     - name: Install Flux
-      uses: fluxcd/flux2/action@9b76ba19a888e3e2ac9d46e4e8b70249f3c3c7ef # main
+      uses: fluxcd/flux2/action@f2f7d59577109fb5001a35ccff907e10b2e7fb6d # main
 
     - name: Sign in to GitHub container registry
       uses: docker/login-action@v3.6.0
