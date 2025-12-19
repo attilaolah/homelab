@@ -28,7 +28,7 @@ in {
   k0s.docker = ["attilaolah/k0s" "1.34.2.0"];
   k0s.github-releases = ["k0sproject/k0s" "1.34.2+k0s.0" vp];
   keycloak.helm = ["oci://registry-1.docker.io/bitnamicharts" "24.9.0"];
-  kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "79.12.0"];
+  kube-prometheus-stack.helm = ["https://prometheus-community.github.io/helm-charts" "80.5.0"];
   kubelet-csr-approver.helm = ["https://postfinance.github.io/kubelet-csr-approver" "1.2.12"];
   kubernetes.github-releases = ["kubernetes/kubernetes" "1.34.2" vp];
   local-path-provisioner.github-releases = ["rancher/local-path-provisioner" "0.0.32" vp];
