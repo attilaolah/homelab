@@ -36,7 +36,7 @@ jobs:
         nix run .#expand
 
     - name: Upload Flux artifact
-      uses: actions/upload-artifact@v5.0.0
+      uses: actions/upload-artifact@v6.0.0
       with:
         name: flux
         path: ${{ steps.build_flux.outputs.flux_artifact_dir }}
@@ -45,7 +45,7 @@ jobs:
         retention-days: 8
 
     - name: Upload Helm artifact
-      uses: actions/upload-artifact@v5.0.0
+      uses: actions/upload-artifact@v6.0.0
       with:
         name: helm
         path: helm
