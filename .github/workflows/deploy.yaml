@@ -67,7 +67,7 @@ jobs:
 
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v6.0.0
+      uses: actions/download-artifact@v7.0.0
 
     - name: Detect artifact dir and version
       id: artifact
