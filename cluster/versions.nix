@@ -41,7 +41,7 @@ in {
   pause.docker = ["registry.k8s.io/pause" "3.9"];
   redis.docker = ["redis" "8.4.0"];
   reloader.helm = ["oci://ghcr.io/stakater/charts" "2.2.7"];
-  spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.5.1"];
+  spegel.helm = ["oci://ghcr.io/spegel-org/helm-charts" "0.6.0"];
   talos.github-releases = ["siderolabs/talos" "1.12.0" vp];
   vector.helm = ["https://helm.vector.dev" "0.48.0"];
   vpa.helm = ["https://charts.fairwinds.com/stable" "4.10.0"];
