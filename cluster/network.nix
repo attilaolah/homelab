@@ -63,7 +63,7 @@ in {
   uplink = let
     pick = matrix: map builtins.head matrix;
   in {
-    gw4 = "${prefix}0.1";
+    gw4 = "${prefix}1.1";
     gw6 = "fe80::200:5eff:fe00:103";
 
     dns4 = let
