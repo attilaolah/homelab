@@ -8,10 +8,10 @@ in {
     cidr4 = cidr net4 net4Len;
 
     # L2 natively routable addresses.
-    routableCIDR4 = cidr "10.0.0.0" 8;
+    routableCIDR4 = cidr "192.168.0.0" 16;
 
     # ULA set by the modem:
-    net6 = "fdaa:bbcc:ddee::";
+    net6 = "2001:1708:2601:d900::";
     net6Len = 64;
     cidr6 = cidr net6 net6Len;
   };
@@ -40,7 +40,7 @@ in {
   };
 
   external = rec {
-    net4 = "10.10.0.0";
+    net4 = "192.168.0.0";
     net4Len = 16;
     cidr4 = cidr net4 net4Len;
 
@@ -51,18 +51,18 @@ in {
     };
 
     # External services:
-    ingress = "10.10.4.43";
-    minecraft = "10.10.19.132";
+    ingress = "192.168.4.43";
+    minecraft = "192.168.19.132";
 
     # Internal services:
-    vector = "10.10.0.5";
+    vector = "192.168.5.5";
   };
 
   uplink = let
     pick = matrix: map builtins.head matrix;
   in {
-    gw4 = "10.0.0.1";
-    gw6 = "fe80::3a35:fbff:fe0d:c7bf";
+    gw4 = "192.168.0.1";
+    gw6 = "fe80::200:5eff:fe00:103";
 
     dns4 = let
       cloudflare = ["1.1.1.1" "1.0.0.1"];
