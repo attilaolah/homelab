@@ -219,7 +219,7 @@ in {
         text = ''
           echo "Decoding GCP service account key…"
           service_account_key="$(
-            sops --decrypt "$DEVENV_ROOT/manifests/${namespace}/${name}/config/${secret.name}.sops.json" |
+            sops --decrypt "$DEVENV_ROOT/bootstrap/${name}/${secret.name}.sops.json" |
               jq --compact-output .
           )"
           echo "Storing GCP service account in Kubernetes secret ${secret.namespace}/${secret.name}"
