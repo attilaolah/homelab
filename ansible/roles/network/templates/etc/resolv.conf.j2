@@ -1,3 +1,3 @@
-{% for ip in network.uplink.dns6.two + network.uplink.dns4.one %}
+{% for ip in network.uplink.dns4.one + network.uplink.dns6.two %}
 nameserver {{ ip }}
 {% endfor +%}
