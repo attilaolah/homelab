@@ -3,6 +3,7 @@
   self,
 }: dir:
 map (src: let
+  inherit (builtins) stringLength substring;
   inherit (lib.strings) removeSuffix toIntBase10;
   inherit (self.lib) cluster eui64;
   inherit (cluster.network) node;
@@ -14,7 +15,7 @@ map (src: let
   data = defaults // (import src);
   index = removeSuffix ".nix" (baseNameOf src);
 
-  pre4 = builtins.substring 0 (builtins.stringLength node.net4 - 2) node.net4;
+  pre4 = substring 0 (stringLength node.net4 - 2) node.net4;
   ipv4 = "${pre4}.${toString (toIntBase10 index)}";
   ipv6 = eui64 node.net6 data.mac;
 
