@@ -24,8 +24,8 @@ in {
     cidr4 = cidr net4 net4Len;
 
     net6 = "fd10:244::";
-    # The Controller Manager default node CIDR length is 64,
-    # and the distance between the nework length and the pod mask cannot be more than 16.
+    # The Controller Manager default node CIDR length is /64,
+    # and the distance between the nework length and the pod mask cannot be more than /16.
     net6Len = 64 - 16;
     cidr6 = cidr net6 net6Len;
   };
