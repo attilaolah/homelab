@@ -14,20 +14,6 @@
 
     ipAddress = node.ipv4;
     installDiskSelector.type = "ssd";
-    networkInterfaces = [
-      {
-        deviceSelector.hardwareAddr = node.mac;
-        addresses = with node; [net4 net6];
-        routes = [
-          {
-            network = "0.0.0.0/0";
-            gateway = cluster.network.uplink.gw4;
-          }
-          # IPv6 default route is auto-configured.
-        ];
-        dhcp = false;
-      }
-    ];
 
     kernelModules = optional node.zfs {name = "zfs";};
 
