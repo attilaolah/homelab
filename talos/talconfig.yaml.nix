@@ -109,7 +109,7 @@ in {
           extraConfig.serverTLSBootstrap = true;
           nodeIP.validSubnets = with cluster.network.node; [cidr4 cidr6];
         };
-        network.nameservers = with cluster.network.uplink; dns4.two ++ dns6.one;
+        network.nameservers = with cluster.network.uplink; dns4.one ++ dns6.two;
       };
     }
   ];
