@@ -16,7 +16,7 @@ map (src: let
   index = removeSuffix ".nix" (baseNameOf src);
 
   pre4 = substring 0 (stringLength node.net4 - 2) node.net4;
-  ipv4 = "${pre4}.${toString (toIntBase10 index)}";
+  ipv4 = "${pre4}.${toString ((toIntBase10 index) + node.offset)}";
   ipv6 = eui64 node.net6 data.mac;
 
   extras = {

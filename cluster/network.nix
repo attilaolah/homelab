@@ -4,13 +4,18 @@
   local = c: d: "192.168.${toString c}.${toString d}";
 in {
   node = rec {
-    net4 = local 8 0;
+    net4 = local 1 0;
     net4Len = 24;
-    net4LenRoutable = 16;
     cidr4 = cidr net4 net4Len;
 
     # L2 natively routable addresses.
+    # DHCP advertises a /24, however, the entire /16 should still be routable locally.
+    net4LenRoutable = 16;
     routableCIDR4 = cidr (local 0 0) net4LenRoutable;
+
+    # IPv4 node range: 192.168.1.100-254.
+    # Sunrise's ConnectBox 3 apparently won't let us configure DHCP with a /16 block.
+    offset = 100;
 
     # ULA set by the modem:
     net6 = "2001:1708:2601:d900::";
