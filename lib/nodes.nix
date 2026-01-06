@@ -20,7 +20,7 @@ map (src: let
   ipv6 = eui64 node.net6 data.mac;
 
   extras = {
-    inherit ipv4 ipv6;
+    inherit index ipv4 ipv6;
 
     hostname = "${cluster.name}-${index}";
     net4 = "${ipv4}/${toString node.net4LenRoutable}";
