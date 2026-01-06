@@ -1,16 +1,16 @@
 {self}: let
   inherit (self.lib) cidr;
 
-  prefix = "192.168.";
+  local = c: d: "192.168.${toString c}.${toString d}";
 in {
   node = rec {
-    net4 = "${prefix}8.0";
+    net4 = local 8 0;
     net4Len = 24;
     net4LenRoutable = 16;
     cidr4 = cidr net4 net4Len;
 
     # L2 natively routable addresses.
-    routableCIDR4 = cidr "${prefix}0.0" net4LenRoutable;
+    routableCIDR4 = cidr (local 0 0) net4LenRoutable;
 
     # ULA set by the modem:
     net6 = "2001:1708:2601:d900::";
@@ -42,7 +42,7 @@ in {
   };
 
   external = rec {
-    net4 = "${prefix}0.0";
+    net4 = local 0 0;
     net4Len = 16;
     cidr4 = cidr net4 net4Len;
 
@@ -53,17 +53,17 @@ in {
     };
 
     # External services:
-    ingress = "${prefix}4.43";
-    minecraft = "${prefix}19.132";
+    ingress = local 4 43;
+    minecraft = local 19 132;
 
     # Internal services:
-    vector = "${prefix}5.5";
+    vector = local 5 5;
   };
 
   uplink = let
     pick = matrix: map builtins.head matrix;
   in {
-    gw4 = "${prefix}1.1";
+    gw4 = local 1 1;
     gw6 = "fe80::200:5eff:fe00:103";
 
     dns4 = let
