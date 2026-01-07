@@ -9,7 +9,7 @@ creation_rules:
   key_groups: *keys
 - path_regex: talos/.*\.sops\.yaml
   key_groups: *keys
-- path_regex: manifests/kube-system/external-secrets/config/.*\.sops\.json
+- path_regex: bootstrap/external-secrets/.*\.sops\.json
   encrypted_regex: "^private_key(_id)?$"
   key_groups: *keys
 - path_regex: bootstrap/switches/.*\.cfg
