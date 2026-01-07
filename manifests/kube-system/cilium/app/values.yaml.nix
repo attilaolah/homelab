@@ -2,7 +2,7 @@
 # https://github.com/cilium/cilium/blob/main/install/kubernetes/cilium/values.yaml.tmpl
 {cluster, ...}: {
   # Enable KubeProxy replacement.
-  k8sServiceHost = (builtins.head cluster.nodes.by.controlPlane).ipv6;
+  k8sServiceHost = (builtins.head cluster.nodes.by.controlPlane).ipv4;
   k8sServicePort = 6443;
   kubeProxyReplacement = true;
   kubeProxyReplacementHealthzBindAddr = "[::]:10256";

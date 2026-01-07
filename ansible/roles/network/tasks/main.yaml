@@ -10,13 +10,9 @@
     backup: true
 
 - name: Configure /etc/network/interfaces
-  ansible.builtin.template:
-    src: etc/network/interfaces.j2
+  ansible.builtin.copy:
+    src: etc/network/interfaces
     dest: /etc/network/interfaces
-    backup: true
-
-- name: Configure /etc/resolv.conf
-  ansible.builtin.template:
-    src: etc/resolv.conf.j2
-    dest: /etc/resolv.conf
-    backup: true
+    owner: root
+    group: root
+    mode: 0o644

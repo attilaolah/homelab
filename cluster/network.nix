@@ -1,17 +1,26 @@
 {self}: let
   inherit (self.lib) cidr;
+
+  # IPv4 subnet enforced by the router.
+  # Using any other subnet would work for local comms but not for internet connectivity.
+  local = c: d: "192.168.${toString c}.${toString d}";
 in {
   node = rec {
-    net4 = "10.8.0.0";
-    net4Len = 16;
-    net4LenRoutable = 8;
+    net4 = local 1 0;
+    net4Len = 24;
     cidr4 = cidr net4 net4Len;
 
     # L2 natively routable addresses.
-    routableCIDR4 = cidr "10.0.0.0" 8;
+    # DHCP advertises a /24, however, the entire /16 should still be routable locally.
+    net4LenRoutable = 16;
+    routableCIDR4 = cidr (local 0 0) net4LenRoutable;
 
-    # ULA set by the modem:
-    net6 = "fdaa:bbcc:ddee::";
+    # IPv4 node range: 192.168.1.100-254.
+    # Sunrise's ConnectBox 3 apparently won't let us configure DHCP with a /16 block.
+    offset = 100;
+
+    # GUA prefix set by the modem:
+    net6 = "2001:1708:2601:d900::";
     net6Len = 64;
     cidr6 = cidr net6 net6Len;
   };
@@ -22,8 +31,8 @@ in {
     cidr4 = cidr net4 net4Len;
 
     net6 = "fd10:244::";
-    # The Controller Manager default node CIDR length is 64,
-    # and the distance between the nework length and the pod mask cannot be more than 16.
+    # The Controller Manager default node CIDR length is /64,
+    # and the distance between the network length and the pod mask cannot be more than /16.
     net6Len = 64 - 16;
     cidr6 = cidr net6 net6Len;
   };
@@ -40,7 +49,7 @@ in {
   };
 
   external = rec {
-    net4 = "10.10.0.0";
+    net4 = local 0 0;
     net4Len = 16;
     cidr4 = cidr net4 net4Len;
 
@@ -51,18 +60,18 @@ in {
     };
 
     # External services:
-    ingress = "10.10.4.43";
-    minecraft = "10.10.19.132";
+    ingress = local 4 43;
+    minecraft = local 19 132;
 
     # Internal services:
-    vector = "10.10.0.5";
+    vector = local 5 5;
   };
 
   uplink = let
     pick = matrix: map builtins.head matrix;
   in {
-    gw4 = "10.0.0.1";
-    gw6 = "fe80::3a35:fbff:fe0d:c7bf";
+    gw4 = local 1 1;
+    gw6 = "fe80::200:5eff:fe00:103";
 
     dns4 = let
       cloudflare = ["1.1.1.1" "1.0.0.1"];
