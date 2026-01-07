@@ -1,6 +1,8 @@
 {self}: let
   inherit (self.lib) cidr;
 
+  # IPv4 subnet enforced by the router.
+  # Using any other subnet would work for local comms but not for internet connectivity.
   local = c: d: "192.168.${toString c}.${toString d}";
 in {
   node = rec {
@@ -17,7 +19,7 @@ in {
     # Sunrise's ConnectBox 3 apparently won't let us configure DHCP with a /16 block.
     offset = 100;
 
-    # ULA set by the modem:
+    # GUA prefix set by the modem:
     net6 = "2001:1708:2601:d900::";
     net6Len = 64;
     cidr6 = cidr net6 net6Len;

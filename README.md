@@ -20,17 +20,14 @@ For bootstrapping with a custom domain, see: ["Custom Domain (one-time)"](bootst
 ## 🚧 IPv6 networking
 
 Currently, the cluster machines are connected to my ISP‑provided router via inexpensive 1 Gbps, L2‑only switches. This
-router advertises two IPv6 prefixes:
-
-- A `scope global`, `dynamic` prefix that belongs to the `2000::/3` range.
-- A Unique Local Address (ULA) prefix in `fd00::/8` (often shown as `scope global` in `ip addr`). On these modems this
-  appears as `fdaa:bbcc:ddee:0/64`.
+router only advertises a global unicast prefix, no ULA (unique local address). The prefix that belongs to the
+`2000::/3` range.
 
 The router has IPv6 pinholing configured to access the load balancers from the outside. Cloudflare sits in front of the
 load balancers and provides IPv4 connectivity.
 
-For now, most networks run in dual-stack mode, with all networks in the `10.0.0.0/8` and `fd10::/8` subnets, both
-routable locally.
+For now, most nodes are configured to run in dual-stack mode, using `192.168.1.0/16` and the advertised IPv6 GUA
+subnet, as well as the automatic link-local `fd80::/10` subnet.
 
 ## 🧑‍💻️ Dev/Ops
 
