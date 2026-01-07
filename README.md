@@ -27,7 +27,7 @@ The router has IPv6 pinholing configured to access the load balancers from the o
 load balancers and provides IPv4 connectivity.
 
 For now, most nodes are configured to run in dual-stack mode, using `192.168.0.0/16` and the advertised IPv6 GUA
-subnet, as well as the automatic link-local `fd80::/10` subnet.
+subnet, as well as the automatic link-local `fe80::/10` subnet.
 
 ## 🧑‍💻️ Dev/Ops
 
