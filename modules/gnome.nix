@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   # Can be imported into machines to enable GNOME and GDM.
   #
   # Copy this into a machine's configuration:
