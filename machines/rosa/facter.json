@@ -850,13 +850,12 @@
           "mds",
           "swapgs",
           "itlb_multihit",
-          "spectre_v2_user",
-          "old_microcode"
+          "spectre_v2_user"
         ],
         "power_management": [
           ""
         ],
-        "bogo": 3989,
+        "bogo": 3990,
         "cache": 2048,
         "units": 2,
         "page_size": 4096,
@@ -867,7 +866,7 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32764,
+        "tlb_size": 32765,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -1477,7 +1476,7 @@
       },
       {
         "index": 34,
-        "attached_to": 22,
+        "attached_to": 19,
         "class_list": [
           "usb",
           "hub"
@@ -1498,27 +1497,27 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ehci_hcd",
+          "name": "Linux 6.18.2 uhci_hcd",
           "value": 7531
         },
         "device": {
-          "hex": "0002",
-          "name": "EHCI Host Controller",
-          "value": 2
+          "hex": "0001",
+          "name": "UHCI Host Controller",
+          "value": 1
         },
         "revision": {
           "hex": "0000",
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:1a.7",
-        "model": "Linux 6.18.2 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1a.7/usb1/1-0:1.0",
+        "serial": "0000:00:1a.0",
+        "model": "Linux 6.18.2 uhci_hcd UHCI Host Controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1a.0/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
           {
             "type": "baud",
-            "speed": 480000000,
+            "speed": 12000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -1560,7 +1559,7 @@
         "driver_modules": [
           "usbcore"
         ],
-        "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
+        "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
         "index": 36,
@@ -1651,7 +1650,7 @@
       },
       {
         "index": 37,
-        "attached_to": 19,
+        "attached_to": 22,
         "class_list": [
           "usb",
           "hub"
@@ -1672,27 +1671,27 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 uhci_hcd",
+          "name": "Linux 6.18.2 ehci_hcd",
           "value": 7531
         },
         "device": {
-          "hex": "0001",
-          "name": "UHCI Host Controller",
-          "value": 1
+          "hex": "0002",
+          "name": "EHCI Host Controller",
+          "value": 2
         },
         "revision": {
           "hex": "0000",
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:1a.0",
-        "model": "Linux 6.18.2 uhci_hcd UHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1a.0/usb2/2-0:1.0",
+        "serial": "0000:00:1a.7",
+        "model": "Linux 6.18.2 ehci_hcd EHCI Host Controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1a.7/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [
           {
             "type": "baud",
-            "speed": 12000000,
+            "speed": 480000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -1734,7 +1733,7 @@
         "driver_modules": [
           "usbcore"
         ],
-        "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
+        "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
       }
     ],
     "memory": [
@@ -1870,7 +1869,7 @@
         },
         "sysfs_id": "/devices/platform/i8042/serio4/input/input12",
         "unix_device_names": [
-          "/dev/input/event6",
+          "/dev/input/event5",
           "/dev/input/ + handler"
         ]
       }
@@ -2019,7 +2018,7 @@
         "resources": [
           {
             "type": "hwaddr",
-            "address": 99
+            "address": 53
           },
           {
             "type": "phwaddr",
@@ -2130,47 +2129,6 @@
     "network_interface": [
       {
         "index": 39,
-        "attached_to": 21,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "000a",
-          "name": "WLAN",
-          "value": 10
-        },
-        "model": "WLAN network interface",
-        "sysfs_id": "/class/net/wlan0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.1/0000:10:00.0",
-        "unix_device_names": [
-          "wlan0"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 99
-          },
-          {
-            "type": "phwaddr",
-            "address": 48
-          }
-        ],
-        "driver": "iwl3945",
-        "driver_module": "iwl3945",
-        "drivers": [
-          "iwl3945"
-        ],
-        "driver_modules": [
-          "iwl3945"
-        ]
-      },
-      {
-        "index": 40,
         "attached_to": 11,
         "class_list": [
           "network_interface"
@@ -2208,6 +2166,47 @@
         ],
         "driver_modules": [
           "sky2"
+        ]
+      },
+      {
+        "index": 40,
+        "attached_to": 21,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "000a",
+          "name": "WLAN",
+          "value": 10
+        },
+        "model": "WLAN network interface",
+        "sysfs_id": "/class/net/wlan0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.1/0000:10:00.0",
+        "unix_device_names": [
+          "wlan0"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 53
+          },
+          {
+            "type": "phwaddr",
+            "address": 48
+          }
+        ],
+        "driver": "iwl3945",
+        "driver_module": "iwl3945",
+        "drivers": [
+          "iwl3945"
+        ],
+        "driver_modules": [
+          "iwl3945"
         ]
       },
       {
@@ -3086,8 +3085,8 @@
     "bios": {
       "handle": 0,
       "vendor": "Hewlett-Packard",
-      "version": "68PVU Ver. F.01",
-      "date": "04/24/2009",
+      "version": "68PVU Ver. F.20",
+      "date": "12/01/2011",
       "features": [
         "PCI supported",
         "PCMCIA supported",
@@ -3116,7 +3115,7 @@
       "handle": 2,
       "manufacturer": "Hewlett-Packard",
       "product": "308A",
-      "version": "KBC Version 26.07",
+      "version": "KBC Version 26.08",
       "board_type": null,
       "features": null,
       "location": "",
@@ -3429,7 +3428,7 @@
       "handle": 1,
       "manufacturer": "Hewlett-Packard",
       "product": "Compaq 610",
-      "version": "F.01",
+      "version": "F.20",
       "wake_up": {
         "hex": "0006",
         "name": "Power Switch",
