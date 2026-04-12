@@ -3,8 +3,11 @@ let
   internal = ip4 0;
   # dmz = ip4 1;
 in {
-  meta.name = "locker";
-  meta.domain = "dorn.haus";
+  meta = {
+    name = "locker";
+    description = "Attila's bare metal homelab";
+    domain = "dorn.haus";
+  };
 
   inventory.machines = {
     rosa = {
