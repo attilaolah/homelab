@@ -1,5 +1,9 @@
 [
   {
+    "publickey": "BF2E475974D388E0E30C960407E6C0643FD142C3",
+    "type": "pgp"
+  },
+  {
     "publickey": "age10svcxhp982lemvu7xxnvmqtmuxemyjt5qh9k0qw38e9j694vyd5shsn3ym",
     "type": "age"
   }
