@@ -11,7 +11,7 @@ in {
 
   inventory.machines = {
     acer = {
-      deploy.targetHost = "root@${internal 207}";
+      deploy.targetHost = "root@${internal 208}";
       tags = ["laptop"];
     };
     rosa = {
