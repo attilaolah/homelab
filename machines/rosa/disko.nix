@@ -1,5 +1,5 @@
 # ---
-# schema = "ext4-single-disk"
+# schema = "btrfs-single-disk-subvolumes"
 # [placeholders]
 # mainDisk = "/dev/disk/by-id/ata-WDC_WD3200BEVT-60ZCT1_WD-WXF0A5931095" 
 # ---
@@ -13,8 +13,8 @@
 
   disko.devices = {
     disk = {
-      main = {
-        name = "main-545500acab4844baa18f45c183230f6c";
+      "main" = {
+        name = "main-ed498af08e854cc781dbade211524a6b";
         device = "/dev/disk/by-id/ata-WDC_WD3200BEVT-60ZCT1_WD-WXF0A5931095";
         type = "disk";
         content = {
@@ -25,7 +25,7 @@
               type = "EF02"; # for grub MBR
               priority = 1;
             };
-            ESP = {
+            "ESP" = {
               type = "EF00";
               size = "500M";
               content = {
@@ -35,16 +35,67 @@
                 mountOptions = [ "umask=0077" ];
               };
             };
-            root = {
+            #"swap" = {
+            #  size = "8G"; # adjust
+            #  content = {
+            #    type = "swap";
+            #    discardPolicy = "both";
+            #  };
+            #};
+            "root" = {
               size = "100%";
               content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/";
+                type = "btrfs";
+                extraArgs = [
+                  "--force"
+                  "--label root"
+                ];
+                subvolumes = {
+                  "@root" = {
+                    mountpoint = "/";
+                    mountOptions = [ ];
+                  };
+                  "@nix" = {
+                    mountpoint = "/nix";
+                    mountOptions = [
+                      "compress=zstd"
+                      "noatime"
+                    ];
+                  };
+                  "@home" = {
+                    mountpoint = "/home";
+                    mountOptions = [ "compress=zstd" ];
+                  };
+                };
               };
             };
           };
         };
+      };
+    };
+  };
+
+  # Automatic local snapshots
+  # https://digint.ch/btrbk/doc/readme.html
+  #$ systemctl start btrbk-<instance>
+  services.btrbk = {
+    instances."nix" = {
+      onCalendar = "*/2:00";
+      settings = {
+        subvolume = "/nix";
+        snapshot_create = "onchange";
+        snapshot_dir = "/nix";
+        snapshot_preserve = "16h 7d 2w";
+        snapshot_preserve_min = "3d";
+      };
+    };
+    instances."home" = {
+      onCalendar = "*/2:00";
+      settings = {
+        subvolume = "/home";
+        snapshot_dir = "/home";
+        snapshot_preserve = "16h 7d 3w 2m";
+        snapshot_preserve_min = "3d";
       };
     };
   };
