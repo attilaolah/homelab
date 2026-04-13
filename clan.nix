@@ -46,5 +46,14 @@ in {
         };
       };
     };
+
+    # Import shared NixOS snippets for matching machine tags.
+    laptop-settings = {
+      module.name = "importer";
+      roles.default = {
+        tags.laptop = {};
+        extraModules = [./modules/laptop.nix];
+      };
+    };
   };
 }
