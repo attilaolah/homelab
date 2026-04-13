@@ -1,4 +1,4 @@
-{
+{lib, ...}: {
   # Reduce closure/store size on this server.
   documentation.enable = false;
 
@@ -23,4 +23,7 @@
     inherit defaultLocale;
     supportedLocales = ["${defaultLocale}/${coding}"];
   };
+
+  # Keep all machines headless even if hardware fact data includes a display.
+  hardware.graphics.enable = lib.mkForce false;
 }
