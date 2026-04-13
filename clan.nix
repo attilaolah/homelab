@@ -1,6 +1,6 @@
 let
   ip4 = x: y: "192.168.${toString x}.${toString y}";
-  # internal = ip4 0;
+  internal = ip4 0;
   dmz = ip4 1;
 in {
   meta = {
@@ -10,6 +10,10 @@ in {
   };
 
   inventory.machines = {
+    acer = {
+      deploy.targetHost = "root@${internal 207}";
+      tags = ["laptop"];
+    };
     rosa = {
       deploy.targetHost = "root@${dmz 120}";
       tags = ["laptop"];
