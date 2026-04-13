@@ -1,5 +1,5 @@
 {
-  id,
+  device,
   main,
 }: {
   boot.loader.grub = {
@@ -11,7 +11,7 @@
     disk = {
       main = {
         name = "main-${main}";
-        device = "/dev/disk/by-id/${id}";
+        device = "/dev/disk/by-id/${device}";
         type = "disk";
         content = {
           type = "gpt";
@@ -28,7 +28,7 @@
             };
             boot = {
               size = "1M";
-              type = "EF02"; # for grub MBR
+              type = "EF02"; # GRUB MBR
               priority = 1;
             };
             root = {
