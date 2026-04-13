@@ -1,7 +1,7 @@
 # ---
 # schema = "btrfs-single-disk-subvolumes"
 # [placeholders]
-# mainDisk = "/dev/disk/by-id/mmc-BGND3R_0xc6e4eee3" 
+# mainDisk = "/dev/disk/by-id/mmc-BGND3R_0xc6e4eee3"
 # ---
 # This file was automatically generated!
 # CHANGING this configuration requires wiping and reinstalling the machine
@@ -32,7 +32,7 @@
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
-                mountOptions = [ "umask=0077" ];
+                mountOptions = ["umask=0077"];
               };
             };
             #"swap" = {
@@ -53,7 +53,7 @@
                 subvolumes = {
                   "@root" = {
                     mountpoint = "/";
-                    mountOptions = [ ];
+                    mountOptions = [];
                   };
                   "@nix" = {
                     mountpoint = "/nix";
@@ -64,7 +64,7 @@
                   };
                   "@home" = {
                     mountpoint = "/home";
-                    mountOptions = [ "compress=zstd" ];
+                    mountOptions = ["compress=zstd"];
                   };
                 };
               };
