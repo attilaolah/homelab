@@ -3,14 +3,14 @@
   documentation.enable = false;
 
   # Keep only a small number of bootable generations.
-  boot.loader.grub.configurationLimit = 5;
+  boot.loader.grub.configurationLimit = 3;
 
   # Periodically reclaim and deduplicate store space.
   nix = {
     gc = {
       automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 14d";
+      dates = "daily";
+      options = "--delete-older-than 8d";
     };
     settings.auto-optimise-store = true;
   };
