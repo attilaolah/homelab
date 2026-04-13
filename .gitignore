@@ -1,2 +1,6 @@
 result
-.direnv/
+
+.aider.*
+.claude
+.codex
+.direnv
