@@ -47,6 +47,15 @@ in {
       };
     };
 
+    # Import shared NixOS snippets for all machines.
+    common-settings = {
+      module.name = "importer";
+      roles.default = {
+        tags.all = {};
+        extraModules = [./modules/common.nix];
+      };
+    };
+
     # Import shared NixOS snippets for matching machine tags.
     laptop-settings = {
       module.name = "importer";
