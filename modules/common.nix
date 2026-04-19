@@ -1,5 +1,5 @@
 {lib, ...}: {
-  # Reduce closure/store size on this server.
+  # Reduce closure/store size.
   documentation.enable = false;
 
   # Keep only a small number of bootable generations.
