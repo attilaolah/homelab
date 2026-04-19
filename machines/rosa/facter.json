@@ -725,7 +725,7 @@
           "value": 132
         },
         "slot": {
-          "bus": 2,
+          "bus": 4,
           "number": 0
         },
         "base_class": {
@@ -760,8 +760,8 @@
         },
         "model": "TSSTcorp CDDVDW TS-L633M",
         "sysfs_id": "/class/block/sr0",
-        "sysfs_bus_id": "2:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata3/host2/target2:0:0/2:0:0:0",
+        "sysfs_bus_id": "4:0:0:0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata5/host4/target4:0:0/4:0:0:0",
         "unix_device_names": [
           "/dev/cdrom",
           "/dev/disk/by-id/ata-TSSTcorp_CDDVDW_TS-L633M",
@@ -869,7 +869,6 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32666,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -893,7 +892,7 @@
           "value": 133
         },
         "slot": {
-          "bus": 0,
+          "bus": 2,
           "number": 0
         },
         "base_class": {
@@ -924,8 +923,8 @@
         "serial": "WD-WXF0A5931095",
         "model": "WDC WD3200BEVT-6",
         "sysfs_id": "/class/block/sda",
-        "sysfs_bus_id": "0:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata1/host0/target0:0:0/0:0:0:0",
+        "sysfs_bus_id": "2:0:0:0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata3/host2/target2:0:0/2:0:0:0",
         "unix_device_names": [
           "/dev/disk/by-id/ata-WDC_WD3200BEVT-60ZCT1_WD-WXF0A5931095",
           "/dev/disk/by-id/wwn-0x50014ee2ad9a829e",
@@ -1149,7 +1148,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.18 uhci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1163,7 +1162,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.2",
-        "model": "Linux 6.18.18 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.2/usb6/6-0:1.0",
         "sysfs_bus_id": "6-0:1.0",
         "resources": [
@@ -1236,7 +1235,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.18 uhci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1250,7 +1249,7 @@
           "value": 0
         },
         "serial": "0000:00:1a.0",
-        "model": "Linux 6.18.18 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1a.0/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
@@ -1323,7 +1322,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.18 uhci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1337,7 +1336,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.0",
-        "model": "Linux 6.18.18 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.0/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "resources": [
@@ -1410,7 +1409,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.18 ehci_hcd",
+          "name": "Linux 6.18.21 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1424,7 +1423,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.7",
-        "model": "Linux 6.18.18 ehci_hcd EHCI Host Controller",
+        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -1497,7 +1496,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.18 uhci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1511,7 +1510,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.1",
-        "model": "Linux 6.18.18 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.1/usb5/5-0:1.0",
         "sysfs_bus_id": "5-0:1.0",
         "resources": [
@@ -1584,7 +1583,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.18 ehci_hcd",
+          "name": "Linux 6.18.21 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1598,7 +1597,7 @@
           "value": 0
         },
         "serial": "0000:00:1a.7",
-        "model": "Linux 6.18.18 ehci_hcd EHCI Host Controller",
+        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1a.7/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [
@@ -1780,9 +1779,9 @@
           "hex": "0007",
           "value": 7
         },
-        "sysfs_id": "/devices/platform/i8042/serio4/input/input13",
+        "sysfs_id": "/devices/platform/i8042/serio4/input/input14",
         "unix_device_names": [
-          "/dev/input/event7",
+          "/dev/input/event10",
           "/dev/input/ + handler"
         ]
       }
@@ -2042,6 +2041,28 @@
     "network_interface": [
       {
         "index": 37,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
+        ]
+      },
+      {
+        "index": 38,
         "attached_to": 21,
         "class_list": [
           "network_interface"
@@ -2079,28 +2100,6 @@
         ],
         "driver_modules": [
           "iwl3945"
-        ]
-      },
-      {
-        "index": 38,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
         ]
       },
       {
