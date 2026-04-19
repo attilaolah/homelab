@@ -1,4 +1,10 @@
-{lib, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: let
+  disabled.enable = lib.mkForce false;
+in {
   # Reduce closure/store size.
   documentation.enable = false;
 
@@ -25,5 +31,14 @@
   };
 
   # Keep all machines headless even if hardware fact data includes a display.
-  hardware.graphics.enable = lib.mkForce false;
+  hardware.graphics = disabled;
+  fonts.fontconfig = disabled;
+  # Avoid XDG data in the system closure on all hosts.
+  xdg = {
+    icons = disabled;
+    mime = disabled;
+    sounds = disabled;
+  };
+  # D-Bus defaults to X11 autolaunch support, which pulls libX11 into closure.
+  services.dbus.dbusPackage = pkgs.dbus.override {x11Support = false;};
 }
