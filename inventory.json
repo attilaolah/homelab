@@ -2,6 +2,9 @@
   "machines": {
     "rosa": {
       "installedAt": 1776109637
+    },
+    "iris": {
+      "installedAt": 1776620433
     }
   }
 }
