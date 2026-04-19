@@ -2,6 +2,10 @@
   "version": 1,
   "system": "x86_64-linux",
   "virtualisation": "none",
+  "uefi": {
+    "supported": true,
+    "platform_size": 64
+  },
   "hardware": {
     "bios": {
       "apm_info": {
@@ -300,7 +304,7 @@
         "fpu_exception": false,
         "cpuid_level": 22,
         "write_protect": false,
-        "tlb_size": 32767,
+        "tlb_size": 32562,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -312,89 +316,6 @@
     "disk": [
       {
         "index": 22,
-        "attached_to": 18,
-        "class_list": [
-          "disk",
-          "usb",
-          "scsi",
-          "block_device"
-        ],
-        "bus_type": {
-          "hex": "0084",
-          "name": "SCSI",
-          "value": 132
-        },
-        "slot": {
-          "bus": 5,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "0106",
-          "name": "Mass Storage Device",
-          "value": 262
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Disk",
-          "value": 0
-        },
-        "vendor": {
-          "hex": "18a5",
-          "name": "Verbatim",
-          "value": 6309
-        },
-        "device": {
-          "hex": "0243",
-          "name": "STORE N GO",
-          "value": 579
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "PMAP",
-          "value": 0
-        },
-        "serial": "097507843050",
-        "model": "Verbatim STORE N GO",
-        "sysfs_id": "/class/block/sdb",
-        "sysfs_bus_id": "5:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/host5/target5:0:0/5:0:0:0",
-        "unix_device_names": [
-          "/dev/disk/by-id/usb-Verbatim_STORE_N_GO_0708353261969574-0:0",
-          "/dev/disk/by-path/pci-0000:00:14.0-usb-0:1:1.0-scsi-0:0:0:0",
-          "/dev/disk/by-path/pci-0000:00:14.0-usbv3-0:1:1.0-scsi-0:0:0:0",
-          "/dev/sdb"
-        ],
-        "unix_device_name2": "/dev/sg1",
-        "resources": [
-          {
-            "type": "disk_geo",
-            "cylinders": 15068,
-            "heads": 255,
-            "sectors": 63,
-            "size": "0x0",
-            "geo_type": "logical"
-          },
-          {
-            "type": "size",
-            "unit": "sectors",
-            "value_1": 242075648,
-            "value_2": 512
-          }
-        ],
-        "driver": "usb-storage",
-        "driver_module": "usb_storage",
-        "drivers": [
-          "sd",
-          "usb-storage"
-        ],
-        "driver_modules": [
-          "sd_mod",
-          "usb_storage"
-        ],
-        "module_alias": "usb:v18A5p0243d0110dc00dsc00dp00ic08isc06ip50in00"
-      },
-      {
-        "index": 23,
         "attached_to": 8,
         "class_list": [
           "disk",
@@ -446,6 +367,7 @@
           "/dev/disk/by-path/pci-0000:00:17.0-ata-1.0",
           "/dev/sda"
         ],
+        "rom_id": "0x80",
         "resources": [
           {
             "type": "disk_geo",
@@ -560,7 +482,7 @@
     ],
     "hub": [
       {
-        "index": 25,
+        "index": 23,
         "attached_to": 18,
         "class_list": [
           "usb",
@@ -582,7 +504,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 xhci-hcd",
+          "name": "Linux 6.18.21 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -596,7 +518,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.2 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.21 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -647,7 +569,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 26,
+        "index": 24,
         "attached_to": 18,
         "class_list": [
           "usb",
@@ -669,7 +591,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 xhci-hcd",
+          "name": "Linux 6.18.21 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -683,7 +605,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.2 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.21 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "detail": {
@@ -1060,7 +982,7 @@
     ],
     "network_interface": [
       {
-        "index": 27,
+        "index": 25,
         "attached_to": 16,
         "class_list": [
           "network_interface"
@@ -1101,7 +1023,7 @@
         ]
       },
       {
-        "index": 28,
+        "index": 26,
         "attached_to": 0,
         "class_list": [
           "network_interface"
