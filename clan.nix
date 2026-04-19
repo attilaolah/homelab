@@ -14,6 +14,10 @@ in {
       deploy.targetHost = "root@${dmz 121}";
       tags = ["laptop"];
     };
+    iris = {
+      deploy.targetHost = "root@${dmz 101}";
+      tags = [];
+    };
     rosa = {
       deploy.targetHost = "root@${dmz 120}";
       tags = ["laptop"];
