@@ -14,6 +14,10 @@ in {
       deploy.targetHost = "root@${dmz 121}";
       tags = ["laptop"];
     };
+    aloe = {
+      deploy.targetHost = "root@${internal 238}";
+      tags = [];
+    };
     ilex = {
       deploy.targetHost = "root@${dmz 103}";
       tags = [];
