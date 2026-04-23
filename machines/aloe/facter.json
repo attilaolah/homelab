@@ -814,7 +814,7 @@
           "100mhzsteps",
           "hwpstate"
         ],
-        "bogo": 2794,
+        "bogo": 2793,
         "cache": 512,
         "units": 2,
         "page_size": 4096,
