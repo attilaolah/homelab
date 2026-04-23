@@ -1,6 +1,6 @@
 let
   ip4 = x: y: "192.168.${toString x}.${toString y}";
-  internal = ip4 0;
+  # internal = ip4 0;
   dmz = ip4 1;
 in {
   meta = {
@@ -15,7 +15,7 @@ in {
       tags = ["laptop"];
     };
     aloe = {
-      deploy.targetHost = "root@${internal 239}";
+      deploy.targetHost = "root@${dmz 116}";
       tags = [];
     };
     ilex = {
@@ -31,7 +31,7 @@ in {
       tags = ["laptop"];
     };
     unio = {
-      deploy.targetHost = "root@${internal 237}";
+      deploy.targetHost = "root@${dmz 117}";
       tags = [];
     };
   };
