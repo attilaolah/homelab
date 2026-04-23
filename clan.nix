@@ -15,7 +15,7 @@ in {
       tags = ["laptop"];
     };
     aloe = {
-      deploy.targetHost = "root@${internal 238}";
+      deploy.targetHost = "root@${internal 239}";
       tags = [];
     };
     ilex = {
