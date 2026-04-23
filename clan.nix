@@ -1,6 +1,6 @@
 let
   ip4 = x: y: "192.168.${toString x}.${toString y}";
-  # internal = ip4 0;
+  internal = ip4 0;
   dmz = ip4 1;
 in {
   meta = {
@@ -25,6 +25,10 @@ in {
     rosa = {
       deploy.targetHost = "root@${dmz 120}";
       tags = ["laptop"];
+    };
+    unio = {
+      deploy.targetHost = "root@${internal 236}";
+      tags = [];
     };
   };
 
