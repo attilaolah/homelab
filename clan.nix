@@ -1,7 +1,5 @@
 let
   ip4 = x: y: "192.168.${toString x}.${toString y}";
-  # internal = ip4 0;
-  dmz = ip4 1;
 in {
   meta = {
     name = "locker";
@@ -9,71 +7,79 @@ in {
     domain = "dorn.haus";
   };
 
-  inventory.machines = {
-    acer = {
-      deploy.targetHost = "root@${dmz 121}";
-      tags = ["laptop"];
-    };
-    aloe = {
-      deploy.targetHost = "root@${dmz 116}";
-    };
-    ilex = {
-      deploy.targetHost = "root@${dmz 103}";
-    };
-    iris = {
-      deploy.targetHost = "root@${dmz 101}";
-    };
-    rosa = {
-      deploy.targetHost = "root@${dmz 120}";
-      tags = ["laptop"];
-    };
-    unio = {
-      deploy.targetHost = "root@${dmz 117}";
-    };
-  };
+  inventory = {
+    machines =
+      builtins.mapAttrs (_: {
+        # IP address suffix
+        id,
+        # Whether the host is currently connected to the "internal" network
+        internal ? false,
+        # Optional tags, see instances below
+        tags ? [],
+      }: let
+        lan =
+          if internal
+          then 0
+          else 1;
+      in {
+        inherit tags;
+        deploy.targetHost = "root@${ip4 lan id}";
+      }) {
+        acer.id = 121;
+        aloe.id = 116;
+        ilex.id = 103;
+        iris.id = 101;
+        rosa.id = 120;
+        unio.id = 117;
 
-  # https://docs.clan.lol/latest/services/definition/
-  inventory.instances = {
-    # https://docs.clan.lol/latest/services/official/sshd/
-    sshd = {
-      roles.server = {
-        tags.all = {};
-        settings.authorizedKeys = {
-          # https://github.com/attilaolah.keys
-          # All keys will have ssh access to all machines ("tags.all" means 'all machines').
-          biometric = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP0Y/37XG4iBs4hHLI88dQQJhtVVal69GRF7HpHT+60J";
-          home = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIiR17IcWh8l3OxxKSt+ODrUMLU98ZoJ+XvcR17iX9/P";
+        # Laptops
+        acer.tags = ["laptop"];
+        rosa.tags = ["laptop"];
+      };
+
+    # https://docs.clan.lol/latest/services/definition/
+    instances = {
+      # https://docs.clan.lol/latest/services/official/sshd/
+      sshd = {
+        roles.server = {
+          tags.all = {};
+          settings.authorizedKeys = {
+            # https://github.com/attilaolah.keys
+            # All keys will have ssh access to all machines ("tags.all" means 'all machines').
+            biometric = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP0Y/37XG4iBs4hHLI88dQQJhtVVal69GRF7HpHT+60J";
+            home = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIiR17IcWh8l3OxxKSt+ODrUMLU98ZoJ+XvcR17iX9/P";
+          };
         };
       };
-    };
 
-    # https://docs.clan.lol/latest/services/official/users/
-    user-root = {
-      module.name = "users";
-      roles.default = {
-        tags.all = {};
-        settings = {
-          user = "root";
-          prompt = true;
+      # https://docs.clan.lol/latest/services/official/users/
+      user-root = {
+        module.name = "users";
+        roles.default = {
+          tags.all = {};
+          settings = {
+            user = "root";
+            prompt = true;
+          };
         };
       };
-    };
 
-    # Import shared NixOS snippets for all machines.
-    common-settings = {
-      module.name = "importer";
-      roles.default = {
-        tags.all = {};
-        extraModules = [./modules/common.nix];
+      # Import shared NixOS snippets for all machines.
+      common-settings = {
+        module.name = "importer";
+        roles.default = {
+          tags.all = {};
+          extraModules = [./modules/common.nix];
+        };
       };
-    };
 
-    # Import shared NixOS snippets for matching machine tags.
-    laptop-settings = {
-      module.name = "importer";
-      roles.default = {
-        tags.laptop = {};
-        extraModules = [./modules/laptop.nix];
+      # Import shared NixOS snippets for matching machine tags.
+      laptop-settings = {
+        module.name = "importer";
+        roles.default = {
+          tags.laptop = {};
+          extraModules = [./modules/laptop.nix];
+        };
       };
     };
   };
