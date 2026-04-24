@@ -1,6 +1,6 @@
-result
-
 .aider.*
 .claude
 .codex
 .direnv
+result
+result-*-toplevel
