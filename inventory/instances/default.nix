@@ -6,15 +6,17 @@
 
   # Additional module imports by tag.
   # https://docs.clan.lol/latest/services/definition/
-  inventory.instances =
-    builtins.mapAttrs (tag: extraModules: {
-      module.name = "importer";
-      roles.default = {
-        inherit extraModules;
-        tags.${tag} = {};
+  inventory.instances = builtins.listToAttrs (map (tag: {
+      name = "settings-${tag}";
+      value = {
+        module.name = "importer";
+        roles.default = {
+          tags.${tag} = {};
+          extraModules = [../../modules/tags/${tag}.nix];
+        };
       };
-    }) {
-      all = [../../modules/common.nix];
-      laptop = [../../modules/laptop.nix];
-    };
+    }) [
+      "all"
+      "laptop"
+    ]);
 }
