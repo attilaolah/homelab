@@ -6,6 +6,7 @@
       acer = 121;
       aloe = 116;
       aria = 241;
+      hoya = 244;
       ilex = 103;
       inga = 243;
       iris = 101;
@@ -21,7 +22,7 @@
 
     # Machines that are on the internal network.
     # These should eventually be moved to the external network after initial setup.
-    internal = ["aria" "inga"];
+    internal = ["aria" "inga" "hoya"];
   in
     builtins.mapAttrs (name: id: let
       lan =
