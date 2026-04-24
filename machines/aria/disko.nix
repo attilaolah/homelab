@@ -1,0 +1,102 @@
+# ---
+# schema = "btrfs-single-disk-subvolumes"
+# [placeholders]
+# mainDisk = "/dev/disk/by-id/ata-16GB_SATA_Flash_Drive_B0614428000700000271" 
+# ---
+# This file was automatically generated!
+# CHANGING this configuration requires wiping and reinstalling the machine
+{
+  boot.loader.grub = {
+    efiInstallAsRemovable = true;
+    efiSupport = true;
+  };
+
+  disko.devices = {
+    disk = {
+      "main" = {
+        name = "main-996c9b1570134a7184ea0d3333e9e464";
+        device = "/dev/disk/by-id/ata-16GB_SATA_Flash_Drive_B0614428000700000271";
+        type = "disk";
+        content = {
+          type = "gpt";
+          partitions = {
+            "boot" = {
+              size = "1M";
+              type = "EF02"; # for grub MBR
+              priority = 1;
+            };
+            "ESP" = {
+              type = "EF00";
+              size = "500M";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
+              };
+            };
+            #"swap" = {
+            #  size = "8G"; # adjust
+            #  content = {
+            #    type = "swap";
+            #    discardPolicy = "both";
+            #  };
+            #};
+            "root" = {
+              size = "100%";
+              content = {
+                type = "btrfs";
+                extraArgs = [
+                  "--force"
+                  "--label root"
+                ];
+                subvolumes = {
+                  "@root" = {
+                    mountpoint = "/";
+                    mountOptions = [ ];
+                  };
+                  "@nix" = {
+                    mountpoint = "/nix";
+                    mountOptions = [
+                      "compress=zstd"
+                      "noatime"
+                    ];
+                  };
+                  "@home" = {
+                    mountpoint = "/home";
+                    mountOptions = [ "compress=zstd" ];
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+
+  # Automatic local snapshots
+  # https://digint.ch/btrbk/doc/readme.html
+  #$ systemctl start btrbk-<instance>
+  services.btrbk = {
+    instances."nix" = {
+      onCalendar = "0/2:00";
+      settings = {
+        subvolume = "/nix";
+        snapshot_create = "onchange";
+        snapshot_dir = "/nix";
+        snapshot_preserve = "16h 7d 2w";
+        snapshot_preserve_min = "3d";
+      };
+    };
+    instances."home" = {
+      onCalendar = "0/2:00";
+      settings = {
+        subvolume = "/home";
+        snapshot_dir = "/home";
+        snapshot_preserve = "16h 7d 3w 2m";
+        snapshot_preserve_min = "3d";
+      };
+    };
+  };
+}
