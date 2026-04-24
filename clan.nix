@@ -6,37 +6,41 @@
   };
 
   inventory = {
-    machines =
-      builtins.mapAttrs (_: {
-        # IP address suffix
-        id,
-        # Whether the host is currently connected to the "internal" network
-        internal ? false,
-        # Optional tags, see instances below
-        tags ? [],
-      }: let
+    machines = let
+      # ALL machines need to be registered here.
+      # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
+      ids = {
+        acer = 121;
+        aloe = 116;
+        ilex = 103;
+        iris = 101;
+        rosa = 120;
+        unio = 117;
+      };
+
+      # Additional tags per machine.
+      tags = {
+        acer = ["laptop"];
+        rosa = ["laptop"];
+      };
+
+      # Machines that are on the internal network.
+      # These should eventually be moved to the external network after initial setup.
+      internal = [];
+    in
+      builtins.mapAttrs (name: id: let
         lan =
-          if internal
+          if builtins.elem name internal
           then 0
           else 1;
         ip = ip4 lan id;
 
         ip4 = x: y: "192.168.${toString x}.${toString y}";
       in {
-        inherit tags;
         deploy.targetHost = "root@${ip}";
-      }) {
-        acer.id = 121;
-        aloe.id = 116;
-        ilex.id = 103;
-        iris.id = 101;
-        rosa.id = 120;
-        unio.id = 117;
-
-        # Laptops
-        acer.tags = ["laptop"];
-        rosa.tags = ["laptop"];
-      };
+        tags = tags.${name} or [];
+      })
+      ids;
 
     # https://docs.clan.lol/latest/services/definition/
     instances = {
