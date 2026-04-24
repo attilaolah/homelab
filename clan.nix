@@ -16,15 +16,12 @@ in {
     };
     aloe = {
       deploy.targetHost = "root@${dmz 116}";
-      tags = [];
     };
     ilex = {
       deploy.targetHost = "root@${dmz 103}";
-      tags = [];
     };
     iris = {
       deploy.targetHost = "root@${dmz 101}";
-      tags = [];
     };
     rosa = {
       deploy.targetHost = "root@${dmz 120}";
@@ -32,7 +29,6 @@ in {
     };
     unio = {
       deploy.targetHost = "root@${dmz 117}";
-      tags = [];
     };
   };
 
