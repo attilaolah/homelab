@@ -2,6 +2,10 @@
   "version": 1,
   "system": "x86_64-linux",
   "virtualisation": "none",
+  "uefi": {
+    "supported": true,
+    "platform_size": 64
+  },
   "hardware": {
     "bios": {
       "apm_info": {
@@ -810,7 +814,7 @@
           "100mhzsteps",
           "hwpstate"
         ],
-        "bogo": 2793,
+        "bogo": 2794,
         "cache": 512,
         "units": 2,
         "page_size": 4096,
@@ -832,98 +836,7 @@
     ],
     "disk": [
       {
-        "index": 32,
-        "attached_to": 8,
-        "class_list": [
-          "disk",
-          "usb",
-          "scsi",
-          "block_device"
-        ],
-        "bus_type": {
-          "hex": "0084",
-          "name": "SCSI",
-          "value": 132
-        },
-        "slot": {
-          "bus": 1,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "0106",
-          "name": "Mass Storage Device",
-          "value": 262
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Disk",
-          "value": 0
-        },
-        "vendor": {
-          "hex": "18a5",
-          "name": "Verbatim",
-          "value": 6309
-        },
-        "device": {
-          "hex": "0243",
-          "name": "STORE N GO",
-          "value": 579
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "PMAP",
-          "value": 0
-        },
-        "serial": "097507843050",
-        "model": "Verbatim STORE N GO",
-        "sysfs_id": "/class/block/sdb",
-        "sysfs_bus_id": "1:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:13.2/usb2/2-3/2-3:1.0/host1/target1:0:0/1:0:0:0",
-        "unix_device_names": [
-          "/dev/disk/by-id/usb-Verbatim_STORE_N_GO_0708353261969574-0:0",
-          "/dev/disk/by-path/pci-0000:00:13.2-usb-0:3:1.0-scsi-0:0:0:0",
-          "/dev/disk/by-path/pci-0000:00:13.2-usbv2-0:3:1.0-scsi-0:0:0:0",
-          "/dev/sdb"
-        ],
-        "unix_device_name2": "/dev/sg1",
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 480000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          },
-          {
-            "type": "disk_geo",
-            "cylinders": 15068,
-            "heads": 255,
-            "sectors": 63,
-            "size": "0x0",
-            "geo_type": "logical"
-          },
-          {
-            "type": "size",
-            "unit": "sectors",
-            "value_1": 242075648,
-            "value_2": 512
-          }
-        ],
-        "driver": "usb-storage",
-        "driver_module": "usb_storage",
-        "drivers": [
-          "sd",
-          "usb-storage"
-        ],
-        "driver_modules": [
-          "sd_mod",
-          "usb_storage"
-        ],
-        "module_alias": "usb:v18A5p0243d0110dc00dsc00dp00ic08isc06ip50in00"
-      },
-      {
-        "index": 33,
+        "index": 31,
         "attached_to": 26,
         "class_list": [
           "disk",
@@ -975,6 +888,7 @@
           "/dev/disk/by-path/pci-0000:00:11.0-ata-1.0",
           "/dev/sda"
         ],
+        "rom_id": "0x80",
         "resources": [
           {
             "type": "disk_geo",
@@ -1085,7 +999,7 @@
     ],
     "hub": [
       {
-        "index": 34,
+        "index": 32,
         "attached_to": 11,
         "class_list": [
           "usb",
@@ -1107,7 +1021,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ohci_hcd",
+          "name": "Linux 6.18.21 ohci_hcd",
           "value": 7531
         },
         "device": {
@@ -1121,7 +1035,7 @@
           "value": 0
         },
         "serial": "0000:00:14.5",
-        "model": "Linux 6.18.2 ohci_hcd OHCI PCI host controller",
+        "model": "Linux 6.18.21 ohci_hcd OHCI PCI host controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.5/usb6/6-0:1.0",
         "sysfs_bus_id": "6-0:1.0",
         "resources": [
@@ -1172,7 +1086,7 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 35,
+        "index": 33,
         "attached_to": 12,
         "class_list": [
           "usb",
@@ -1194,7 +1108,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ehci_hcd",
+          "name": "Linux 6.18.21 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1208,7 +1122,7 @@
           "value": 0
         },
         "serial": "0000:00:16.2",
-        "model": "Linux 6.18.2 ehci_hcd EHCI Host Controller",
+        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:16.2/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
@@ -1259,7 +1173,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 36,
+        "index": 34,
         "attached_to": 15,
         "class_list": [
           "usb",
@@ -1281,7 +1195,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ohci_hcd",
+          "name": "Linux 6.18.21 ohci_hcd",
           "value": 7531
         },
         "device": {
@@ -1295,7 +1209,7 @@
           "value": 0
         },
         "serial": "0000:00:16.0",
-        "model": "Linux 6.18.2 ohci_hcd OHCI PCI host controller",
+        "model": "Linux 6.18.21 ohci_hcd OHCI PCI host controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:16.0/usb7/7-0:1.0",
         "sysfs_bus_id": "7-0:1.0",
         "resources": [
@@ -1346,7 +1260,7 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 37,
+        "index": 35,
         "attached_to": 20,
         "class_list": [
           "usb",
@@ -1368,7 +1282,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ohci_hcd",
+          "name": "Linux 6.18.21 ohci_hcd",
           "value": 7531
         },
         "device": {
@@ -1382,7 +1296,7 @@
           "value": 0
         },
         "serial": "0000:00:12.0",
-        "model": "Linux 6.18.2 ohci_hcd OHCI PCI host controller",
+        "model": "Linux 6.18.21 ohci_hcd OHCI PCI host controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:12.0/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "resources": [
@@ -1433,7 +1347,7 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 38,
+        "index": 36,
         "attached_to": 17,
         "class_list": [
           "usb",
@@ -1455,7 +1369,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ehci_hcd",
+          "name": "Linux 6.18.21 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1469,7 +1383,7 @@
           "value": 0
         },
         "serial": "0000:00:12.2",
-        "model": "Linux 6.18.2 ehci_hcd EHCI Host Controller",
+        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:12.2/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -1520,7 +1434,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 40,
+        "index": 37,
         "attached_to": 13,
         "class_list": [
           "usb",
@@ -1542,7 +1456,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ohci_hcd",
+          "name": "Linux 6.18.21 ohci_hcd",
           "value": 7531
         },
         "device": {
@@ -1556,7 +1470,7 @@
           "value": 0
         },
         "serial": "0000:00:13.0",
-        "model": "Linux 6.18.2 ohci_hcd OHCI PCI host controller",
+        "model": "Linux 6.18.21 ohci_hcd OHCI PCI host controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:13.0/usb5/5-0:1.0",
         "sysfs_bus_id": "5-0:1.0",
         "resources": [
@@ -1607,7 +1521,7 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 41,
+        "index": 38,
         "attached_to": 8,
         "class_list": [
           "usb",
@@ -1629,7 +1543,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ehci_hcd",
+          "name": "Linux 6.18.21 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1643,7 +1557,7 @@
           "value": 0
         },
         "serial": "0000:00:13.2",
-        "model": "Linux 6.18.2 ehci_hcd EHCI Host Controller",
+        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:13.2/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [
@@ -1718,176 +1632,6 @@
             "range": 4026531840
           }
         ]
-      }
-    ],
-    "monitor": [
-      {
-        "index": 31,
-        "attached_to": 10,
-        "class_list": [
-          "monitor"
-        ],
-        "base_class": {
-          "hex": "0100",
-          "name": "Monitor",
-          "value": 256
-        },
-        "sub_class": {
-          "hex": "0002",
-          "name": "LCD Monitor",
-          "value": 2
-        },
-        "vendor": {
-          "hex": "10ac",
-          "name": "DELL",
-          "value": 4268
-        },
-        "device": {
-          "hex": "d0fd",
-          "name": "DELL P2720DC",
-          "value": 53501
-        },
-        "serial": "81WTK01K1SFS",
-        "model": "DELL P2720DC",
-        "resources": [
-          {
-            "type": "monitor",
-            "width": 1024,
-            "height": 768,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1024,
-            "height": 768,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1152,
-            "height": 864,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1280,
-            "height": 1024,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 2560,
-            "height": 1440,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 640,
-            "height": 480,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 640,
-            "height": 480,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 720,
-            "height": 400,
-            "vertical_frequency": 70,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 800,
-            "height": 600,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 800,
-            "height": 600,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "size",
-            "unit": "mm",
-            "value_1": 597,
-            "value_2": 336
-          }
-        ],
-        "detail": {
-          "manufacture_year": 2020,
-          "manufacture_week": 4,
-          "vertical_sync": {
-            "min": 49,
-            "max": 75
-          },
-          "horizontal_sync": {
-            "min": 29,
-            "max": 113
-          },
-          "horizontal_sync_timings": {
-            "disp": 2560,
-            "sync_start": 2608,
-            "sync_end": 2640,
-            "total": 2720
-          },
-          "vertical_sync_timings": {
-            "disp": 1440,
-            "sync_start": 1443,
-            "sync_end": 1448,
-            "total": 1481
-          },
-          "clock": 241500,
-          "width": 2560,
-          "height": 1440,
-          "width_millimetres": 597,
-          "height_millimetres": 336,
-          "horizontal_flag": 45,
-          "vertical_flag": 43,
-          "vendor": "",
-          "name": "DELL P2720DC"
-        },
-        "driver_info": {
-          "type": "display",
-          "width": 2560,
-          "height": 1440,
-          "vertical_sync": {
-            "min": 49,
-            "max": 75
-          },
-          "horizontal_sync": {
-            "min": 29,
-            "max": 113
-          },
-          "bandwidth": 0,
-          "horizontal_sync_timings": {
-            "disp": 2560,
-            "sync_start": 2608,
-            "sync_end": 2640,
-            "total": 2720
-          },
-          "vertical_sync_timings": {
-            "disp": 1440,
-            "sync_start": 1443,
-            "sync_end": 1448,
-            "total": 1481
-          },
-          "horizontal_flag": 45,
-          "vertical_flag": 43
-        }
       }
     ],
     "network_controller": [
@@ -1980,7 +1724,29 @@
     ],
     "network_interface": [
       {
-        "index": 42,
+        "index": 39,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
+        ]
+      },
+      {
+        "index": 40,
         "attached_to": 27,
         "class_list": [
           "network_interface"
@@ -2018,28 +1784,6 @@
         ],
         "driver_modules": [
           "r8169"
-        ]
-      },
-      {
-        "index": 43,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
         ]
       }
     ],
