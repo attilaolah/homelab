@@ -6,7 +6,7 @@
       acer = 121;
       aloe = 116;
       aria = 241;
-      hoya = 244;
+      hoya = 245;
       ilex = 103;
       inga = 243;
       iris = 101;
