@@ -7,6 +7,7 @@
       aloe = 116;
       aria = 241;
       ilex = 103;
+      inga = 242;
       iris = 101;
       rosa = 120;
       unio = 117;
@@ -20,7 +21,7 @@
 
     # Machines that are on the internal network.
     # These should eventually be moved to the external network after initial setup.
-    internal = ["aria"];
+    internal = ["aria" "inga"];
   in
     builtins.mapAttrs (name: id: let
       lan =
