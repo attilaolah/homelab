@@ -1,6 +1,6 @@
 {
   imports = [
-    ./instances.nix
+    ./instances
     ./machines.nix
   ];
 }
