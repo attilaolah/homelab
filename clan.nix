@@ -1,6 +1,4 @@
-let
-  ip4 = x: y: "192.168.${toString x}.${toString y}";
-in {
+{
   meta = {
     name = "locker";
     description = "Attila's bare metal homelab";
@@ -21,9 +19,12 @@ in {
           if internal
           then 0
           else 1;
+        ip = ip4 lan id;
+
+        ip4 = x: y: "192.168.${toString x}.${toString y}";
       in {
         inherit tags;
-        deploy.targetHost = "root@${ip4 lan id}";
+        deploy.targetHost = "root@${ip}";
       }) {
         acer.id = 121;
         aloe.id = 116;
