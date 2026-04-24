@@ -854,7 +854,84 @@
     "hub": [
       {
         "index": 28,
-        "attached_to": 12,
+        "attached_to": 8,
+        "class_list": [
+          "usb",
+          "hub"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "010a",
+          "name": "Hub",
+          "value": 266
+        },
+        "vendor": {
+          "hex": "1d6b",
+          "name": "Linux 6.18.21 xhci-hcd",
+          "value": 7531
+        },
+        "device": {
+          "hex": "0003",
+          "name": "xHCI Host Controller",
+          "value": 3
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "6.18",
+          "value": 0
+        },
+        "serial": "0000:00:10.0",
+        "model": "Linux 6.18.21 xhci-hcd xHCI Host Controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:10.0/usb6/6-0:1.0",
+        "sysfs_bus_id": "6-0:1.0",
+        "detail": {
+          "device_class": {
+            "hex": "0009",
+            "name": "hub",
+            "value": 9
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 3,
+          "interface_class": {
+            "hex": "0009",
+            "name": "hub",
+            "value": 9
+          },
+          "interface_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "interface_protocol": 0,
+          "interface_number": 0,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "hub",
+        "driver_module": "usbcore",
+        "drivers": [
+          "hub"
+        ],
+        "driver_modules": [
+          "usbcore"
+        ],
+        "module_alias": "usb:v1D6Bp0003d0618dc09dsc00dp03ic09isc00ip00in00"
+      },
+      {
+        "index": 29,
+        "attached_to": 18,
         "class_list": [
           "usb",
           "hub"
@@ -888,10 +965,10 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:13.0",
+        "serial": "0000:00:12.0",
         "model": "Linux 6.18.21 ohci_hcd OHCI PCI host controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:13.0/usb6/6-0:1.0",
-        "sysfs_bus_id": "6-0:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:12.0/usb3/3-0:1.0",
+        "sysfs_bus_id": "3-0:1.0",
         "resources": [
           {
             "type": "baud",
@@ -940,95 +1017,8 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 29,
-        "attached_to": 8,
-        "class_list": [
-          "usb",
-          "hub"
-        ],
-        "bus_type": {
-          "hex": "0086",
-          "name": "USB",
-          "value": 134
-        },
-        "slot": {
-          "bus": 0,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "010a",
-          "name": "Hub",
-          "value": 266
-        },
-        "vendor": {
-          "hex": "1d6b",
-          "name": "Linux 6.18.21 xhci-hcd",
-          "value": 7531
-        },
-        "device": {
-          "hex": "0002",
-          "name": "xHCI Host Controller",
-          "value": 2
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "6.18",
-          "value": 0
-        },
-        "serial": "0000:00:10.0",
-        "model": "Linux 6.18.21 xhci-hcd xHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:10.0/usb3/3-0:1.0",
-        "sysfs_bus_id": "3-0:1.0",
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 480000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          }
-        ],
-        "detail": {
-          "device_class": {
-            "hex": "0009",
-            "name": "hub",
-            "value": 9
-          },
-          "device_subclass": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_protocol": 1,
-          "interface_class": {
-            "hex": "0009",
-            "name": "hub",
-            "value": 9
-          },
-          "interface_subclass": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "interface_protocol": 0,
-          "interface_number": 0,
-          "interface_alternate_setting": 0
-        },
-        "hotplug": "usb",
-        "driver": "hub",
-        "driver_module": "usbcore",
-        "drivers": [
-          "hub"
-        ],
-        "driver_modules": [
-          "usbcore"
-        ],
-        "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
-      },
-      {
         "index": 30,
-        "attached_to": 18,
+        "attached_to": 12,
         "class_list": [
           "usb",
           "hub"
@@ -1062,9 +1052,9 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:12.0",
+        "serial": "0000:00:13.0",
         "model": "Linux 6.18.21 ohci_hcd OHCI PCI host controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:12.0/usb4/4-0:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:13.0/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "resources": [
           {
@@ -1227,9 +1217,9 @@
           "value": 7531
         },
         "device": {
-          "hex": "0003",
+          "hex": "0002",
           "name": "xHCI Host Controller",
-          "value": 3
+          "value": 2
         },
         "revision": {
           "hex": "0000",
@@ -1240,6 +1230,16 @@
         "model": "Linux 6.18.21 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:10.0/usb5/5-0:1.0",
         "sysfs_bus_id": "5-0:1.0",
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 480000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
         "detail": {
           "device_class": {
             "hex": "0009",
@@ -1251,7 +1251,7 @@
             "name": "per_interface",
             "value": 0
           },
-          "device_protocol": 3,
+          "device_protocol": 1,
           "interface_class": {
             "hex": "0009",
             "name": "hub",
@@ -1275,7 +1275,7 @@
         "driver_modules": [
           "usbcore"
         ],
-        "module_alias": "usb:v1D6Bp0003d0618dc09dsc00dp03ic09isc00ip00in00"
+        "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
         "index": 33,
@@ -1482,28 +1482,6 @@
     "network_interface": [
       {
         "index": 34,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
-        ]
-      },
-      {
-        "index": 35,
         "attached_to": 14,
         "class_list": [
           "network_interface"
@@ -1541,6 +1519,28 @@
         ],
         "driver_modules": [
           "r8169"
+        ]
+      },
+      {
+        "index": 35,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
         ]
       }
     ],
@@ -2483,7 +2483,7 @@
           "name": "None",
           "value": 3
         },
-        "max_size": "0x400000",
+        "max_size": "0x800000",
         "error_handle": 65534,
         "slots": 2
       }
@@ -2493,7 +2493,7 @@
         "handle": 39,
         "array_handle": 38,
         "start_address": "0x0",
-        "end_address": "0x100000000",
+        "end_address": "0x200000000",
         "part_width": 255
       }
     ],
@@ -2502,13 +2502,13 @@
         "handle": 40,
         "location": "DIMM 0",
         "bank_location": "CHANNEL A",
-        "manufacturer": "A1_Manufacturer0",
-        "part_number": "A1_PartNum0",
+        "manufacturer": "Kingston",
+        "part_number": "9905428-042.A00LF",
         "array_handle": 38,
         "error_handle": 65534,
         "width": 64,
         "ecc_bits": 0,
-        "size": 0,
+        "size": 4194304,
         "form_factor": {
           "hex": "000d",
           "name": "SODIMM",
@@ -2520,8 +2520,10 @@
           "name": "Other",
           "value": 24
         },
-        "memory_type_details": null,
-        "speed": 0
+        "memory_type_details": [
+          "Synchronous"
+        ],
+        "speed": 1066
       },
       {
         "handle": 41,
@@ -2554,20 +2556,20 @@
     "memory_device_mapped_address": [
       {
         "handle": 42,
-        "memory_device_handle": 0,
-        "array_map_handle": 0,
+        "memory_device_handle": 40,
+        "array_map_handle": 39,
         "start_address": "0x0",
-        "end_address": "0x400",
-        "row_position": 0,
-        "interleave_position": 0,
-        "interleave_depth": 0
+        "end_address": "0x100000000",
+        "row_position": 255,
+        "interleave_position": 255,
+        "interleave_depth": 255
       },
       {
         "handle": 43,
         "memory_device_handle": 41,
         "array_map_handle": 39,
-        "start_address": "0x0",
-        "end_address": "0x100000000",
+        "start_address": "0x100000000",
+        "end_address": "0x200000000",
         "row_position": 255,
         "interleave_position": 255,
         "interleave_depth": 255
