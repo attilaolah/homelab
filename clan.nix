@@ -1,8 +1,5 @@
 {
-  imports = [
-    ./inventory/instances.nix
-    ./inventory/machines.nix
-  ];
+  imports = [./inventory];
 
   meta = {
     name = "locker";
