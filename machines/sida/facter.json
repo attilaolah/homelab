@@ -498,8 +498,8 @@
     ],
     "camera": [
       {
-        "index": 31,
-        "attached_to": 33,
+        "index": 30,
+        "attached_to": 32,
         "class_list": [
           "camera",
           "usb"
@@ -600,8 +600,8 @@
         "module_alias": "usb:v064Ep8117d0C30dcEFdsc02dp01ic0Eisc01ip00in00"
       },
       {
-        "index": 36,
-        "attached_to": 33,
+        "index": 35,
+        "attached_to": 32,
         "class_list": [
           "camera",
           "usb"
@@ -774,7 +774,7 @@
         "power_management": [
           ""
         ],
-        "bogo": 3324,
+        "bogo": 3325,
         "cache": 512,
         "units": 4,
         "page_size": 4096,
@@ -785,7 +785,7 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32564,
+        "tlb_size": 32537,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -1022,7 +1022,7 @@
     ],
     "hub": [
       {
-        "index": 30,
+        "index": 29,
         "attached_to": 13,
         "class_list": [
           "usb",
@@ -1109,7 +1109,7 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 32,
+        "index": 31,
         "attached_to": 22,
         "class_list": [
           "usb",
@@ -1196,7 +1196,7 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 33,
+        "index": 32,
         "attached_to": 25,
         "class_list": [
           "usb",
@@ -1283,7 +1283,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 35,
+        "index": 34,
         "attached_to": 10,
         "class_list": [
           "usb",
@@ -1563,8 +1563,8 @@
     ],
     "mouse": [
       {
-        "index": 34,
-        "attached_to": 32,
+        "index": 33,
+        "attached_to": 31,
         "class_list": [
           "mouse",
           "usb"
@@ -1696,7 +1696,7 @@
           "hex": "0007",
           "value": 7
         },
-        "sysfs_id": "/devices/platform/i8042/serio1/input/input17",
+        "sysfs_id": "/devices/platform/i8042/serio1/input/input15",
         "unix_device_names": [
           "/dev/input/event12",
           "/dev/input/ + handler"
@@ -1831,8 +1831,8 @@
         "module_alias": "pci:v000014E4d00004727sv00001028sd00000010bc02sc80i00"
       },
       {
-        "index": 29,
-        "attached_to": 33,
+        "index": 36,
+        "attached_to": 32,
         "class_list": [
           "network_controller",
           "usb"
@@ -1873,10 +1873,10 @@
         },
         "serial": "0000000000",
         "model": "ASIX Elec AX88179",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2:1.0",
-        "sysfs_bus_id": "1-2:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-1/1-1:1.0",
+        "sysfs_bus_id": "1-1:1.0",
         "unix_device_names": [
-          "enp0s29f7u2"
+          "enp0s29f7u1"
         ],
         "resources": [
           {
@@ -1937,47 +1937,6 @@
     "network_interface": [
       {
         "index": 38,
-        "attached_to": 29,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0001",
-          "name": "Ethernet",
-          "value": 1
-        },
-        "model": "Ethernet network interface",
-        "sysfs_id": "/class/net/enp0s29f7u2",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2:1.0",
-        "unix_device_names": [
-          "enp0s29f7u2"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 48
-          },
-          {
-            "type": "phwaddr",
-            "address": 48
-          }
-        ],
-        "driver": "ax88179_178a",
-        "driver_module": "ax88179_178a",
-        "drivers": [
-          "ax88179_178a"
-        ],
-        "driver_modules": [
-          "ax88179_178a"
-        ]
-      },
-      {
-        "index": 39,
         "attached_to": 12,
         "class_list": [
           "network_interface"
@@ -2015,6 +1974,47 @@
         ],
         "driver_modules": [
           "brcmsmac"
+        ]
+      },
+      {
+        "index": 39,
+        "attached_to": 36,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/enp0s29f7u1",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1d.7/usb1/1-1/1-1:1.0",
+        "unix_device_names": [
+          "enp0s29f7u1"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 48
+          },
+          {
+            "type": "phwaddr",
+            "address": 48
+          }
+        ],
+        "driver": "ax88179_178a",
+        "driver_module": "ax88179_178a",
+        "drivers": [
+          "ax88179_178a"
+        ],
+        "driver_modules": [
+          "ax88179_178a"
         ]
       },
       {
