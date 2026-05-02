@@ -785,7 +785,7 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32537,
+        "tlb_size": 32648,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -1937,47 +1937,6 @@
     "network_interface": [
       {
         "index": 38,
-        "attached_to": 12,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0001",
-          "name": "Ethernet",
-          "value": 1
-        },
-        "model": "Ethernet network interface",
-        "sysfs_id": "/class/net/wlp2s0b1",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.1/0000:02:00.0/bcma0:1",
-        "unix_device_names": [
-          "wlp2s0b1"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 55
-          },
-          {
-            "type": "phwaddr",
-            "address": 55
-          }
-        ],
-        "driver": "brcmsmac",
-        "driver_module": "brcmsmac",
-        "drivers": [
-          "brcmsmac"
-        ],
-        "driver_modules": [
-          "brcmsmac"
-        ]
-      },
-      {
-        "index": 39,
         "attached_to": 36,
         "class_list": [
           "network_interface"
@@ -2015,6 +1974,47 @@
         ],
         "driver_modules": [
           "ax88179_178a"
+        ]
+      },
+      {
+        "index": 39,
+        "attached_to": 12,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/wlp2s0b1",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.1/0000:02:00.0/bcma0:1",
+        "unix_device_names": [
+          "wlp2s0b1"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 55
+          },
+          {
+            "type": "phwaddr",
+            "address": 55
+          }
+        ],
+        "driver": "brcmsmac",
+        "driver_module": "brcmsmac",
+        "drivers": [
+          "brcmsmac"
+        ],
+        "driver_modules": [
+          "brcmsmac"
         ]
       },
       {
