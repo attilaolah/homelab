@@ -11,7 +11,7 @@
       inga = 243;
       iris = 101;
       rosa = 120;
-      sida = 30;
+      sida = 31;
       unio = 117;
     };
 
