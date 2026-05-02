@@ -2,6 +2,9 @@
   "version": 1,
   "system": "x86_64-linux",
   "virtualisation": "none",
+  "uefi": {
+    "supported": false
+  },
   "hardware": {
     "bios": {
       "apm_info": {
@@ -495,8 +498,8 @@
     ],
     "camera": [
       {
-        "index": 30,
-        "attached_to": 39,
+        "index": 31,
+        "attached_to": 33,
         "class_list": [
           "camera",
           "usb"
@@ -532,110 +535,8 @@
         },
         "serial": "SN0001",
         "model": "SuYin Integrated Webcam",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb2/2-3/2-3:1.1",
-        "sysfs_bus_id": "2-3:1.1",
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 480000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          }
-        ],
-        "detail": {
-          "device_class": {
-            "hex": "00ef",
-            "name": "miscellaneous",
-            "value": 239
-          },
-          "device_subclass": {
-            "hex": "0002",
-            "name": "comm",
-            "value": 2
-          },
-          "device_protocol": 1,
-          "interface_class": {
-            "hex": "000e",
-            "name": "video",
-            "value": 14
-          },
-          "interface_subclass": {
-            "hex": "0002",
-            "name": "comm",
-            "value": 2
-          },
-          "interface_protocol": 0,
-          "interface_number": 1,
-          "interface_alternate_setting": 0,
-          "interface_association": {
-            "function_class": {
-              "hex": "000e",
-              "name": "video",
-              "value": 14
-            },
-            "function_subclass": {
-              "hex": "0003",
-              "name": "hid",
-              "value": 3
-            },
-            "function_protocol": 0,
-            "interface_count": 2,
-            "first_interface": 0
-          }
-        },
-        "hotplug": "usb",
-        "driver": "uvcvideo",
-        "driver_module": "uvcvideo",
-        "drivers": [
-          "uvcvideo"
-        ],
-        "driver_modules": [
-          "uvcvideo"
-        ],
-        "module_alias": "usb:v064Ep8117d0C30dcEFdsc02dp01ic0Eisc02ip00in01"
-      },
-      {
-        "index": 36,
-        "attached_to": 39,
-        "class_list": [
-          "camera",
-          "usb"
-        ],
-        "bus_type": {
-          "hex": "0086",
-          "name": "USB",
-          "value": 134
-        },
-        "slot": {
-          "bus": 0,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "010f",
-          "name": "Camera",
-          "value": 271
-        },
-        "vendor": {
-          "hex": "064e",
-          "name": "SuYin",
-          "value": 1614
-        },
-        "device": {
-          "hex": "8117",
-          "name": "Integrated Webcam",
-          "value": 33047
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "c.30",
-          "value": 0
-        },
-        "serial": "SN0001",
-        "model": "SuYin Integrated Webcam",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb2/2-3/2-3:1.0",
-        "sysfs_bus_id": "2-3:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-3/1-3:1.0",
+        "sysfs_bus_id": "1-3:1.0",
         "resources": [
           {
             "type": "baud",
@@ -697,6 +598,108 @@
           "uvcvideo"
         ],
         "module_alias": "usb:v064Ep8117d0C30dcEFdsc02dp01ic0Eisc01ip00in00"
+      },
+      {
+        "index": 36,
+        "attached_to": 33,
+        "class_list": [
+          "camera",
+          "usb"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "010f",
+          "name": "Camera",
+          "value": 271
+        },
+        "vendor": {
+          "hex": "064e",
+          "name": "SuYin",
+          "value": 1614
+        },
+        "device": {
+          "hex": "8117",
+          "name": "Integrated Webcam",
+          "value": 33047
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "c.30",
+          "value": 0
+        },
+        "serial": "SN0001",
+        "model": "SuYin Integrated Webcam",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-3/1-3:1.1",
+        "sysfs_bus_id": "1-3:1.1",
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 480000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "00ef",
+            "name": "miscellaneous",
+            "value": 239
+          },
+          "device_subclass": {
+            "hex": "0002",
+            "name": "comm",
+            "value": 2
+          },
+          "device_protocol": 1,
+          "interface_class": {
+            "hex": "000e",
+            "name": "video",
+            "value": 14
+          },
+          "interface_subclass": {
+            "hex": "0002",
+            "name": "comm",
+            "value": 2
+          },
+          "interface_protocol": 0,
+          "interface_number": 1,
+          "interface_alternate_setting": 0,
+          "interface_association": {
+            "function_class": {
+              "hex": "000e",
+              "name": "video",
+              "value": 14
+            },
+            "function_subclass": {
+              "hex": "0003",
+              "name": "hid",
+              "value": 3
+            },
+            "function_protocol": 0,
+            "interface_count": 2,
+            "first_interface": 0
+          }
+        },
+        "hotplug": "usb",
+        "driver": "uvcvideo",
+        "driver_module": "uvcvideo",
+        "drivers": [
+          "uvcvideo"
+        ],
+        "driver_modules": [
+          "uvcvideo"
+        ],
+        "module_alias": "usb:v064Ep8117d0C30dcEFdsc02dp01ic0Eisc02ip00in01"
       }
     ],
     "cpu": [
@@ -771,7 +774,7 @@
         "power_management": [
           ""
         ],
-        "bogo": 3325,
+        "bogo": 3324,
         "cache": 512,
         "units": 4,
         "page_size": 4096,
@@ -782,7 +785,7 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32766,
+        "tlb_size": 32564,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -794,97 +797,6 @@
     "disk": [
       {
         "index": 28,
-        "attached_to": 25,
-        "class_list": [
-          "disk",
-          "usb",
-          "scsi",
-          "block_device"
-        ],
-        "bus_type": {
-          "hex": "0084",
-          "name": "SCSI",
-          "value": 132
-        },
-        "slot": {
-          "bus": 4,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "0106",
-          "name": "Mass Storage Device",
-          "value": 262
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Disk",
-          "value": 0
-        },
-        "vendor": {
-          "hex": "18a5",
-          "name": "Verbatim",
-          "value": 6309
-        },
-        "device": {
-          "hex": "0243",
-          "name": "STORE N GO",
-          "value": 579
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "PMAP",
-          "value": 0
-        },
-        "serial": "097507843050",
-        "model": "Verbatim STORE N GO",
-        "sysfs_id": "/class/block/sdb",
-        "sysfs_bus_id": "4:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1d.7/usb2/2-1/2-1:1.0/host4/target4:0:0/4:0:0:0",
-        "unix_device_names": [
-          "/dev/disk/by-id/usb-Verbatim_STORE_N_GO_0708353261969574-0:0",
-          "/dev/disk/by-path/pci-0000:00:1d.7-usb-0:1:1.0-scsi-0:0:0:0",
-          "/dev/disk/by-path/pci-0000:00:1d.7-usbv2-0:1:1.0-scsi-0:0:0:0",
-          "/dev/sdb"
-        ],
-        "unix_device_name2": "/dev/sg1",
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 480000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          },
-          {
-            "type": "disk_geo",
-            "cylinders": 15068,
-            "heads": 255,
-            "sectors": 63,
-            "size": "0x0",
-            "geo_type": "logical"
-          },
-          {
-            "type": "size",
-            "unit": "sectors",
-            "value_1": 242075648,
-            "value_2": 512
-          }
-        ],
-        "driver": "usb-storage",
-        "driver_module": "usb_storage",
-        "drivers": [
-          "sd",
-          "usb-storage"
-        ],
-        "driver_modules": [
-          "sd_mod",
-          "usb_storage"
-        ],
-        "module_alias": "usb:v18A5p0243d0110dc00dsc00dp00ic08isc06ip50in00"
-      },
-      {
-        "index": 29,
         "attached_to": 8,
         "class_list": [
           "disk",
@@ -937,6 +849,7 @@
           "/dev/disk/by-path/pci-0000:00:1f.2-ata-1.0",
           "/dev/sda"
         ],
+        "rom_id": "0x80",
         "resources": [
           {
             "type": "disk_geo",
@@ -1109,7 +1022,7 @@
     ],
     "hub": [
       {
-        "index": 32,
+        "index": 30,
         "attached_to": 13,
         "class_list": [
           "usb",
@@ -1131,7 +1044,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 uhci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1145,7 +1058,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.1",
-        "model": "Linux 6.18.2 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.1/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
@@ -1196,7 +1109,7 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 34,
+        "index": 32,
         "attached_to": 22,
         "class_list": [
           "usb",
@@ -1218,7 +1131,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 uhci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1232,7 +1145,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.2",
-        "model": "Linux 6.18.2 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.2/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "resources": [
@@ -1283,8 +1196,8 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 35,
-        "attached_to": 23,
+        "index": 33,
+        "attached_to": 25,
         "class_list": [
           "usb",
           "hub"
@@ -1305,27 +1218,27 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 uhci_hcd",
+          "name": "Linux 6.18.21 ehci_hcd",
           "value": 7531
         },
         "device": {
-          "hex": "0001",
-          "name": "UHCI Host Controller",
-          "value": 1
+          "hex": "0002",
+          "name": "EHCI Host Controller",
+          "value": 2
         },
         "revision": {
           "hex": "0000",
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:1d.0",
-        "model": "Linux 6.18.2 uhci_hcd UHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.0/usb1/1-0:1.0",
+        "serial": "0000:00:1d.7",
+        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
           {
             "type": "baud",
-            "speed": 12000000,
+            "speed": 480000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -1367,10 +1280,10 @@
         "driver_modules": [
           "usbcore"
         ],
-        "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
+        "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 38,
+        "index": 35,
         "attached_to": 10,
         "class_list": [
           "usb",
@@ -1392,7 +1305,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 uhci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1406,7 +1319,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.3",
-        "model": "Linux 6.18.2 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.3/usb5/5-0:1.0",
         "sysfs_bus_id": "5-0:1.0",
         "resources": [
@@ -1457,8 +1370,8 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 39,
-        "attached_to": 25,
+        "index": 37,
+        "attached_to": 23,
         "class_list": [
           "usb",
           "hub"
@@ -1479,27 +1392,27 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.2 ehci_hcd",
+          "name": "Linux 6.18.21 uhci_hcd",
           "value": 7531
         },
         "device": {
-          "hex": "0002",
-          "name": "EHCI Host Controller",
-          "value": 2
+          "hex": "0001",
+          "name": "UHCI Host Controller",
+          "value": 1
         },
         "revision": {
           "hex": "0000",
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:1d.7",
-        "model": "Linux 6.18.2 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb2/2-0:1.0",
+        "serial": "0000:00:1d.0",
+        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.0/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [
           {
             "type": "baud",
-            "speed": 480000000,
+            "speed": 12000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -1541,7 +1454,7 @@
         "driver_modules": [
           "usbcore"
         ],
-        "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
+        "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       }
     ],
     "memory": [
@@ -1650,8 +1563,8 @@
     ],
     "mouse": [
       {
-        "index": 37,
-        "attached_to": 34,
+        "index": 34,
+        "attached_to": 32,
         "class_list": [
           "mouse",
           "usb"
@@ -1758,7 +1671,7 @@
         "module_alias": "usb:v0EEFp725Ed1004dc00dsc00dp00ic03isc01ip02in00"
       },
       {
-        "index": 43,
+        "index": 41,
         "attached_to": 0,
         "bus_type": {
           "hex": "0080",
@@ -1783,9 +1696,9 @@
           "hex": "0007",
           "value": 7
         },
-        "sysfs_id": "/devices/platform/i8042/serio1/input/input14",
+        "sysfs_id": "/devices/platform/i8042/serio1/input/input17",
         "unix_device_names": [
-          "/dev/input/event10",
+          "/dev/input/event12",
           "/dev/input/ + handler"
         ]
       }
@@ -1843,12 +1756,12 @@
         "sysfs_id": "/devices/pci0000:00/0000:00:1c.1/0000:02:00.0",
         "sysfs_bus_id": "0000:02:00.0",
         "unix_device_names": [
-          "wlan0"
+          "wlp2s0b1"
         ],
         "resources": [
           {
             "type": "hwaddr",
-            "address": 48
+            "address": 55
           },
           {
             "type": "phwaddr",
@@ -1918,8 +1831,8 @@
         "module_alias": "pci:v000014E4d00004727sv00001028sd00000010bc02sc80i00"
       },
       {
-        "index": 33,
-        "attached_to": 39,
+        "index": 29,
+        "attached_to": 33,
         "class_list": [
           "network_controller",
           "usb"
@@ -1960,8 +1873,8 @@
         },
         "serial": "0000000000",
         "model": "ASIX Elec AX88179",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2:1.0",
-        "sysfs_bus_id": "2-2:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2:1.0",
+        "sysfs_bus_id": "1-2:1.0",
         "unix_device_names": [
           "enp0s29f7u2"
         ],
@@ -2023,71 +1936,8 @@
     ],
     "network_interface": [
       {
-        "index": 40,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
-        ]
-      },
-      {
-        "index": 41,
-        "attached_to": 12,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "000a",
-          "name": "WLAN",
-          "value": 10
-        },
-        "model": "WLAN network interface",
-        "sysfs_id": "/class/net/wlan0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.1/0000:02:00.0/bcma0:1",
-        "unix_device_names": [
-          "wlan0"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 48
-          },
-          {
-            "type": "phwaddr",
-            "address": 55
-          }
-        ],
-        "driver": "brcmsmac",
-        "driver_module": "brcmsmac",
-        "drivers": [
-          "brcmsmac"
-        ],
-        "driver_modules": [
-          "brcmsmac"
-        ]
-      },
-      {
-        "index": 42,
-        "attached_to": 33,
+        "index": 38,
+        "attached_to": 29,
         "class_list": [
           "network_interface"
         ],
@@ -2103,7 +1953,7 @@
         },
         "model": "Ethernet network interface",
         "sysfs_id": "/class/net/enp0s29f7u2",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2:1.0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2:1.0",
         "unix_device_names": [
           "enp0s29f7u2"
         ],
@@ -2124,6 +1974,69 @@
         ],
         "driver_modules": [
           "ax88179_178a"
+        ]
+      },
+      {
+        "index": 39,
+        "attached_to": 12,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/wlp2s0b1",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1c.1/0000:02:00.0/bcma0:1",
+        "unix_device_names": [
+          "wlp2s0b1"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 55
+          },
+          {
+            "type": "phwaddr",
+            "address": 55
+          }
+        ],
+        "driver": "brcmsmac",
+        "driver_module": "brcmsmac",
+        "drivers": [
+          "brcmsmac"
+        ],
+        "driver_modules": [
+          "brcmsmac"
+        ]
+      },
+      {
+        "index": 40,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
         ]
       }
     ],
