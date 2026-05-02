@@ -5,13 +5,13 @@
     ids = {
       acer = 121;
       aloe = 116;
-      aria = 241;
-      hoya = 245;
+      aria = 102;
+      hoya = 104;
       ilex = 103;
-      inga = 243;
+      inga = 105;
       iris = 101;
       rosa = 120;
-      sida = 31;
+      sida = 122;
       unio = 117;
     };
 
@@ -24,7 +24,7 @@
 
     # Machines that are on the internal network.
     # These should eventually be moved to the external network after initial setup.
-    internal = ["aria" "inga" "hoya" "sida"];
+    internal = [];
   in
     builtins.mapAttrs (name: id: let
       lan =
