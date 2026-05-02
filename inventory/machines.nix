@@ -11,6 +11,7 @@
       inga = 243;
       iris = 101;
       rosa = 120;
+      sida = 30;
       unio = 117;
     };
 
@@ -18,11 +19,12 @@
     tags = {
       acer = ["laptop"];
       rosa = ["laptop"];
+      sida = ["laptop"];
     };
 
     # Machines that are on the internal network.
     # These should eventually be moved to the external network after initial setup.
-    internal = ["aria" "inga" "hoya"];
+    internal = ["aria" "inga" "hoya" "sida"];
   in
     builtins.mapAttrs (name: id: let
       lan =
