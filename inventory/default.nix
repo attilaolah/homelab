@@ -1,0 +1,6 @@
+{
+  imports = [
+    ./instances
+    ./machines.nix
+  ];
+}

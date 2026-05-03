@@ -1,3 +1,0 @@
----
-secrets: "{{ lookup('community.sops.sops', 'secrets.sops.yaml' ) | ansible.builtin.from_yaml }}"
-ansible_become_pass: "{{ secrets.root_password }}"

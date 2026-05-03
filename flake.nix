@@ -1,108 +1,45 @@
 {
-  description = "Dornhaus Homelab";
+  inputs.clan-core.url = "https://git.clan.lol/clan/clan-core/archive/main.tar.gz";
+  inputs.nixpkgs.follows = "clan-core/nixpkgs";
 
-  inputs = {
-    devenv-root = {
-      url = "file+file:///dev/null";
-      flake = false;
-    };
-
-    devenv.url = "github:cachix/devenv";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
-    nix2container = {
-      url = "github:nlewo/nix2container";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    talhelper.url = "github:budimanjojo/talhelper";
-  };
-
-  nixConfig = {
-    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
-    extra-substituters = "https://devenv.cachix.org";
-  };
-
-  outputs = inputs @ {
+  outputs = {
     self,
-    flake-parts,
-    devenv-root,
+    clan-core,
     nixpkgs,
     ...
-  }:
-    flake-parts.lib.mkFlake {inherit inputs;} (ctx @ {
-      withSystem,
-      flake-parts-lib,
-      ...
-    }: let
-      inherit (flake-parts-lib) importApply;
-      flakeModules = {
-        ansible = importApply ./modules/ansible ctx;
-        manifests = importApply ./modules/manifests ctx;
-        talhelper = importApply ./modules/talhelper ctx;
-        task = importApply ./modules/task ctx;
-      };
-    in {
-      systems = ["x86_64-linux"];
-      imports = [inputs.devenv.flakeModule] ++ builtins.attrValues flakeModules;
+  } @ inputs: let
+    # Usage see: https://docs.clan.lol
+    clan = clan-core.lib.clan {
+      inherit self;
+      imports = [./clan.nix];
+      specialArgs = {inherit inputs;};
 
-      perSystem = {
-        inputs',
-        pkgs,
-        self',
-        ...
-      }: let
-        talhelper = inputs'.talhelper.packages.default;
-        talosctl = import ./modules/talosctl.nix pkgs;
-      in {
-        # The devenv shell.
-        # Contains tooling and modules to effectively manage the cluster.
-        devenv.shells.default = {
-          devenv.root = let
-            devenvRootFileContent = builtins.readFile devenv-root.outPath;
-          in
-            pkgs.lib.mkIf (devenvRootFileContent != "") devenvRootFileContent;
-
-          packages = with pkgs; [
-            (python3.withPackages (ps: with ps; [jmespath]))
-            (wrapHelm kubernetes-helm {plugins = with kubernetes-helmPlugins; [helm-diff];})
-
-            age
-            alejandra
-            ansible
-            cilium-cli
-            fluxcd
-            helmfile
-            jq
-            kube-capacity
-            kubectl
-            renovate
-            sops
-            talhelper
-            talosctl
-            vector
-            yq
-          ];
-
-          enterShell = ''
-            export KUBECONFIG="$DEVENV_STATE/talos/kubeconfig"
-            export RENOVATE_CONFIG_FILE="$DEVENV_ROOT/.github/renovate.json"
-            export TALOSCONFIG="$DEVENV_STATE/talos/talosconfig"
-            export TALSECRET="$DEVENV_ROOT/talos/talsecret.sops.yaml"
-          '';
+      # Customize nixpkgs
+      # pkgsForSystem =
+      #   system:
+      #   import nixpkgs {
+      #     inherit system;
+      #     config = {
+      #       allowUnfree = true;
+      #     };
+      #     overlays = [];
+      #   };
+    };
+  in {
+    inherit (clan.config) nixosConfigurations nixosModules clanInternals;
+    clan = clan.config;
+    # Add the Clan cli tool to the dev shell.
+    # Use "nix develop" to enter the dev shell.
+    devShells =
+      nixpkgs.lib.genAttrs
+      [
+        "x86_64-linux"
+        "aarch64-darwin"
+      ]
+      (system: {
+        default = clan-core.inputs.nixpkgs.legacyPackages.${system}.mkShell {
+          packages = [clan-core.packages.${system}.clan-cli];
         };
-      };
-
-      # Other flake contents.
-      # Contains a library that is re-used by the modules.
-      flake = {
-        inherit flakeModules;
-        lib = import ./lib {
-          inherit self;
-          inherit (nixpkgs) lib;
-        };
-      };
-    });
+      });
+  };
 }

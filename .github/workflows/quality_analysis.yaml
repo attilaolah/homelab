@@ -8,55 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_artifacts:
-    name: Build artifacts
-    runs-on: ubuntu-24.04
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v6.0.1
-
-    - name: Install Nix
-      uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31.9.0
-      with:
-        install_url: https://nixos.org/nix/install
-        extra_nix_config: |
-          auto-optimise-store = true
-          experimental-features = nix-command flakes
-
-    - name: Build Flux manifests archive
-      id: build_flux
-      run: |
-        echo -n flux_artifact_dir= >> "$GITHUB_OUTPUT"
-        nix build --print-out-paths | tee -a "$GITHUB_OUTPUT"
-
-    - name: Build Helm manifests archive
-      id: build_helm
-      run: |
-        nix run .#expand
-
-    - name: Upload Flux artifact
-      uses: actions/upload-artifact@v6.0.0
-      with:
-        name: flux
-        path: ${{ steps.build_flux.outputs.flux_artifact_dir }}
-        if-no-files-found: error
-        compression-level: 9
-        retention-days: 8
-
-    - name: Upload Helm artifact
-      uses: actions/upload-artifact@v6.0.0
-      with:
-        name: helm
-        path: helm
-        if-no-files-found: error
-        compression-level: 9
-        retention-days: 8
-
   sonarqube:
     name: Run SonarQube scan
     runs-on: ubuntu-24.04
-    needs: build_artifacts
 
     steps:
     - name: Checkout
@@ -65,42 +19,7 @@ jobs:
         # Shallow clones should be disabled for a better relevancy of analysis.
         fetch-depth: 0
 
-    - name: Download manifests archive
-      uses: actions/download-artifact@v7.0.0
-
-    - name: Commit generated files
-      run: |
-        git add flux helm --force
-        git config user.name ci
-        git config user.email ci@dorn.haus
-        git commit -m "chore: generate flux & helm manifests"
-
     - name: Run SonarQube scan
       uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      # Currently SonarQube checks have a number of failures that are difficutl to resolve.
-      # This is mostly about system components like cilium or zfs-localpv requiring higher privileges.
-      continue-on-error: true
-
-  snyk:
-    name: Run Snyk scan
-    runs-on: ubuntu-24.04
-    needs: build_artifacts
-
-    steps:
-    - name: Download manifests archive
-      uses: actions/download-artifact@v7.0.0
-
-    - name: Run Snyk IaC scan
-      uses: snyk/actions/iac@9adf32b1121593767fc3c057af55b55db032dc04 # master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: >
-          --remote-repo-url=https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}
-          --report
-        file: flux helm
-      # Currently Snyk checks have lots of failures, so ignore the step for now.
-      # Once the number of exceptions gets under control, this should be removed.
-      continue-on-error: true

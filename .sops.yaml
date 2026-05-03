@@ -1,19 +1,7 @@
 ---
-key_groups: &keys
+key_groups:
 - age:
   - age10svcxhp982lemvu7xxnvmqtmuxemyjt5qh9k0qw38e9j694vyd5shsn3ym
-
-creation_rules:
-- path_regex: ansible/.*\.sops\.yaml
-  encrypted_regex: "^(root_password|secret|key_.*)$"
-  key_groups: *keys
-- path_regex: talos/.*\.sops\.yaml
-  key_groups: *keys
-- path_regex: bootstrap/external-secrets/.*\.sops\.json
-  encrypted_regex: "^private_key(_id)?$"
-  key_groups: *keys
-- path_regex: bootstrap/switches/.*\.cfg
-  key_groups: *keys
 
 stores:
   json:
