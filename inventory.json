@@ -1,5 +1,8 @@
 {
   "machines": {
+    "acer": {
+      "installedAt": 1776104063
+    },
     "rosa": {
       "installedAt": 1776109637
     },
