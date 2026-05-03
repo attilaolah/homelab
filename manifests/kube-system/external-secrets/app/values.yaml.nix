@@ -1,3 +1,0 @@
-{
-  certManager.enabled = true;
-}
