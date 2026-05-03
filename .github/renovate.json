@@ -2,44 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "dependencyDashboard": true,
   "enabledManagers": [
-    "custom.regex",
     "github-actions",
     "nix"
   ],
   "nix": {
     "enabled": true
   },
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "Cluster dependencies",
-      "managerFilePatterns": [
-        "/cluster/versions\\.nix$/"
-      ],
-      "matchStrings": [
-        "(?<depName>[^\\s\\.]+)\\.(?<datasource>helm) = \\[\"(?<registryUrl>https://.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
-        "(?<helmChart>[^\\s\\.]+)\\.helm = \\[\"(?<scheme>oci)://(?<helmRepo>.+?)\" \"(?<currentValue>.+?)\"[^\\n]*",
-        "[^\\s\\.]+\\.(?<datasource>docker|github-releases) = \\[\"(?<depName>[^\"]+?)\" \"(?<currentValue>.+?)\"[^\\n]*"
-      ],
-      "depNameTemplate": "{{#if (equals scheme 'oci')}}{{{helmRepo}}}/{{{helmChart}}}{{else}}{{{depName}}}{{/if}}",
-      "datasourceTemplate": "{{#if (equals scheme 'oci')}}docker{{else}}{{{datasource}}}{{/if}}",
-      "extractVersionTemplate": "^v?(?<version>.*)$",
-      "versioningTemplate": "helm"
-    },
-    {
-      "customType": "regex",
-      "description": "Kubernetes API versions",
-      "managerFilePatterns": [
-        "/cluster/versions\\.nix$/"
-      ],
-      "matchStrings": [
-        "(?<depName>[^\\s\\.]+)(\\.(?<api>[^\\s]+))? = \"(?<currentValue>v.+?)\";"
-      ],
-      "currentValueTemplate": "{{#if api}}{{{api}}}/{{/if}}{{{currentValue}}}",
-      "datasourceTemplate": "kubernetes-api",
-      "extractVersionTemplate": "^(.*/)?(?<version>.*)$"
-    }
-  ],
   "ignorePaths": [
     "/results/**"
   ],
@@ -48,30 +16,6 @@
       "description": "Auto-merge GitHub actions minor updates",
       "matchManagers": [
         "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "automerge": true
-    },
-    {
-      "description": "Auto-merge Helm + Docker patch updates",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchUpdateTypes": [
-        "patch"
-      ],
-      "automerge": true
-    },
-    {
-      "description": "Auto-merge minor updates of frequently updated charts",
-      "matchPackageNames": [
-        "kube-prometheus-stack"
-      ],
-      "matchManagers": [
-        "custom.regex"
       ],
       "matchUpdateTypes": [
         "minor",
