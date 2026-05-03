@@ -1,0 +1,31 @@
+{
+  "machines": {
+    "rosa": {
+      "installedAt": 1776109637
+    },
+    "iris": {
+      "installedAt": 1776620433
+    },
+    "ilex": {
+      "installedAt": 1776621379
+    },
+    "unio": {
+      "installedAt": 1776970767
+    },
+    "aloe": {
+      "installedAt": 1776972684
+    },
+    "aria": {
+      "installedAt": 1777043767
+    },
+    "inga": {
+      "installedAt": 1777045031
+    },
+    "hoya": {
+      "installedAt": 1777045726
+    },
+    "sida": {
+      "installedAt": 1777744763
+    }
+  }
+}

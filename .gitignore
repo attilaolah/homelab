@@ -1,3 +1,4 @@
+# main
 *_
 /.cache_ggshield
 /.devenv
@@ -10,3 +11,11 @@
 /helm
 /result
 /venv
+
+# origin/clan
+.aider.*
+.claude
+.codex
+.direnv
+result
+result-*-toplevel
