@@ -17,7 +17,10 @@
 
     # Additional tags per machine.
     tags = {
-      acer = ["laptop"];
+      acer = ["laptop" "tpm:1.2"];
+      hoya = ["tpm:1.2"];
+      inga = ["tpm:1.2"];
+      iris = ["tpm:1.2"];
       rosa = ["laptop"];
       sida = ["laptop"];
     };
