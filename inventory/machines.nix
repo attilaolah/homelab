@@ -17,8 +17,14 @@
 
     # Additional tags per machine.
     tags = {
-      acer = ["laptop"];
-      rosa = ["laptop"];
+      acer = ["laptop" "tpm12" "watchdog"];
+      aloe = ["watchdog"];
+      aria = ["watchdog"];
+      hoya = ["tpm12" "watchdog"];
+      ilex = []; # TODO: enable hardware watchdog
+      inga = ["tpm12" "watchdog"];
+      iris = ["tpm12" "watchdog"];
+      rosa = ["laptop" "watchdog"];
       sida = ["laptop"];
     };
 
