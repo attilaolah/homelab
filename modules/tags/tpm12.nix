@@ -1,4 +1,10 @@
-{pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: let
+  tpmCa = config.clan.core.vars.generators.tpm-ca.files;
+in {
   clan.core.vars.generators.tpm-owner-auth = {
     files."owner-auth" = {
       secret = true;
@@ -13,13 +19,19 @@
   clan.core.vars.generators.tpm-ca = {
     files."ca.key" = {
       secret = true;
-      deploy = false;
+      deploy = true;
     };
     files."ca.crt" = {
       secret = false;
       deploy = false;
     };
   };
+
+  systemd.tmpfiles.rules = [
+    "d /var/lib/pki/tpm 0700 root root - -"
+    "L+ /var/lib/pki/tpm/ca.key - - - - ${tpmCa."ca.key".path}"
+    "L+ /var/lib/pki/tpm/ca.crt - - - - ${tpmCa."ca.crt".path}"
+  ];
 
   services.tcsd.enable = true;
 
