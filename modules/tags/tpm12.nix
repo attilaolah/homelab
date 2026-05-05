@@ -18,13 +18,15 @@ in {
     };
 
     tpm-ca = {
-      files."ca.key" = {
-        secret = true;
-        deploy = true;
-      };
-      files."ca.crt" = {
-        secret = false;
-        deploy = false;
+      files = {
+        "ca.key" = {
+          secret = true;
+          deploy = true;
+        };
+        "ca.crt" = {
+          secret = false;
+          deploy = false;
+        };
       };
     };
   };
