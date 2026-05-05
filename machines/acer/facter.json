@@ -977,7 +977,7 @@
         "resources": [
           {
             "type": "io",
-            "base": 4096,
+            "base": 65472,
             "range": 64,
             "enabled": true,
             "access": "read_write"
@@ -1610,6 +1610,47 @@
     "network_interface": [
       {
         "index": 38,
+        "attached_to": 37,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/enp0s20f0u5",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.0",
+        "unix_device_names": [
+          "enp0s20f0u5"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 54
+          },
+          {
+            "type": "phwaddr",
+            "address": 54
+          }
+        ],
+        "driver": "asix",
+        "driver_module": "asix",
+        "drivers": [
+          "asix"
+        ],
+        "driver_modules": [
+          "asix"
+        ]
+      },
+      {
+        "index": 39,
         "attached_to": 15,
         "class_list": [
           "network_interface"
@@ -1650,7 +1691,7 @@
         ]
       },
       {
-        "index": 39,
+        "index": 40,
         "attached_to": 0,
         "class_list": [
           "network_interface"
@@ -1669,47 +1710,6 @@
         "sysfs_id": "/class/net/lo",
         "unix_device_names": [
           "lo"
-        ]
-      },
-      {
-        "index": 40,
-        "attached_to": 37,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0001",
-          "name": "Ethernet",
-          "value": 1
-        },
-        "model": "Ethernet network interface",
-        "sysfs_id": "/class/net/enp0s20f0u5",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.0",
-        "unix_device_names": [
-          "enp0s20f0u5"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 54
-          },
-          {
-            "type": "phwaddr",
-            "address": 54
-          }
-        ],
-        "driver": "asix",
-        "driver_module": "asix",
-        "drivers": [
-          "asix"
-        ],
-        "driver_modules": [
-          "asix"
         ]
       }
     ],
@@ -2593,8 +2593,8 @@
     "bios": {
       "handle": 0,
       "vendor": "coreboot",
-      "version": "MrChromebox-4.22.1",
-      "date": "01/17/2024",
+      "version": "MrChromebox-2603.1",
+      "date": "04/09/2026",
       "features": [
         "PCI supported",
         "PCMCIA supported",
