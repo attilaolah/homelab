@@ -1,5 +1,7 @@
 {
   inventory.machines = let
+    inherit (builtins) attrNames attrValues concatLists elem filter hasAttr mapAttrs;
+
     # ALL machines need to be registered here.
     # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
     ids = {
@@ -17,32 +19,31 @@
 
     # Additional tags per machine.
     tags = {
-      acer = ["laptop" "tpm12" "watchdog"];
-      aloe = ["watchdog"];
-      aria = ["watchdog"];
-      hoya = ["tpm12" "watchdog"];
-      ilex = []; # TODO: enable hardware watchdog
-      inga = ["tpm12" "watchdog"];
-      iris = ["tpm12" "watchdog"];
-      rosa = ["laptop" "watchdog"];
-      sida = ["laptop"];
+      laptop = ["acer" "rosa" "sida"];
+      tpm12 = ["acer" "hoya" "inga" "iris"];
+      # TODO: Enable hardware watchdog on: ilex
+      watchdog = ["acer" "hoya" "inga" "iris" "rosa"];
     };
+    unknownTaggedMachines =
+      filter (machine: !(hasAttr machine ids))
+      (concatLists (attrValues tags));
 
     # Machines that are on the internal network.
     # These should eventually be moved to the external network after initial setup.
     internal = [];
   in
-    builtins.mapAttrs (name: id: let
-      lan =
-        if builtins.elem name internal
-        then 0
-        else 1;
-      ip = ip4 lan id;
+    assert unknownTaggedMachines == [];
+      mapAttrs (name: id: let
+        lan =
+          if elem name internal
+          then 0
+          else 1;
+        ip = ip4 lan id;
 
-      ip4 = x: y: "192.168.${toString x}.${toString y}";
-    in {
-      deploy.targetHost = "root@${ip}";
-      tags = tags.${name} or [];
-    })
-    ids;
+        ip4 = x: y: "192.168.${toString x}.${toString y}";
+      in {
+        deploy.targetHost = "root@${ip}";
+        tags = filter (tag: elem name tags.${tag}) (attrNames tags);
+      })
+      ids;
 }
