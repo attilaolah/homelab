@@ -10,6 +10,17 @@
     '';
   };
 
+  clan.core.vars.generators.tpm-ca = {
+    files."ca.key" = {
+      secret = true;
+      deploy = false;
+    };
+    files."ca.crt" = {
+      secret = false;
+      deploy = false;
+    };
+  };
+
   services.tcsd.enable = true;
 
   # Trousers/tcsd runs as user/group tss and needs access to TPM device nodes.
