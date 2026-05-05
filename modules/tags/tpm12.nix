@@ -3,11 +3,15 @@
   pkgs,
   ...
 }: let
-  tpmCa = config.clan.core.vars.generators.tpm-ca.files;
+  b = "ca";
+  crt = "${b}.crt";
+  key = "${b}.key";
+  tpm = "/var/lib/pki/tpm";
+  files = config.clan.core.vars.generators.tpm.files;
 in {
   clan.core.vars.generators = {
     tpm-owner-auth = {
-      files."owner-auth" = {
+      files.owner-auth = {
         secret = true;
         deploy = false;
       };
@@ -17,13 +21,13 @@ in {
       '';
     };
 
-    tpm-ca = {
+    tpm = {
       files = {
-        "ca.key" = {
+        "${key}" = {
           secret = true;
           deploy = true;
         };
-        "ca.crt" = {
+        "${crt}" = {
           secret = false;
           deploy = false;
         };
@@ -32,9 +36,9 @@ in {
   };
 
   systemd.tmpfiles.rules = [
-    "d /var/lib/pki/tpm 0700 root root - -"
-    "L+ /var/lib/pki/tpm/ca.key - - - - ${tpmCa."ca.key".path}"
-    "L+ /var/lib/pki/tpm/ca.crt - - - - ${tpmCa."ca.crt".path}"
+    "d ${tpm} 0700 root root - -"
+    "L+ ${tpm}/${key} - - - - ${files.${key}.path}"
+    "L+ ${tpm}/${crt} - - - - ${files.${crt}.path}"
   ];
 
   services = {
