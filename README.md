@@ -61,6 +61,10 @@ execute the `.envrc` file, which in turn will activate devenv to build the requi
 
 Without `direnv`, one would need to manually run `nix flake develop` to enter the development shell.
 
+Operational docs:
+
+- [PKI onboarding](docs/pki.md)
+
 ## 💡 Inspiration
 
 Much of this was inspired by a number of similar repos:

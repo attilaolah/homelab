@@ -42,19 +42,9 @@
     caKey = "${tpm}/${key}";
   };
 in {
-  clan.core.vars.generators = {
-    tpm-owner-auth = {
-      files.owner-auth = {
-        secret = true;
-        deploy = false;
-      };
-      runtimeInputs = with pkgs; [xkcdpass];
-      script = ''
-        xkcdpass --numwords 6 --delimiter - --count 1 |
-          tr -d "\n" > "$out/owner-auth"
-      '';
-    };
+  imports = [./bootstrap.nix];
 
+  clan.core.vars.generators = {
     tpm = {
       files = {
         "${key}" = {
@@ -71,7 +61,6 @@ in {
 
   systemd = {
     tmpfiles.rules = [
-      "d ${tpm} 0700 root root - -"
       "L+ ${tpm}/${key} - - - - ${files.${key}.path}"
       "L+ ${tpm}/${crt} - - - - ${files.${crt}.path}"
     ];
@@ -142,15 +131,5 @@ in {
         Persistent = true;
       };
     };
-  };
-
-  services = {
-    tcsd.enable = true;
-
-    # Trousers/tcsd runs as user/group tss and needs access to TPM device nodes.
-    udev.extraRules = ''
-      SUBSYSTEM=="tpm", KERNEL=="tpm[0-9]*", GROUP="tss", MODE="0660"
-      SUBSYSTEM=="tpmrm", KERNEL=="tpmrm[0-9]*", GROUP="tss", MODE="0660"
-    '';
   };
 }
