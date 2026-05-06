@@ -5,53 +5,18 @@
   ...
 }: let
   inherit (config.clan.core.vars.generators.tpm) files;
-  inherit (config.networking) domain hostName;
-
-  b = "ca";
-  crt = "${b}.crt";
-  key = "${b}.key";
-  tpm = "/var/lib/pki/tpm";
-  tls = "/run/pki/tls";
-
-  commonName = "${hostName}.${domain}";
-  subjectAltName = lib.concatMapStringsSep "," (dnsName: "DNS:${dnsName}") [hostName commonName];
-  pkcs11Uri =
-    "pkcs11:"
-    + lib.concatStringsSep ";"
-    (lib.mapAttrsToList (name: value: "${name}=${builtins.replaceStrings [" "] ["%20"] value}") {
-      id = "%31%31%31%31";
-      manufacturer = "simple-tpm-pk11 manufacturer";
-      model = "model";
-      object = "simple-tpm-private-key";
-      serial = "serial";
-      token = "Simple-TPM-PK11 token";
-      type = "private";
-    });
-
-  certExt = pkgs.replaceVars ./templates/cert.ext.in {
-    inherit subjectAltName;
-  };
-  opensslConf = pkgs.replaceVars ./templates/openssl.cnf.in {
-    pkcs11Engine = "${pkgs.libp11}/lib/engines/pkcs11.so";
-    pkcs11Module = "${pkgs.simple-tpm-pk11}/lib/libsimple-tpm-pk11.so.0.0.0";
-  };
-  reqConf = pkgs.replaceVars ./templates/req.cnf.in {
-    inherit commonName subjectAltName;
-  };
-  simpleTpmPk11Conf = pkgs.replaceVars ./templates/simple-tpm-pk11.conf.in {
-    caKey = "${tpm}/${key}";
-  };
+  common = import ./common.nix {inherit config lib pkgs;};
 in {
-  imports = [./bootstrap.nix];
+  imports = [./base.nix];
 
   clan.core.vars.generators = {
     tpm = {
       files = {
-        "${key}" = {
+        "${common.key}" = {
           secret = true;
           deploy = true;
         };
-        "${crt}" = {
+        "${common.crt}" = {
           secret = false;
           deploy = false;
         };
@@ -61,8 +26,8 @@ in {
 
   systemd = {
     tmpfiles.rules = [
-      "L+ ${tpm}/${key} - - - - ${files.${key}.path}"
-      "L+ ${tpm}/${crt} - - - - ${files.${crt}.path}"
+      "L+ ${common.tpm}/${common.key} - - - - ${files.${common.key}.path}"
+      "L+ ${common.tpm}/${common.crt} - - - - ${files.${common.crt}.path}"
     ];
 
     services.issue-tls-certificate = let
@@ -95,31 +60,31 @@ in {
           -new \
           -key "$work/tls.key" \
           -out "$work/tls.csr" \
-          -config ${reqConf}
+          -config ${common.reqConf}
 
-        OPENSSL_CONF=${opensslConf} \
-        SIMPLE_TPM_PK11_CONFIG=${simpleTpmPk11Conf} \
+        OPENSSL_CONF=${common.opensslConf} \
+        SIMPLE_TPM_PK11_CONFIG=${common.simpleTpmPk11Conf} \
           openssl x509 \
             -req \
             -engine pkcs11 \
             -in "$work/tls.csr" \
-            -CA ${tpm}/${crt} \
+            -CA ${common.tpm}/${common.crt} \
             -CAkeyform engine \
-            -CAkey "${pkcs11Uri}" \
+            -CAkey "${common.pkcs11Uri}" \
             -set_serial "0x$(openssl rand -hex 16)" \
             -out "$work/tls.crt" \
             -days 8 \
             -sha256 \
-            -extfile ${certExt}
+            -extfile ${common.certExt}
 
-        install -d -m 0750 -o root -g tls ${tls}
-        install -m 0640 -o root -g tls "$work/tls.key" ${tls}/tls.key.new
-        install -m 0644 -o root -g tls "$work/tls.crt" ${tls}/tls.crt.new
-        cat ${tpm}/${crt} >> ${tls}/tls.crt.new
-        chown root:tls ${tls}/tls.crt.new
-        chmod 0644 ${tls}/tls.crt.new
-        mv -f ${tls}/tls.key.new ${tls}/tls.key
-        mv -f ${tls}/tls.crt.new ${tls}/tls.crt
+        install -d -m 0750 -o root -g tls ${common.tls}
+        install -m 0640 -o root -g tls "$work/tls.key" ${common.tls}/tls.key.new
+        install -m 0644 -o root -g tls "$work/tls.crt" ${common.tls}/tls.crt.new
+        cat ${common.tpm}/${common.crt} >> ${common.tls}/tls.crt.new
+        chown root:tls ${common.tls}/tls.crt.new
+        chmod 0644 ${common.tls}/tls.crt.new
+        mv -f ${common.tls}/tls.key.new ${common.tls}/tls.key
+        mv -f ${common.tls}/tls.crt.new ${common.tls}/tls.crt
       '';
     };
 

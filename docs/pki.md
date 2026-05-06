@@ -18,7 +18,14 @@ Start by tagging the machine for TPM 1.2 bootstrap:
 tpm12-bootstrap = ["new-machine"];
 ```
 
-Deploy this first. The bootstrap tag installs `tcsd`, TPM device udev rules, and the non-deployed owner-auth Clan secret. It does not declare `tpm/ca.{key,crt}`, so it is safe before the machine has a TPM CA.
+Deploy this first. The bootstrap tag installs `tcsd`, TPM device udev rules, the `tpm-tls-bootstrap` helper, and the non-deployed owner-auth Clan secret. It does not declare `tpm/ca.{key,crt}`, so it is safe before the machine has a TPM CA.
+
+Fetch the owner password locally when a TPM command prompts for it:
+
+```sh
+machine=todo
+clan vars get "$machine" tpm-owner-auth/owner-auth
+```
 
 Set up the TPM manually:
 
@@ -33,128 +40,33 @@ nix shell nixpkgs#tpm-tools -c tpm_takeownership --srk-well-known
 
 If TPM commands fail with disabled/ownership errors, fix the TPM state in firmware first. Some firmware requires `enable, activate, clear, enable, activate` rather than only `clear`.
 
-## Generate Intermediate Key
+## Generate Intermediate Key And CSR
 
 Run this on the target machine:
 
 ```sh
-cd /var/lib/pki/tpm
-nix shell nixpkgs#simple-tpm-pk11 nixpkgs#opensc nixpkgs#libp11 nixpkgs#openssl
-stpm-keygen -o ca.key
+tpm-tls-bootstrap
 ```
 
-Verify the TPM key:
+This writes:
 
-```sh
-echo test >/tmp/tpm-sign-test.txt
-stpm-sign -k /var/lib/pki/tpm/ca.key -f /tmp/tpm-sign-test.txt >/tmp/tpm-sign-test.sig
-ls -l /var/lib/pki/tpm/ca.key /tmp/tpm-sign-test.sig
+```text
+/var/lib/pki/tpm/ca.key
+/var/lib/pki/tpm/ca.csr
 ```
 
-## Create CSR
+The command refuses to overwrite an existing `ca.key`.
 
-Still on the target machine:
+## Sign And Store Intermediate
 
-```sh
-machine="$(hostname)"
-uri='pkcs11:id=%31%31%31%31;manufacturer=simple-tpm-pk11%20manufacturer;model=model;object=simple-tpm-private-key;serial=serial;token=Simple-TPM-PK11%20token;type=private'
-engine="$(nix eval --raw nixpkgs#libp11.outPath)/lib/engines/pkcs11.so"
-module="$(nix eval --raw nixpkgs#simple-tpm-pk11.outPath)/lib/libsimple-tpm-pk11.so.0.0.0"
-
-cat >/tmp/simple-tpm-pk11.conf <<EOF
-key /var/lib/pki/tpm/ca.key
-EOF
-
-cat >/tmp/openssl-pkcs11.cnf <<EOF
-openssl_conf = openssl_init
-
-[openssl_init]
-engines = engine_section
-
-[engine_section]
-pkcs11 = pkcs11_section
-
-[pkcs11_section]
-engine_id = pkcs11
-dynamic_path = $engine
-MODULE_PATH = $module
-init = 0
-EOF
-
-OPENSSL_CONF=/tmp/openssl-pkcs11.cnf \
-SIMPLE_TPM_PK11_CONFIG=/tmp/simple-tpm-pk11.conf \
-  openssl req \
-    -new \
-    -engine pkcs11 \
-    -keyform engine \
-    -key "$uri" \
-    -subj "/CN=TLS CA: $machine.dorn.haus" \
-    -out /var/lib/pki/tpm/ca.csr
-```
-
-Copy the CSR to the local workstation:
+Run locally, from this repo's dev shell:
 
 ```sh
 machine=todo
-clan ssh "$machine" -c cat /var/lib/pki/tpm/ca.csr >"/tmp/$machine-tpm-ca.csr"
+tpm-tls-sign "$machine"
 ```
 
-## Sign Intermediate
-
-Run locally, from the repo:
-
-```sh
-machine=todo
-umask 077
-
-clan vars get "$machine" tls-ca/ca.key > /tmp/tls-root-ca.key
-
-cat >/tmp/tpm-ca.ext <<EOF
-basicConstraints = critical, CA:true, pathlen:0
-keyUsage = critical, keyCertSign, cRLSign
-subjectKeyIdentifier = hash
-authorityKeyIdentifier = keyid:always,issuer
-EOF
-
-openssl x509 \
-  -req \
-  -in "/tmp/$machine-tpm-ca.csr" \
-  -CA vars/shared/tls-ca/ca.crt/value \
-  -CAkey /tmp/tls-root-ca.key \
-  -CAcreateserial \
-  -out "/tmp/$machine-tpm-ca.crt" \
-  -days 1825 \
-  -sha256 \
-  -extfile /tmp/tpm-ca.ext
-
-rm -f /tmp/tls-root-ca.key vars/shared/tls-ca/ca.crt/value.srl
-```
-
-Verify:
-
-```sh
-openssl verify -CAfile vars/shared/tls-ca/ca.crt/value "/tmp/$machine-tpm-ca.crt"
-openssl x509 -in "/tmp/$machine-tpm-ca.crt" -noout -subject -issuer -dates -text |
-  rg 'Subject:|Issuer:|CA:TRUE|Path Length|Key Usage'
-```
-
-## Store Clan Vars
-
-Copy the TPM key blob from the target and store both files:
-
-```sh
-machine=todo
-mkdir -p "/tmp/$machine-tpm"
-
-clan ssh "$machine" -c cat /var/lib/pki/tpm/ca.key >"/tmp/$machine-tpm/ca.key"
-cp "/tmp/$machine-tpm-ca.crt" "/tmp/$machine-tpm/ca.crt"
-
-clan vars set "$machine" tpm/ca.key <"/tmp/$machine-tpm/ca.key"
-clan vars set "$machine" tpm/ca.crt <"/tmp/$machine-tpm/ca.crt"
-clan vars fix "$machine"
-```
-
-`clan vars fix` is required when `tpm/ca.key` has `deploy = true`; it grants the target machine access to decrypt the deployed secret.
+This fetches `/var/lib/pki/tpm/ca.{key,csr}`, signs the CSR with the offline root, stores `tpm/ca.{key,crt}` as Clan vars, verifies the cert, and runs `clan vars fix "$machine"`.
 
 ## Deploy
 

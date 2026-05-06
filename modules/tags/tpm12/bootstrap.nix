@@ -1,29 +1,44 @@
-{pkgs, ...}: let
-  tpm = "/var/lib/pki/tpm";
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  common = import ./common.nix {inherit config lib pkgs;};
+
+  tpmTlsBootstrap = pkgs.writeShellApplication {
+    name = "tpm-tls-bootstrap";
+    runtimeInputs = with pkgs; [coreutils openssl simple-tpm-pk11];
+    text = ''
+      set -euo pipefail
+
+      key=${common.tpm}/ca.key
+      csr=${common.tpm}/ca.csr
+
+      if [[ -e "$key" ]]; then
+        echo "$key already exists" >&2
+        exit 1
+      fi
+
+      install -d -m 0700 ${common.tpm}
+      stpm-keygen -o "$key"
+
+      OPENSSL_CONF=${common.opensslConf} \
+      SIMPLE_TPM_PK11_CONFIG=${common.simpleTpmPk11Conf} \
+        openssl req \
+          -new \
+          -engine pkcs11 \
+          -keyform engine \
+          -key "${common.pkcs11Uri}" \
+          -subj "/CN=TLS CA: ${common.commonName}" \
+          -out "$csr"
+
+      echo "wrote $key"
+      echo "wrote $csr"
+    '';
+  };
 in {
-  clan.core.vars.generators.tpm-owner-auth = {
-    files.owner-auth = {
-      secret = true;
-      deploy = false;
-    };
-    runtimeInputs = with pkgs; [coreutils xkcdpass];
-    script = ''
-      xkcdpass --numwords 6 --delimiter - --count 1 |
-        tr -d "\n" > "$out/owner-auth"
-    '';
-  };
+  imports = [./base.nix];
 
-  systemd.tmpfiles.rules = [
-    "d ${tpm} 0700 root root - -"
-  ];
-
-  services = {
-    tcsd.enable = true;
-
-    # Trousers/tcsd runs as user/group tss and needs access to TPM device nodes.
-    udev.extraRules = ''
-      SUBSYSTEM=="tpm", KERNEL=="tpm[0-9]*", GROUP="tss", MODE="0660"
-      SUBSYSTEM=="tpmrm", KERNEL=="tpmrm[0-9]*", GROUP="tss", MODE="0660"
-    '';
-  };
+  environment.systemPackages = [tpmTlsBootstrap];
 }

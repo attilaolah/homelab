@@ -36,9 +36,69 @@
         "x86_64-linux"
         "aarch64-darwin"
       ]
-      (system: {
-        default = clan-core.inputs.nixpkgs.legacyPackages.${system}.mkShell {
-          packages = [clan-core.packages.${system}.clan-cli];
+      (system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+        intermediateCaExt = ./modules/tags/tpm12/templates/intermediate-ca.ext;
+        tpm-tls-sign = pkgs.writeShellApplication {
+          name = "tpm-tls-sign";
+          runtimeInputs = [
+            clan-core.packages.${system}.clan-cli
+            pkgs.coreutils
+            pkgs.openssl
+          ];
+          text = ''
+            set -euo pipefail
+
+            if [[ $# -ne 1 ]]; then
+              echo "usage: tpm-tls-sign <machine>" >&2
+              exit 2
+            fi
+
+            machine=$1
+            work="$(mktemp -d "/tmp/tpm-tls-sign-$machine.XXXXXX")"
+            root_key="$work/root-ca.key"
+            csr="$work/ca.csr"
+            crt="$work/ca.crt"
+            key="$work/ca.key"
+
+            cleanup() {
+              rm -f "$root_key"
+            }
+            trap cleanup EXIT
+
+            clan ssh "$machine" -c cat /var/lib/pki/tpm/ca.csr > "$csr"
+            clan ssh "$machine" -c cat /var/lib/pki/tpm/ca.key > "$key"
+            clan vars get "$machine" tls-ca/ca.key > "$root_key"
+
+            openssl x509 \
+              -req \
+              -in "$csr" \
+              -CA vars/shared/tls-ca/ca.crt/value \
+              -CAkey "$root_key" \
+              -CAcreateserial \
+              -out "$crt" \
+              -days 1825 \
+              -sha256 \
+              -extfile ${intermediateCaExt}
+
+            rm -f vars/shared/tls-ca/ca.crt/value.srl
+
+            openssl verify -CAfile vars/shared/tls-ca/ca.crt/value "$crt"
+
+            clan vars set "$machine" tpm/ca.key < "$key"
+            clan vars set "$machine" tpm/ca.crt < "$crt"
+            clan vars fix "$machine"
+
+            echo "stored tpm/ca.key and tpm/ca.crt for $machine"
+            echo "temporary files kept in $work"
+          '';
+        };
+      in {
+        default = pkgs.mkShell {
+          packages = [
+            clan-core.packages.${system}.clan-cli
+            tpm-tls-sign
+          ];
         };
       });
   };
