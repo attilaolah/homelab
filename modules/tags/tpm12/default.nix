@@ -28,6 +28,7 @@ in {
     tmpfiles.rules = [
       "L+ ${common.tpm}/${common.key} - - - - ${files.${common.key}.path}"
       "L+ ${common.tpm}/${common.crt} - - - - ${files.${common.crt}.path}"
+      "r ${common.tpm}/ca.csr"
     ];
 
     services.issue-tls-certificate = let
