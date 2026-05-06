@@ -41,6 +41,7 @@ in {
 
       serviceConfig = {
         Type = "oneshot";
+        Environment = "HOME=${common.tpm}";
         UMask = "0077";
         PrivateTmp = true;
       };

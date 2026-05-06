@@ -59,6 +59,15 @@ The command refuses to overwrite an existing `ca.key`.
 
 ## Sign And Store Intermediate
 
+Move the machine from `tpm12-bootstrap` to `tpm12` locally before signing, but do not deploy yet:
+
+```nix
+tpm12 = ["new-machine"];
+tpm12-bootstrap = [];
+```
+
+This makes Clan know about the `tpm/ca.{key,crt}` vars while the target still has the bootstrap tooling from its previous deployment.
+
 Run locally, from this repo's dev shell:
 
 ```sh
@@ -70,14 +79,14 @@ This fetches `/var/lib/pki/tpm/ca.{key,csr}`, signs the CSR with the offline roo
 
 ## Deploy
 
-Only move the machine from `tpm12-bootstrap` to `tpm12` after `tpm/ca.key` and `tpm/ca.crt` exist:
+Only deploy full `tpm12` after `tpm/ca.key` and `tpm/ca.crt` exist:
 
 ```nix
 tpm12 = ["new-machine"];
 tpm12-bootstrap = [];
 ```
 
-If a machine is tagged with full `tpm12` before those vars exist, `clan m update` may try to run the empty `tpm` generator and fail with:
+If a machine is deployed with full `tpm12` before those vars exist, `clan m update` may try to run the empty `tpm` generator and fail with:
 
 ```text
 did not generate a file for 'ca.crt'

@@ -60,14 +60,19 @@
             csr="$work/ca.csr"
             crt="$work/ca.crt"
             key="$work/ca.key"
+            serial="$work/ca.srl"
 
             cleanup() {
               rm -f "$root_key"
             }
             trap cleanup EXIT
 
-            clan ssh "$machine" -c cat /var/lib/pki/tpm/ca.csr > "$csr"
-            clan ssh "$machine" -c cat /var/lib/pki/tpm/ca.key > "$key"
+            # Avoid PTY line-ending conversion while fetching files through clan ssh.
+            clan ssh "$machine" -c base64 -w0 /var/lib/pki/tpm/ca.csr |
+              base64 -d > "$csr"
+            clan ssh "$machine" -c base64 -w0 /var/lib/pki/tpm/ca.key |
+              base64 -d > "$key"
+
             clan vars get "$machine" tls-ca/ca.key > "$root_key"
 
             openssl x509 \
@@ -75,13 +80,12 @@
               -in "$csr" \
               -CA vars/shared/tls-ca/ca.crt/value \
               -CAkey "$root_key" \
+              -CAserial "$serial" \
               -CAcreateserial \
               -out "$crt" \
               -days 1825 \
               -sha256 \
               -extfile ${intermediateCaExt}
-
-            rm -f vars/shared/tls-ca/ca.crt/value.srl
 
             openssl verify -CAfile vars/shared/tls-ca/ca.crt/value "$crt"
 
