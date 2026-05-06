@@ -65,11 +65,13 @@ in {
       "L+ ${tpm}/${crt} - - - - ${files.${crt}.path}"
     ];
 
-    services.issue-tls-certificate = {
+    services.issue-tls-certificate = let
+      after = ["tcsd.service" "systemd-tmpfiles-setup.service"];
+    in {
+      inherit after;
       description = "Issue short-lived TLS certificate from TPM CA";
       wantedBy = ["multi-user.target"];
-      wants = ["tcsd.service" "systemd-tmpfiles-setup.service"];
-      after = ["tcsd.service" "systemd-tmpfiles-setup.service"];
+      wants = after;
       path = with pkgs; [coreutils openssl];
 
       serviceConfig = {
