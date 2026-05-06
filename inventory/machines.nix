@@ -20,7 +20,8 @@
     # Additional tags per machine.
     tags = {
       laptop = ["acer" "rosa" "sida"];
-      tpm12 = ["acer" "hoya" "inga" "iris"];
+      tpm12 = ["acer" "inga" "iris"];
+      tpm12-bootstrap = ["hoya"];
       # TODO: Enable hardware watchdog on: ilex
       watchdog = ["acer" "hoya" "inga" "iris" "rosa"];
     };

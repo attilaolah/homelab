@@ -1,10 +1,48 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }: let
+  b = "ca";
+  crt = "${b}.crt";
+  key = "${b}.key";
+  cagen = "tls-ca";
+  tls = "/run/pki/tls";
+
   disabled.enable = lib.mkForce false;
 in {
+  clan.core.vars.generators.${cagen} = {
+    share = true;
+    files.${key} = {
+      secret = true;
+      deploy = false;
+    };
+    files.${crt} = {
+      secret = false;
+      deploy = false;
+    };
+    runtimeInputs = with pkgs; [step-cli];
+    script = ''
+      step certificate create "TLS CA: dorn.haus" "$out/${crt}" "$out/${key}" \
+        --profile root-ca \
+        --kty EC \
+        --curve P-256 \
+        --no-password \
+        --insecure
+    '';
+  };
+
+  security.pki.certificateFiles = [
+    config.clan.core.vars.generators.${cagen}.files.${crt}.path
+  ];
+
+  users.groups.tls = {};
+
+  systemd.tmpfiles.rules = [
+    "d ${tls} 0750 root tls - -"
+  ];
+
   # Reduce closure/store size.
   documentation.enable = false;
 

@@ -1,0 +1,10 @@
+[req]
+prompt = no
+distinguished_name = dn
+req_extensions = req_ext
+
+[dn]
+CN = @commonName@
+
+[req_ext]
+subjectAltName = @subjectAltName@
