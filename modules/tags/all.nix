@@ -8,6 +8,7 @@
   crt = "${b}.crt";
   key = "${b}.key";
   cagen = "tls-ca";
+  tls = "/run/pki/tls";
 
   disabled.enable = lib.mkForce false;
 in {
@@ -34,6 +35,12 @@ in {
 
   security.pki.certificateFiles = [
     config.clan.core.vars.generators.${cagen}.files.${crt}.path
+  ];
+
+  users.groups.tls = {};
+
+  systemd.tmpfiles.rules = [
+    "d ${tls} 0750 root tls - -"
   ];
 
   # Reduce closure/store size.

@@ -1,0 +1,6 @@
+basicConstraints = critical, CA:false
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+subjectAltName = @subjectAltName@
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
