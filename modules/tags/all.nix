@@ -8,7 +8,6 @@
   crt = "${b}.crt";
   key = "${b}.key";
   cagen = "tls-ca";
-  tls = "/run/pki/tls";
 
   disabled.enable = lib.mkForce false;
 in {
@@ -37,10 +36,12 @@ in {
     config.clan.core.vars.generators.${cagen}.files.${crt}.path
   ];
 
+  networking.hosts."192.168.1.121" = ["acme.dorn.haus"];
+
   users.groups.tls = {};
 
   systemd.tmpfiles.rules = [
-    "d ${tls} 0750 root tls - -"
+    "d /run/pki/tls 0750 root tls - -"
   ];
 
   # Reduce closure/store size.

@@ -72,7 +72,7 @@ in {
             -in "$work/tls.csr" \
             -CA ${common.tpm}/${common.crt} \
             -CAkeyform engine \
-            -CAkey "${common.pkcs11Uri}" \
+            -CAkey "${common.pkcs11.openSslUri}" \
             -set_serial "0x$(openssl rand -hex 16)" \
             -out "$work/tls.crt" \
             -days 8 \

@@ -1,6 +1,6 @@
 {
   inventory.machines = let
-    inherit (builtins) attrNames attrValues concatLists elem filter hasAttr mapAttrs;
+    inherit (builtins) all attrNames attrValues concatLists elem filter hasAttr mapAttrs;
 
     # ALL machines need to be registered here.
     # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
@@ -19,6 +19,7 @@
 
     # Additional tags per machine.
     tags = {
+      acme = ["acer"];
       laptop = ["acer" "rosa" "sida"];
       tpm12 = ["acer" "hoya" "inga" "iris"];
       watchdog = ["acer" "hoya" "inga" "iris" "rosa"];
@@ -32,6 +33,7 @@
     internal = [];
   in
     assert unknownTaggedMachines == [];
+    assert all (machine: elem machine tags.tpm12) tags.acme;
       mapAttrs (name: id: let
         lan =
           if elem name internal
