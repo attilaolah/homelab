@@ -13,7 +13,10 @@
   tpm = "/var/lib/pki/tpm";
 
   commonName = "${hostName}.${domain}";
-  subjectAltName = lib.concatMapStringsSep "," (dnsName: "DNS:${dnsName}") [hostName commonName];
+  subjectAltName = lib.concatStringsSep "," (
+    (map (dnsName: "DNS:${dnsName}") [hostName commonName])
+    ++ ["IP:${config.homelab.lan.ip4}"]
+  );
 in {
   inherit b commonName crt key pkcs11 subjectAltName tpm;
 

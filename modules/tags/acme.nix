@@ -6,6 +6,7 @@
 }: let
   common = import ./tpm12/common.nix {inherit config lib pkgs;};
 
+  acmeFqdns = map (name: "${name}.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
   acmePort = 9000;
   stepPath = "/var/lib/step-ca";
 in {
@@ -43,7 +44,7 @@ in {
             crt = "${common.tpm}/${common.crt}";
             key = common.pkcs11.key;
             address = ":${toString acmePort}";
-            dnsNames = ["acme.dorn.haus"];
+            dnsNames = acmeFqdns;
             logger.format = "text";
             db = {
               type = "badgerv2";
@@ -54,6 +55,7 @@ in {
                 type = "ACME";
                 name = "internal";
                 forceCN = true;
+                requireEAB = true;
                 claims = {
                   defaultTLSCertDuration = "192h";
                   maxTLSCertDuration = "192h";
