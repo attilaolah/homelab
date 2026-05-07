@@ -70,7 +70,7 @@ in {
 
       for acme_machine in "''${acme_machines[@]}"; do
         clan ssh "$acme_machine" -c systemctl stop step-ca-acme.service
-        if ! clan ssh "$acme_machine" -c acme-eab-write \
+        if ! clan ssh "$acme_machine" -c acme-eab-add \
           --db ${acme.stepPath}/db \
           --kid "$kid" \
           --hmac-key "$hmac_key" \

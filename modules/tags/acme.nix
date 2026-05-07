@@ -84,5 +84,5 @@ in {
     };
   };
 
-  environment.systemPackages = [inputs.self.packages.${system}.acme-eab-write];
+  environment.systemPackages = [inputs.acme-eab.packages.${system}.acme-eab-add];
 }
