@@ -47,6 +47,7 @@ func run() error {
 		kid           string
 		provisionerID string
 		reference     string
+		replace       bool
 	)
 
 	flag.StringVar(&dbPath, "db", "", "path to the Step CA Badger DB")
@@ -54,6 +55,7 @@ func run() error {
 	flag.StringVar(&kid, "kid", "", "ACME EAB key ID")
 	flag.StringVar(&provisionerID, "provisioner-id", "", "ACME provisioner ID")
 	flag.StringVar(&reference, "reference", "", "human-readable EAB reference")
+	flag.BoolVar(&replace, "replace", false, "replace any existing EAB key for the same provisioner/reference")
 	flag.Parse()
 
 	if dbPath == "" {
@@ -87,6 +89,12 @@ func run() error {
 		}
 	}
 
+	if replace && reference != "" {
+		if err := replaceReference(db, provisionerID, reference); err != nil {
+			return err
+		}
+	}
+
 	key := &externalAccountKey{
 		ID:            kid,
 		ProvisionerID: provisionerID,
@@ -115,6 +123,67 @@ func run() error {
 	return nil
 }
 
+func replaceReference(db nosql.DB, provisionerID string, reference string) error {
+	refRaw, err := db.Get(externalAccountKeyIDsByReferenceTable, []byte(referenceKey(provisionerID, reference)))
+	if nosql.IsErrNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return errors.Wrap(err, "reading existing reference")
+	}
+
+	var ref externalAccountKeyReference
+	if err := json.Unmarshal(refRaw, &ref); err != nil {
+		return errors.Wrap(err, "unmarshaling existing reference")
+	}
+
+	keyRaw, err := db.Get(externalAccountKeyTable, []byte(ref.ExternalAccountKeyID))
+	if nosql.IsErrNotFound(err) {
+		return deleteReference(db, provisionerID, reference)
+	}
+	if err != nil {
+		return errors.Wrap(err, "reading existing key")
+	}
+
+	var key externalAccountKey
+	if err := json.Unmarshal(keyRaw, &key); err != nil {
+		return errors.Wrap(err, "unmarshaling existing key")
+	}
+	if key.ProvisionerID != provisionerID {
+		return errors.New("existing key has a different provisioner")
+	}
+
+	if key.Reference != "" {
+		if err := deleteReference(db, provisionerID, key.Reference); err != nil {
+			return err
+		}
+	}
+	if err := deleteKey(db, key.ID); err != nil {
+		return err
+	}
+	if err := removeProvisionerIndex(db, provisionerID, key.ID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteReference(db nosql.DB, provisionerID string, reference string) error {
+	err := db.Del(externalAccountKeyIDsByReferenceTable, []byte(referenceKey(provisionerID, reference)))
+	if nosql.IsErrNotFound(err) {
+		return nil
+	}
+	return errors.Wrap(err, "deleting existing reference")
+}
+
+func deleteKey(db nosql.DB, kid string) error {
+	err := db.Del(externalAccountKeyTable, []byte(kid))
+	if nosql.IsErrNotFound(err) {
+		return nil
+	}
+	return errors.Wrap(err, "deleting existing key")
+}
+
 func createJSON(db nosql.DB, table []byte, key string, value any) error {
 	data, err := json.Marshal(value)
 	if err != nil {
@@ -132,7 +201,51 @@ func createJSON(db nosql.DB, table []byte, key string, value any) error {
 	}
 }
 
+func removeProvisionerIndex(db nosql.DB, provisionerID string, kid string) error {
+	var oldIDs []string
+	oldRaw, err := db.Get(externalAccountKeyIDsByProvisionerIDTable, []byte(provisionerID))
+	if nosql.IsErrNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return errors.Wrap(err, "reading provisioner index")
+	}
+	if err := json.Unmarshal(oldRaw, &oldIDs); err != nil {
+		return errors.Wrap(err, "unmarshaling provisioner index")
+	}
+
+	newIDs := make([]string, 0, len(oldIDs))
+	for _, id := range oldIDs {
+		if id != kid {
+			newIDs = append(newIDs, id)
+		}
+	}
+
+	if len(newIDs) == len(oldIDs) {
+		return nil
+	}
+
+	newRaw, err := json.Marshal(newIDs)
+	if err != nil {
+		return errors.Wrap(err, "marshaling provisioner index")
+	}
+
+	_, swapped, err := db.CmpAndSwap(externalAccountKeyIDsByProvisionerIDTable, []byte(provisionerID), oldRaw, newRaw)
+	switch {
+	case err != nil:
+		return errors.Wrap(err, "writing provisioner index")
+	case !swapped:
+		return errors.New("provisioner index changed while writing")
+	default:
+		return nil
+	}
+}
+
 func addProvisionerIndex(db nosql.DB, provisionerID string, kid string) error {
+	if provisionerID == "" {
+		return nil
+	}
+
 	var oldIDs []string
 	oldRaw, err := db.Get(externalAccountKeyIDsByProvisionerIDTable, []byte(provisionerID))
 	if err == nil {

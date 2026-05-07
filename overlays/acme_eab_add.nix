@@ -45,14 +45,20 @@ in {
           --db ${acme.stepPath}/db \
           --kid "$kid" \
           --hmac-key "$hmac_key" \
-          --provisioner-id acme/internal \
-          --reference "$machine"; then
+          --reference "$machine" \
+          --replace; then
           clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
           exit 1
         fi
         clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
         clan ssh "$acme_machine" -c systemctl is-active --quiet step-ca-acme.service
       done
+
+      printf '%s' "$kid" |
+        clan vars set "$machine" acme-eab/kid
+      printf '%s' "$hmac_key" |
+        clan vars set "$machine" acme-eab/hmac-key
+      clan vars fix "$machine"
 
       printf 'ACME URL: %s/acme/internal/directory\n' "$acme_url"
       printf 'EAB KID: %s\n' "$kid"

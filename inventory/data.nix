@@ -19,6 +19,7 @@ let
   # Additional tags per machine.
   tags = {
     acme = ["acer"];
+    acme_client = ["rosa"];
     laptop = ["acer" "rosa" "sida"];
     tpm12 = ["acer" "hoya" "inga" "iris"];
     watchdog = ["acer" "hoya" "inga" "iris" "rosa"];

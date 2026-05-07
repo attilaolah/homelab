@@ -15,7 +15,7 @@ No CA private key material is stored as a normal on-disk private key on the mach
 Start by tagging the machine for TPM 1.2 bootstrap:
 
 ```nix
-tpm12-bootstrap = ["new-machine"];
+tpm12_bootstrap = ["new-machine"];
 ```
 
 Deploy this first. The bootstrap tag installs `tcsd`, TPM device udev rules, the `tpm-tls-bootstrap` helper, and the non-deployed owner-auth Clan secret. It does not declare `tpm/ca.{key,crt}`, so it is safe before the machine has a TPM CA.
@@ -59,11 +59,11 @@ The command refuses to overwrite an existing `ca.key`.
 
 ## Sign And Store Intermediate
 
-Move the machine from `tpm12-bootstrap` to `tpm12` locally before signing, but do not deploy yet:
+Move the machine from `tpm12_bootstrap` to `tpm12` locally before signing, but do not deploy yet:
 
 ```nix
 tpm12 = ["new-machine"];
-tpm12-bootstrap = [];
+tpm12_bootstrap = [];
 ```
 
 This makes Clan know about the `tpm/ca.{key,crt}` vars while the target still has the bootstrap tooling from its previous deployment.
@@ -83,7 +83,7 @@ Only deploy full `tpm12` after `tpm/ca.key` and `tpm/ca.crt` exist:
 
 ```nix
 tpm12 = ["new-machine"];
-tpm12-bootstrap = [];
+tpm12_bootstrap = [];
 ```
 
 If a machine is deployed with full `tpm12` before those vars exist, `clan m update` may try to run the empty `tpm` generator and fail with:
@@ -117,3 +117,31 @@ clan ssh "$machine" -c nix shell nixpkgs#openssl -c openssl x509 -in /run/pki/tl
 ```
 
 The leaf certificate is valid for 8 days. The timer refreshes every 2 days with jitter, leaving time for manual repair if renewal fails.
+
+## Provision ACME Client
+
+Non-TPM machines use ACME EAB credentials stored as Clan vars:
+
+```text
+acme-eab/kid
+acme-eab/hmac-key
+```
+
+They request certificates with TLS-ALPN-01. Port 443 must be free while `issue-tls-certificate.service` runs. The ACME client state and issued leaf key live under `/run`; if the ACME account key needs to survive reboots, move it to a Clan secret before relying on unattended renewal after reboot.
+
+The order matters because Clan initialises missing deployable vars during unrelated machine updates.
+
+1. If the ACME server config changed, update the ACME servers first. Do not add the new client to `acme_client` yet.
+2. Add the new client to `acme_client` locally, but do not deploy it yet.
+3. Run the EAB provisioning helper:
+
+```sh
+machine=todo
+acme-eab-add "$machine"
+```
+
+`acme-eab-add` writes or replaces the client's EAB entry on all ACME servers, stores the EAB KID as a Clan var, stores the EAB HMAC key as a Clan secret, and runs `clan vars fix "$machine"`.
+
+4. Deploy the client.
+
+Do not deploy ACME servers or the new client while the client is already in `acme_client` but its `acme-eab` vars do not exist yet. Clan may prompt for the missing client secret during the update.
