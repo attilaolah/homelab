@@ -19,6 +19,7 @@
     forAllSystems = nixpkgs.lib.genAttrs systems;
     overlays = [
       (import ./overlays/acme_eab_add.nix {inherit clan-core domain machineData;})
+      (import ./overlays/acme_eab_write.nix {})
       (import ./overlays/tpm_tls_sign.nix {inherit clan-core intermediateCaExt;})
     ];
     homelabOverlay = nixpkgs.lib.composeManyExtensions overlays;
@@ -52,7 +53,7 @@
       (system: let
         pkgs = pkgsForSystem system;
       in {
-        inherit (pkgs) acme-eab-add tpm-tls-sign;
+        inherit (pkgs) acme-eab-add acme-eab-write tpm-tls-sign;
       });
     # Add the Clan cli tool to the dev shell.
     # Use "nix develop" to enter the dev shell.
@@ -65,6 +66,7 @@
           packages = [
             clan-core.packages.${system}.clan-cli
             pkgs.acme-eab-add
+            pkgs.acme-eab-write
             pkgs.tpm-tls-sign
           ];
         };

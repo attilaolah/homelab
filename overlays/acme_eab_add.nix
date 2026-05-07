@@ -5,8 +5,9 @@
 }: final: _prev: let
   inherit (final.stdenv.hostPlatform) system;
 
-  acmeMachine = builtins.head machineData.tags.acme;
+  acme = import ../modules/tags/tpm12/acme_common.nix;
   acmeFqdn = "0.acme.${domain}";
+  acmeMachines = final.lib.escapeShellArgs machineData.tags.acme;
 in {
   acme-eab-add = final.writeShellApplication {
     name = "acme-eab-add";
@@ -23,28 +24,39 @@ in {
       fi
 
       machine=$1
-      acme_machine=${acmeMachine}
-      acme_url=https://${acmeFqdn}:9000
-      password_file=/run/step-ca-admin-password
+      acme_machines=(${acmeMachines})
+      acme_url=https://${acmeFqdn}:${toString acme.port}
+      kid=$(
+        head -c 24 /dev/urandom |
+          base64 |
+          tr '+/' '-_' |
+          tr -d '=\n'
+      )
+      hmac_key=$(
+        head -c 32 /dev/urandom |
+          base64 |
+          tr '+/' '-_' |
+          tr -d '=\n'
+      )
 
-      cleanup() {
-        clan ssh "$acme_machine" -c rm -f "$password_file"
-      }
-      trap cleanup EXIT
+      for acme_machine in "''${acme_machines[@]}"; do
+        clan ssh "$acme_machine" -c systemctl stop step-ca-acme.service
+        if ! clan ssh "$acme_machine" -c acme-eab-write \
+          --db ${acme.stepPath}/db \
+          --kid "$kid" \
+          --hmac-key "$hmac_key" \
+          --provisioner-id acme/internal \
+          --reference "$machine"; then
+          clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
+          exit 1
+        fi
+        clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
+        clan ssh "$acme_machine" -c systemctl is-active --quiet step-ca-acme.service
+      done
 
-      clan vars get "$acme_machine" acme-admin/password |
-        clan ssh "$acme_machine" -c install -m 0600 /dev/stdin "$password_file"
-
-      clan ssh "$acme_machine" -c systemctl restart step-ca-acme.service
-      clan ssh "$acme_machine" -c systemctl is-active --quiet step-ca-acme.service
-
-      clan ssh "$acme_machine" -c \
-        nix shell nixpkgs#step-cli -c step ca acme eab add internal "$machine" \
-          --admin-subject step \
-          --admin-provisioner "Admin JWK" \
-          --admin-password-file "$password_file" \
-          --ca-url "$acme_url" \
-          --root /var/lib/pki/tpm/ca.crt
+      printf 'ACME URL: %s/acme/internal/directory\n' "$acme_url"
+      printf 'EAB KID: %s\n' "$kid"
+      printf 'EAB HMAC key: %s\n' "$hmac_key"
     '';
   };
 }
