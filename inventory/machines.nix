@@ -4,11 +4,10 @@
     inherit (data) ids machines tags;
 
     data = import ./data.nix;
-    unknownTaggedMachines =
-      filter (machine: !(hasAttr machine ids))
-      (concatLists (attrValues tags));
   in
-    assert unknownTaggedMachines == [];
+    # Make sure no tags contains a machine that is not registered.
+    assert (filter (machine: !(hasAttr machine ids)) (concatLists (attrValues tags))) == [];
+    # Make sure ACME servers only run on machines with TPM 1.2 hardware.
     assert all (machine: elem machine tags.tpm12) tags.acme;
       mapAttrs (_name: machine: {
         deploy.targetHost = "root@${machine.ip}";
