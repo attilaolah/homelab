@@ -120,28 +120,30 @@ The leaf certificate is valid for 8 days. The timer refreshes every 2 days with 
 
 ## Provision ACME Client
 
-Non-TPM machines use ACME EAB credentials stored as Clan vars:
+Non-TPM machines use ACME. EAB credentials are only bootstrap material. The durable client credential is the ACME account state stored as Clan secrets:
 
 ```text
-acme-eab/kid
-acme-eab/hmac-key
+acme-account/account.json
+acme-account/account.key
 ```
 
-They request certificates with TLS-ALPN-01. Port 443 must be free while `issue-tls-certificate.service` runs. The ACME client state and issued leaf key live under `/run`; if the ACME account key needs to survive reboots, move it to a Clan secret before relying on unattended renewal after reboot.
+They request certificates with TLS-ALPN-01. Port 443 must be free while `issue-tls-certificate.service` runs. The issued leaf key and certificate still live under `/run`.
 
-The order matters because Clan initialises missing deployable vars during unrelated machine updates.
+The order matters because Clan initialises missing deployable vars during unrelated machine updates. Do not add the new client directly to `acme_client` before provisioning.
 
-1. If the ACME server config changed, update the ACME servers first. Do not add the new client to `acme_client` yet.
-2. Add the new client to `acme_client` locally, but do not deploy it yet.
-3. Run the EAB provisioning helper:
+1. If the ACME server config changed, update the ACME servers first.
+2. Add the new client to `acme_client_bootstrap` and deploy it. This installs `issue-tls-certificate.service` without declaring `acme-account/*` secrets.
+3. The service is installed but not enabled in bootstrap mode. It stays idle until `acme-eab-add` injects temporary EAB credentials and starts it.
+4. Move the client from `acme_client_bootstrap` to `acme_client` locally, but do not deploy yet. This makes Clan know about `acme-account/*` without pushing empty placeholders to the machine.
+5. Run the provisioning helper:
 
 ```sh
 machine=todo
 acme-eab-add "$machine"
 ```
 
-`acme-eab-add` writes or replaces the client's EAB entry on all ACME servers, stores the EAB KID as a Clan var, stores the EAB HMAC key as a Clan secret, and runs `clan vars fix "$machine"`.
+`acme-eab-add` writes or replaces the client's EAB entry on all ACME servers, copies the EAB credential into `/run/pki/acme/bootstrap-eab` on the client, starts `issue-tls-certificate.service`, captures Lego's generated account state, stores it as `acme-account/*`, removes the temporary EAB files, and runs `clan vars fix "$machine"`.
 
-4. Deploy the client.
+6. Deploy the client again so the account state is managed by Clan.
 
-Do not deploy ACME servers or the new client while the client is already in `acme_client` but its `acme-eab` vars do not exist yet. Clan may prompt for the missing client secret during the update.
+The account state is tied to the ACME server database. If the ACME database is rebuilt from scratch, re-run provisioning for each ACME client.

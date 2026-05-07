@@ -202,6 +202,10 @@ func createJSON(db nosql.DB, table []byte, key string, value any) error {
 }
 
 func removeProvisionerIndex(db nosql.DB, provisionerID string, kid string) error {
+	if provisionerID == "" {
+		return nil
+	}
+
 	var oldIDs []string
 	oldRaw, err := db.Get(externalAccountKeyIDsByProvisionerIDTable, []byte(provisionerID))
 	if nosql.IsErrNotFound(err) {

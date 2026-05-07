@@ -20,6 +20,7 @@ let
   tags = {
     acme = ["acer"];
     acme_client = ["rosa"];
+    acme_client_bootstrap = [];
     laptop = ["acer" "rosa" "sida"];
     tpm12 = ["acer" "hoya" "inga" "iris"];
     watchdog = ["acer" "hoya" "inga" "iris" "rosa"];
