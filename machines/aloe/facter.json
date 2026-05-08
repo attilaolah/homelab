@@ -814,7 +814,7 @@
           "100mhzsteps",
           "hwpstate"
         ],
-        "bogo": 2793,
+        "bogo": 2794,
         "cache": 512,
         "units": 2,
         "page_size": 4096,
@@ -1087,7 +1087,7 @@
       },
       {
         "index": 34,
-        "attached_to": 12,
+        "attached_to": 8,
         "class_list": [
           "usb",
           "hub"
@@ -1121,9 +1121,9 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:16.2",
+        "serial": "0000:00:13.2",
         "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:16.2/usb3/3-0:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:13.2/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
           {
@@ -1522,7 +1522,7 @@
       },
       {
         "index": 39,
-        "attached_to": 8,
+        "attached_to": 12,
         "class_list": [
           "usb",
           "hub"
@@ -1556,9 +1556,9 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:13.2",
+        "serial": "0000:00:16.2",
         "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:13.2/usb2/2-0:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:16.2/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [
           {
