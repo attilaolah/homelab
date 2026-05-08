@@ -67,6 +67,9 @@ in {
     ];
 
     networking.hosts = lanHosts // acmeLanHosts;
+    networking.firewall.extraCommands = lib.mkAfter ''
+      iptables -I nixos-fw 1 -s 192.168.1.1 -j DROP
+    '';
 
     users.groups.tls = {};
 

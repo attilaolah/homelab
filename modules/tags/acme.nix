@@ -8,9 +8,19 @@
   inherit (pkgs.stdenv.hostPlatform) system;
 
   acme = import ./tpm12/acme_common.nix;
+  machineData = import (inputs.self + /inventory/data.nix);
   common = import ./tpm12/common.nix {inherit config lib pkgs;};
 
   acmeFqdns = map (name: "${name}.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
+  acmeClients = lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags.acme_client_bootstrap or []));
+  acmeFirewallRules =
+    ''
+      iptables -I nixos-fw 1 -p tcp --dport ${toString acme.port} -j DROP
+    ''
+    + lib.concatMapStrings (machine: ''
+      iptables -I nixos-fw 1 -p tcp --dport ${toString acme.port} -s ${machineData.machines.${machine}.ip} -j ACCEPT
+    '')
+    acmeClients;
   startStepCa = pkgs.writeShellApplication {
     name = "start-step-ca-acme";
     runtimeInputs = with pkgs; [step-ca];
@@ -49,11 +59,7 @@
     };
   };
 in {
-  networking.firewall.extraCommands = ''
-    iptables -I nixos-fw 1 -p tcp --dport ${toString acme.port} -s 192.168.1.0/24 -j ACCEPT
-    iptables -I nixos-fw 1 -p tcp --dport ${toString acme.port} -s 192.168.1.0/30 -j DROP
-    iptables -I nixos-fw 1 -s 192.168.1.1 -j DROP
-  '';
+  networking.firewall.extraCommands = acmeFirewallRules;
 
   systemd = {
     tmpfiles.rules = [

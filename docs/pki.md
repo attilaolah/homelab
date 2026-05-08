@@ -131,7 +131,9 @@ They request certificates with TLS-ALPN-01. Port 443 must be free while `issue-t
 
 The order matters because Clan initialises missing deployable vars during unrelated machine updates. Do not add the new client directly to `acme_client` before provisioning.
 
-1. If the ACME server config changed, update the ACME servers first.
+ACME server firewall rules are generated from `acme_client` and `acme_client_bootstrap`. After changing either tag, update the ACME servers so the new client can reach the ACME port.
+
+1. Update the ACME servers after adding the new client to `acme_client_bootstrap`.
 2. Add the new client to `acme_client_bootstrap` and deploy it. This installs `issue-tls-certificate.service` without declaring `acme-account/*` secrets.
 3. The service is installed but not enabled in bootstrap mode. It stays idle until `acme-provision` injects temporary EAB credentials and starts it.
 4. Move the client from `acme_client_bootstrap` to `acme_client` locally, but do not deploy yet. This makes Clan know about `acme-account/*` without pushing empty placeholders to the machine.
