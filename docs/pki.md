@@ -15,7 +15,7 @@ No CA private key material is stored as a normal on-disk private key on the mach
 Start by tagging the machine for TPM 1.2 bootstrap:
 
 ```nix
-tpm12-bootstrap = ["new-machine"];
+tpm12_bootstrap = ["new-machine"];
 ```
 
 Deploy this first. The bootstrap tag installs `tcsd`, TPM device udev rules, the `tpm-tls-bootstrap` helper, and the non-deployed owner-auth Clan secret. It does not declare `tpm/ca.{key,crt}`, so it is safe before the machine has a TPM CA.
@@ -59,11 +59,11 @@ The command refuses to overwrite an existing `ca.key`.
 
 ## Sign And Store Intermediate
 
-Move the machine from `tpm12-bootstrap` to `tpm12` locally before signing, but do not deploy yet:
+Move the machine from `tpm12_bootstrap` to `tpm12` locally before signing, but do not deploy yet:
 
 ```nix
 tpm12 = ["new-machine"];
-tpm12-bootstrap = [];
+tpm12_bootstrap = [];
 ```
 
 This makes Clan know about the `tpm/ca.{key,crt}` vars while the target still has the bootstrap tooling from its previous deployment.
@@ -83,7 +83,7 @@ Only deploy full `tpm12` after `tpm/ca.key` and `tpm/ca.crt` exist:
 
 ```nix
 tpm12 = ["new-machine"];
-tpm12-bootstrap = [];
+tpm12_bootstrap = [];
 ```
 
 If a machine is deployed with full `tpm12` before those vars exist, `clan m update` may try to run the empty `tpm` generator and fail with:
@@ -117,3 +117,35 @@ clan ssh "$machine" -c nix shell nixpkgs#openssl -c openssl x509 -in /run/pki/tl
 ```
 
 The leaf certificate is valid for 8 days. The timer refreshes every 2 days with jitter, leaving time for manual repair if renewal fails.
+
+## Provision ACME EAB Client
+
+Non-TPM machines use ACME. EAB credentials are only bootstrap material. The durable client credential is the ACME account state stored as Clan secrets:
+
+```text
+acme-account/account.json
+acme-account/account.key
+```
+
+They request certificates with TLS-ALPN-01. Port 443 must be free while `issue-tls-certificate.service` runs. The issued leaf key and certificate still live under `/run`.
+
+The order matters because Clan initialises missing deployable vars during unrelated machine updates. Do not add the new client directly to `acme_client` before provisioning.
+
+ACME server firewall rules are generated from `acme_client` and `acme_client_bootstrap`. After changing either tag, update the ACME servers so the new client can reach the ACME port.
+
+1. Update the ACME servers after adding the new client to `acme_client_bootstrap`.
+2. Add the new client to `acme_client_bootstrap` and deploy it. This installs `issue-tls-certificate.service` without declaring `acme-account/*` secrets.
+3. The service is installed but not enabled in bootstrap mode. It stays idle until `acme-provision` injects temporary EAB credentials and starts it.
+4. Move the client from `acme_client_bootstrap` to `acme_client` locally, but do not deploy yet. This makes Clan know about `acme-account/*` without pushing empty placeholders to the machine.
+5. Run the provisioning helper:
+
+```sh
+machine=todo
+acme-provision "$machine"
+```
+
+`acme-provision` writes or replaces the client's EAB entry on all ACME servers, copies the EAB credential into `/run/pki/acme/bootstrap-eab` on the client, starts `issue-tls-certificate.service`, captures Lego's generated account state, stores it as `acme-account/*`, removes the temporary EAB files, and runs `clan vars fix "$machine"`.
+
+6. Deploy the client again so the account state is managed by Clan.
+
+The account state is tied to the ACME server database. If the ACME database is rebuilt from scratch, re-run provisioning for each ACME client.

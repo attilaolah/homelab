@@ -7,7 +7,11 @@
   # Additional module imports by tag.
   # https://docs.clan.lol/latest/services/definition/
   inventory.instances = builtins.listToAttrs (let
+    machineData = import ../data.nix;
     modules = ../../modules/tags;
+    moduleNames = builtins.attrNames (builtins.readDir modules);
+    hasTaggedMachines = tag:
+      tag == "all" || (machineData.tags.${tag} or []) != [];
   in
     map (module: let
       tag = builtins.replaceStrings [".nix"] [""] module;
@@ -20,5 +24,5 @@
           extraModules = ["${modules}/${module}"];
         };
       };
-    }) (builtins.attrNames (builtins.readDir modules)));
+    }) (builtins.filter (module: hasTaggedMachines (builtins.replaceStrings [".nix"] [""] module)) moduleNames));
 }

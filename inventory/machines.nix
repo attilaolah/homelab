@@ -1,48 +1,23 @@
 {
   inventory.machines = let
-    inherit (builtins) attrNames attrValues concatLists elem filter hasAttr mapAttrs;
+    inherit (builtins) all attrValues concatLists elem filter hasAttr mapAttrs;
+    inherit (data) ids machines tags;
 
-    # ALL machines need to be registered here.
-    # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
-    ids = {
-      acer = 121;
-      aloe = 116;
-      aria = 102;
-      hoya = 104;
-      ilex = 103;
-      inga = 105;
-      iris = 101;
-      rosa = 120;
-      sida = 122;
-      unio = 117;
-    };
-
-    # Additional tags per machine.
-    tags = {
-      laptop = ["acer" "rosa" "sida"];
-      tpm12 = ["acer" "hoya" "inga" "iris"];
-      watchdog = ["acer" "hoya" "inga" "iris" "rosa"];
-    };
-    unknownTaggedMachines =
-      filter (machine: !(hasAttr machine ids))
-      (concatLists (attrValues tags));
-
-    # Machines that are on the internal network.
-    # These should eventually be moved to the external network after initial setup.
-    internal = [];
+    data = import ./data.nix;
+    acme = tags.acme or [];
+    acme_client = tags.acme_client or [];
+    tpm12 = tags.tpm12 or [];
+    tpm12_bootstrap = tags.tpm12_bootstrap or [];
   in
-    assert unknownTaggedMachines == [];
-      mapAttrs (name: id: let
-        lan =
-          if elem name internal
-          then 0
-          else 1;
-        ip = ip4 lan id;
-
-        ip4 = x: y: "192.168.${toString x}.${toString y}";
-      in {
-        deploy.targetHost = "root@${ip}";
-        tags = filter (tag: elem name tags.${tag}) (attrNames tags);
+    # Make sure no tags contains a machine that is not registered.
+    assert (filter (machine: !(hasAttr machine ids)) (concatLists (attrValues tags))) == [];
+    # Make sure ACME servers only run on machines with TPM 1.2 hardware.
+    assert all (machine: elem machine tpm12) acme;
+    # Make sure ACME clients only run on machines without TPM hardware.
+    assert all (machine: !(elem machine (tpm12 ++ tpm12_bootstrap))) acme_client;
+      mapAttrs (_name: machine: {
+        deploy.targetHost = "root@${machine.ip}";
+        tags = machine.tags;
       })
-      ids;
+      machines;
 }

@@ -1,5 +1,26 @@
 {
   "nodes": {
+    "acme-eab": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1778225946,
+        "narHash": "sha256-UKOyHT0ZfLKTHcZGeND80fH8xoTfPvQZ40hJ+S3VcXg=",
+        "owner": "attilaolah",
+        "repo": "acme-eab",
+        "rev": "4bf0ce30647bb0e11fb10ea564f653cdccecb764",
+        "type": "github"
+      },
+      "original": {
+        "owner": "attilaolah",
+        "ref": "v0.2.0",
+        "repo": "acme-eab",
+        "type": "github"
+      }
+    },
     "clan-core": {
       "inputs": {
         "data-mesher": "data-mesher",
@@ -142,6 +163,7 @@
     },
     "root": {
       "inputs": {
+        "acme-eab": "acme-eab",
         "clan-core": "clan-core",
         "nixpkgs": [
           "clan-core",
