@@ -869,7 +869,7 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32673,
+        "tlb_size": 32747,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
