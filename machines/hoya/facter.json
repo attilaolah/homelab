@@ -19,10 +19,10 @@
         "version": 0,
         "video_memory": 0
       },
-      "pnp": true,
+      "pnp": false,
       "pnp_id": 0,
       "lba_support": false,
-      "low_memory_size": 649216,
+      "low_memory_size": 0,
       "smbios_version": 520
     },
     "bridge": [
@@ -617,7 +617,6 @@
           "f16c",
           "lahf_lm",
           "cmp_legacy",
-          "svm",
           "extapic",
           "cr8_legacy",
           "abm",
@@ -635,6 +634,7 @@
           "hw_pstate",
           "proc_feedback",
           "ssbd",
+          "ibpb",
           "vmmcall",
           "bmi1",
           "xsaveopt",
@@ -658,6 +658,7 @@
           "spectre_v2",
           "spec_store_bypass",
           "retbleed",
+          "ibpb_no_ret",
           "spectre_v2_user"
         ],
         "power_management": [
@@ -1386,7 +1387,7 @@
         "resources": [
           {
             "type": "phys_mem",
-            "range": 5905580032
+            "range": 5368709120
           }
         ]
       }
@@ -1661,7 +1662,7 @@
         "sysfs_bus_id": "0000:00:01.1",
         "detail": {
           "function": 1,
-          "command": 1287,
+          "command": 1286,
           "header_type": 0,
           "secondary_bus": 0,
           "prog_if": 0
@@ -2281,8 +2282,8 @@
     "bios": {
       "handle": 0,
       "vendor": "AMI",
-      "version": "L40 v2.05",
-      "date": "06/16/2014",
+      "version": "L40 v02.19",
+      "date": "02/19/2019",
       "features": [
         "PCI supported",
         "PnP supported",
@@ -2408,7 +2409,7 @@
     "chassis": [
       {
         "handle": 3,
-        "manufacturer": "To Be Filled By O.E.M.",
+        "manufacturer": "Hewlett-Packard",
         "version": "To Be Filled By O.E.M.",
         "chassis_type": {
           "hex": "0003",

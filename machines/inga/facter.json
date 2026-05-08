@@ -19,10 +19,10 @@
         "version": 0,
         "video_memory": 0
       },
-      "pnp": true,
+      "pnp": false,
       "pnp_id": 0,
       "lba_support": false,
-      "low_memory_size": 649216,
+      "low_memory_size": 0,
       "smbios_version": 520
     },
     "bridge": [
@@ -634,6 +634,7 @@
           "hw_pstate",
           "proc_feedback",
           "ssbd",
+          "ibpb",
           "vmmcall",
           "bmi1",
           "xsaveopt",
@@ -657,6 +658,7 @@
           "spectre_v2",
           "spec_store_bypass",
           "retbleed",
+          "ibpb_no_ret",
           "spectre_v2_user"
         ],
         "power_management": [
@@ -1114,7 +1116,7 @@
       },
       {
         "index": 31,
-        "attached_to": 15,
+        "attached_to": 7,
         "class_list": [
           "usb",
           "hub"
@@ -1148,9 +1150,9 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:12.2",
+        "serial": "0000:00:13.2",
         "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:12.2/usb1/1-0:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:13.2/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
           {
@@ -1278,7 +1280,7 @@
       },
       {
         "index": 33,
-        "attached_to": 7,
+        "attached_to": 15,
         "class_list": [
           "usb",
           "hub"
@@ -1312,9 +1314,9 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:13.2",
+        "serial": "0000:00:12.2",
         "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:13.2/usb2/2-0:1.0",
+        "sysfs_id": "/devices/pci0000:00/0000:00:12.2/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [
           {
@@ -1385,7 +1387,7 @@
         "resources": [
           {
             "type": "phys_mem",
-            "range": 5368709120
+            "range": 5905580032
           }
         ]
       }
@@ -1481,28 +1483,6 @@
     "network_interface": [
       {
         "index": 34,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
-        ]
-      },
-      {
-        "index": 35,
         "attached_to": 14,
         "class_list": [
           "network_interface"
@@ -1540,6 +1520,28 @@
         ],
         "driver_modules": [
           "r8169"
+        ]
+      },
+      {
+        "index": 35,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
         ]
       }
     ],
@@ -1660,7 +1662,7 @@
         "sysfs_bus_id": "0000:00:01.1",
         "detail": {
           "function": 1,
-          "command": 1287,
+          "command": 1286,
           "header_type": 0,
           "secondary_bus": 0,
           "prog_if": 0
@@ -2280,8 +2282,8 @@
     "bios": {
       "handle": 0,
       "vendor": "AMI",
-      "version": "L40 v2.05",
-      "date": "06/16/2014",
+      "version": "L40 v02.19",
+      "date": "02/19/2019",
       "features": [
         "PCI supported",
         "PnP supported",
@@ -2407,7 +2409,7 @@
     "chassis": [
       {
         "handle": 3,
-        "manufacturer": "To Be Filled By O.E.M.",
+        "manufacturer": "Hewlett-Packard",
         "version": "To Be Filled By O.E.M.",
         "chassis_type": {
           "hex": "0003",

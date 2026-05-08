@@ -304,7 +304,7 @@
         "fpu_exception": false,
         "cpuid_level": 22,
         "write_protect": false,
-        "tlb_size": 32562,
+        "tlb_size": 32710,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -315,7 +315,7 @@
     ],
     "disk": [
       {
-        "index": 22,
+        "index": 21,
         "attached_to": 8,
         "class_list": [
           "disk",
@@ -482,7 +482,7 @@
     ],
     "hub": [
       {
-        "index": 23,
+        "index": 22,
         "attached_to": 18,
         "class_list": [
           "usb",
@@ -569,7 +569,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 24,
+        "index": 23,
         "attached_to": 18,
         "class_list": [
           "usb",
@@ -672,231 +672,6 @@
         ]
       }
     ],
-    "monitor": [
-      {
-        "index": 20,
-        "attached_to": 17,
-        "class_list": [
-          "monitor"
-        ],
-        "base_class": {
-          "hex": "0100",
-          "name": "Monitor",
-          "value": 256
-        },
-        "sub_class": {
-          "hex": "0002",
-          "name": "LCD Monitor",
-          "value": 2
-        },
-        "vendor": {
-          "hex": "0472",
-          "value": 1138
-        },
-        "device": {
-          "hex": "ad29",
-          "name": "Acer AL1914",
-          "value": 44329
-        },
-        "serial": "ETL2908105",
-        "model": "Acer AL1914",
-        "resources": [
-          {
-            "type": "monitor",
-            "width": 1024,
-            "height": 768,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1024,
-            "height": 768,
-            "vertical_frequency": 70,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1024,
-            "height": 768,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1152,
-            "height": 864,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1152,
-            "height": 864,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1280,
-            "height": 1024,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1280,
-            "height": 1024,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 1280,
-            "height": 1024,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 640,
-            "height": 480,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 640,
-            "height": 480,
-            "vertical_frequency": 67,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 640,
-            "height": 480,
-            "vertical_frequency": 72,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 640,
-            "height": 480,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 720,
-            "height": 400,
-            "vertical_frequency": 70,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 800,
-            "height": 600,
-            "vertical_frequency": 56,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 800,
-            "height": 600,
-            "vertical_frequency": 60,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 800,
-            "height": 600,
-            "vertical_frequency": 72,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 800,
-            "height": 600,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "monitor",
-            "width": 832,
-            "height": 624,
-            "vertical_frequency": 75,
-            "interlaced": false
-          },
-          {
-            "type": "size",
-            "unit": "mm",
-            "value_1": 376,
-            "value_2": 301
-          }
-        ],
-        "detail": {
-          "manufacture_year": 2005,
-          "manufacture_week": 19,
-          "vertical_sync": {
-            "min": 55,
-            "max": 75
-          },
-          "horizontal_sync": {
-            "min": 30,
-            "max": 83
-          },
-          "horizontal_sync_timings": {
-            "disp": 1280,
-            "sync_start": 1328,
-            "sync_end": 1440,
-            "total": 1688
-          },
-          "vertical_sync_timings": {
-            "disp": 1024,
-            "sync_start": 1025,
-            "sync_end": 1028,
-            "total": 1066
-          },
-          "clock": 108000,
-          "width": 1280,
-          "height": 1024,
-          "width_millimetres": 376,
-          "height_millimetres": 301,
-          "horizontal_flag": 43,
-          "vertical_flag": 43,
-          "vendor": "",
-          "name": "Acer AL1914"
-        },
-        "driver_info": {
-          "type": "display",
-          "width": 1280,
-          "height": 1024,
-          "vertical_sync": {
-            "min": 55,
-            "max": 75
-          },
-          "horizontal_sync": {
-            "min": 30,
-            "max": 83
-          },
-          "bandwidth": 0,
-          "horizontal_sync_timings": {
-            "disp": 1280,
-            "sync_start": 1328,
-            "sync_end": 1440,
-            "total": 1688
-          },
-          "vertical_sync_timings": {
-            "disp": 1024,
-            "sync_start": 1025,
-            "sync_end": 1028,
-            "total": 1066
-          },
-          "horizontal_flag": 43,
-          "vertical_flag": 43
-        }
-      }
-    ],
     "network_controller": [
       {
         "index": 16,
@@ -982,6 +757,28 @@
     ],
     "network_interface": [
       {
+        "index": 24,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
+        ]
+      },
+      {
         "index": 25,
         "attached_to": 16,
         "class_list": [
@@ -1020,28 +817,6 @@
         ],
         "driver_modules": [
           "e1000e"
-        ]
-      },
-      {
-        "index": 26,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
         ]
       }
     ],
@@ -1565,7 +1340,7 @@
     },
     "unknown": [
       {
-        "index": 21,
+        "index": 20,
         "attached_to": 0,
         "class_list": [
           "unknown"
