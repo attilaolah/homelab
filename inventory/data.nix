@@ -18,17 +18,56 @@ let
 
   # Additional tags per machine.
   tags = {
-    acme = ["acer"];
-    acme_client = ["rosa" "sida"];
-    acme_client_bootstrap = [];
-    laptop = ["acer" "rosa" "sida"];
-    tpm12 = ["acer" "hoya" "inga" "iris"];
-    watchdog = ["acer" "hoya" "inga" "iris" "rosa"];
+    # Machines running the Smallstep ACME server.
+    # Only machines with TPM 1.2 hardware can be added here.
+    # Currently only a single instance until the backing database is upgraded.
+    acme = [
+      "acer"
+    ];
+    # Machines running the Lego ACME client.
+    # Only machines with no TPM hardware should be added here.
+    # Machines with TPM hardware will already provision a certificate using the local intermediate CA.
+    acme_client = [
+      "rosa"
+      "sida"
+    ];
+    # Machines currently being bootstrapped into the "acme_client" tag.
+    # The workflow is: add to acme_client_bootstrap, deploy, add to acme_client, provision, deploy.
+    acme_client_bootstrap = [
+    ];
+    # Laptops that require special config to keep them awake when the lid is closed.
+    laptop = [
+      "acer"
+      "rosa"
+      "sida"
+    ];
+    # Machines with TPM 1.2 hardware (now considered legacy).
+    # These will have an intermediate CA and can issue short-lived leaf certificates.
+    tpm12 = [
+      "acer"
+      "hoya"
+      "inga"
+      "iris"
+    ];
+    # Machines currently being bootstrapped into the "tpm12" tag.
+    # The worklfow is: add to tpm12_bootstrap, deploy, configure, add to cpm_bootstrap, provision, deploy.
+    tpm12_bootstrap = [
+    ];
+    # Machines with a hardware watchdog device.
+    # Systemd will be configured on these devices to pet the watchdog.
+    watchdog = [
+      "acer"
+      "hoya"
+      "inga"
+      "iris"
+      "rosa"
+    ];
   };
 
   # Machines that are on the internal network.
   # These should eventually be moved to the external network after initial setup.
-  internal = [];
+  internal = [
+  ];
 
   ip4 = x: y: "192.168.${toString x}.${toString y}";
 
