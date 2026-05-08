@@ -1,5 +1,5 @@
 {
-  inputs.acme-eab.url = "github:attilaolah/acme-eab/acme-eab-add";
+  inputs.acme-eab.url = "github:attilaolah/acme-eab/d8a9724c08fb38ce58181a3b54b405c0047102b2";
   inputs.acme-eab.inputs.nixpkgs.follows = "nixpkgs";
   inputs.clan-core.url = "https://git.clan.lol/clan/clan-core/archive/main.tar.gz";
   inputs.nixpkgs.follows = "clan-core/nixpkgs";
