@@ -29,6 +29,7 @@ in {
     module-path = modulePath;
   };
   key = uri {
-    inherit id object;
+    inherit object;
+    id = uriId;
   };
 }
