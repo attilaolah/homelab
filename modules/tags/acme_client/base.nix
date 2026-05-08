@@ -7,12 +7,14 @@
 }: let
   inherit (config.networking) domain hostName;
 
-  acme = import ../tpm12/acme_common.nix;
+  acme = import ../acme_common.nix;
   machineData = import (inputs.self + /inventory/data.nix);
 
   account = "root@${commonName}";
-  accountServer = "0.acme.${domain}_${toString acme.port}";
-  acmeUrl = "https://0.acme.${domain}:${toString acme.port}/acme/internal/directory";
+  acmeHost = builtins.head (builtins.sort builtins.lessThan (builtins.attrNames config.homelab.acme.hosts));
+  acmeFqdn = "${acmeHost}.${domain}";
+  accountServer = "${acmeFqdn}_${toString acme.port}";
+  acmeUrl = "https://${acmeFqdn}:${toString acme.port}/acme/internal/directory";
   bootstrapEab = "${state}/bootstrap-eab";
   commonName = "${hostName}.${domain}";
   state = "/run/pki/acme";

@@ -5,8 +5,9 @@
 }: final: _prev: let
   inherit (final.stdenv.hostPlatform) system;
 
-  acme = import ../modules/tags/tpm12/acme_common.nix;
-  acmeFqdn = "0.acme.${domain}";
+  acme = import ../modules/tags/acme_common.nix;
+  acmeHost = builtins.head (builtins.sort builtins.lessThan machineData.tags.acme);
+  acmeFqdn = "${acmeHost}.acme.${domain}";
   acmeMachines = final.lib.escapeShellArgs machineData.tags.acme;
   acmePath = "/run/pki/acme";
 in {

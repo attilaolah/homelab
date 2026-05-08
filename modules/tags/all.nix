@@ -13,7 +13,7 @@
   machineData = import (inputs.self + /inventory/data.nix);
   acmeHosts =
     builtins.listToAttrs
-    (lib.imap0 (index: machine: lib.nameValuePair "${toString index}.acme" machine) machineData.tags.acme);
+    (map (machine: lib.nameValuePair "${machine}.acme" machine) machineData.tags.acme);
   lanHosts =
     lib.mapAttrs'
     (name: machine: lib.nameValuePair machine.ip [(fqdn name)])

@@ -7,7 +7,7 @@
 }: let
   inherit (pkgs.stdenv.hostPlatform) system;
 
-  acme = import ./tpm12/acme_common.nix;
+  acme = import ./acme_common.nix;
   machineData = import (inputs.self + /inventory/data.nix);
   common = import ./tpm12/common.nix {inherit config lib pkgs;};
 
