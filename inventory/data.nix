@@ -28,8 +28,12 @@ let
     # Only machines with no TPM hardware should be added here.
     # Machines with TPM hardware will already provision a certificate using the local intermediate CA.
     acme_client = [
+      "aloe"
+      "aria"
+      "ilex"
       "rosa"
       "sida"
+      "unio"
     ];
     # Machines currently being bootstrapped into the "acme_client" tag.
     # The workflow is: add to acme_client_bootstrap, deploy, add to acme_client, provision, deploy.
