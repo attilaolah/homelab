@@ -38,7 +38,11 @@ in {
       account_secret_backup="${acmePath}/previous-acme-account"
       bootstrap_eab="${acmePath}/bootstrap-eab"
       provisioned=0
+      acme_touched=()
       cleanup_bootstrap_eab() {
+        for acme_machine in "''${acme_touched[@]}"; do
+          clan ssh "$acme_machine" -c systemctl start step-ca-acme.service || true
+        done
         clan ssh "$machine" -c sh -c "rm -f ''${bootstrap_eab}/kid ''${bootstrap_eab}/hmac-key; rmdir ''${bootstrap_eab} 2>/dev/null || true" || true
         if [[ "$provisioned" -eq 0 ]]; then
           clan ssh "$machine" -c sh -c "if [ ! -e '$account_secret_dir' ] && [ -e '$account_secret_backup' ]; then mv '$account_secret_backup' '$account_secret_dir'; fi" || true
@@ -70,6 +74,7 @@ in {
       clan ssh "$machine" -c true
 
       for acme_machine in "''${acme_machines[@]}"; do
+        acme_touched+=("$acme_machine")
         clan ssh "$acme_machine" -c systemctl stop step-ca-acme.service
         if ! clan ssh "$acme_machine" -c acme-eab add \
           --db ${acme.stepPath}/db \
