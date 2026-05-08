@@ -19,7 +19,7 @@ let
   # Additional tags per machine.
   tags = {
     acme = ["acer"];
-    acme_client = ["rosa"];
+    acme_client = ["rosa" "sida"];
     acme_client_bootstrap = [];
     laptop = ["acer" "rosa" "sida"];
     tpm12 = ["acer" "hoya" "inga" "iris"];
