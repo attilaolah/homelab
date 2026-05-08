@@ -10,8 +10,8 @@
   acmeMachines = final.lib.escapeShellArgs machineData.tags.acme;
   acmePath = "/run/pki/acme";
 in {
-  acme-eab-add = final.writeShellApplication {
-    name = "acme-eab-add";
+  acme-provision = final.writeShellApplication {
+    name = "acme-provision";
     runtimeInputs = [
       clan-core.packages.${system}.clan-cli
       final.coreutils
@@ -22,7 +22,7 @@ in {
       set -euo pipefail
 
       if [[ $# -ne 1 ]]; then
-        echo "usage: acme-eab-add <machine>" >&2
+        echo "usage: acme-provision <machine>" >&2
         exit 2
       fi
 
@@ -70,10 +70,10 @@ in {
 
       for acme_machine in "''${acme_machines[@]}"; do
         clan ssh "$acme_machine" -c systemctl stop step-ca-acme.service
-        if ! clan ssh "$acme_machine" -c acme-eab-add \
+        if ! clan ssh "$acme_machine" -c acme-eab add \
           --db ${acme.stepPath}/db \
           --kid "$kid" \
-          --hmac-key "$hmac_key" \
+          --key "$hmac_key" \
           --reference "$machine" \
           --replace; then
           clan ssh "$acme_machine" -c systemctl start step-ca-acme.service

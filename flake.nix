@@ -1,5 +1,5 @@
 {
-  inputs.acme-eab.url = "github:attilaolah/acme-eab/d8a9724c08fb38ce58181a3b54b405c0047102b2";
+  inputs.acme-eab.url = "github:attilaolah/acme-eab/e6df468";
   inputs.acme-eab.inputs.nixpkgs.follows = "nixpkgs";
   inputs.clan-core.url = "https://git.clan.lol/clan/clan-core/archive/main.tar.gz";
   inputs.nixpkgs.follows = "clan-core/nixpkgs";
@@ -20,7 +20,7 @@
     ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
     overlays = [
-      (import ./overlays/acme_eab_add.nix {inherit clan-core domain machineData;})
+      (import ./overlays/acme_provision.nix {inherit clan-core domain machineData;})
       (import ./overlays/tpm_tls_sign.nix {inherit clan-core intermediateCaExt;})
     ];
     homelabOverlay = nixpkgs.lib.composeManyExtensions overlays;
@@ -54,7 +54,7 @@
       (system: let
         pkgs = pkgsForSystem system;
       in {
-        inherit (pkgs) acme-eab-add tpm-tls-sign;
+        inherit (pkgs) acme-provision tpm-tls-sign;
       });
     # Add the Clan cli tool to the dev shell.
     # Use "nix develop" to enter the dev shell.
@@ -66,7 +66,7 @@
         default = pkgs.mkShell {
           packages = [
             clan-core.packages.${system}.clan-cli
-            pkgs.acme-eab-add
+            pkgs.acme-provision
             pkgs.tpm-tls-sign
           ];
         };

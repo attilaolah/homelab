@@ -7,17 +7,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1778188523,
-        "narHash": "sha256-GpKQb1SpyU9yN1lFWPiHP+3pw/N/dyD0UDIz4D5f0SU=",
+        "lastModified": 1778223049,
+        "narHash": "sha256-2+xNPK4bc7KKpZ5ZVR8bQcoDOwv6GYDp3b9pDimpbz8=",
         "owner": "attilaolah",
         "repo": "acme-eab",
-        "rev": "d8a9724c08fb38ce58181a3b54b405c0047102b2",
+        "rev": "e6df46814ecd3a9929c74870169cedb7f2734e72",
         "type": "github"
       },
       "original": {
         "owner": "attilaolah",
+        "ref": "e6df468",
         "repo": "acme-eab",
-        "rev": "d8a9724c08fb38ce58181a3b54b405c0047102b2",
         "type": "github"
       }
     },

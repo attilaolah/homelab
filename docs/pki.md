@@ -118,7 +118,7 @@ clan ssh "$machine" -c nix shell nixpkgs#openssl -c openssl x509 -in /run/pki/tl
 
 The leaf certificate is valid for 8 days. The timer refreshes every 2 days with jitter, leaving time for manual repair if renewal fails.
 
-## Provision ACME Client
+## Provision ACME EAB Client
 
 Non-TPM machines use ACME. EAB credentials are only bootstrap material. The durable client credential is the ACME account state stored as Clan secrets:
 
@@ -133,16 +133,16 @@ The order matters because Clan initialises missing deployable vars during unrela
 
 1. If the ACME server config changed, update the ACME servers first.
 2. Add the new client to `acme_client_bootstrap` and deploy it. This installs `issue-tls-certificate.service` without declaring `acme-account/*` secrets.
-3. The service is installed but not enabled in bootstrap mode. It stays idle until `acme-eab-add` injects temporary EAB credentials and starts it.
+3. The service is installed but not enabled in bootstrap mode. It stays idle until `acme-provision` injects temporary EAB credentials and starts it.
 4. Move the client from `acme_client_bootstrap` to `acme_client` locally, but do not deploy yet. This makes Clan know about `acme-account/*` without pushing empty placeholders to the machine.
 5. Run the provisioning helper:
 
 ```sh
 machine=todo
-acme-eab-add "$machine"
+acme-provision "$machine"
 ```
 
-`acme-eab-add` writes or replaces the client's EAB entry on all ACME servers, copies the EAB credential into `/run/pki/acme/bootstrap-eab` on the client, starts `issue-tls-certificate.service`, captures Lego's generated account state, stores it as `acme-account/*`, removes the temporary EAB files, and runs `clan vars fix "$machine"`.
+`acme-provision` writes or replaces the client's EAB entry on all ACME servers, copies the EAB credential into `/run/pki/acme/bootstrap-eab` on the client, starts `issue-tls-certificate.service`, captures Lego's generated account state, stores it as `acme-account/*`, removes the temporary EAB files, and runs `clan vars fix "$machine"`.
 
 6. Deploy the client again so the account state is managed by Clan.
 
