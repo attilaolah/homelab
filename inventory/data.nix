@@ -54,7 +54,7 @@ let
       "iris"
     ];
     # Machines currently being bootstrapped into the "tpm12" tag.
-    # The worklfow is: add to tpm12_bootstrap, deploy, configure, add to cpm_bootstrap, provision, deploy.
+    # The workflow is: add to tpm12_bootstrap, deploy, configure, add to tpm12, provision, deploy.
     tpm12_bootstrap = [
     ];
     # Machines with a hardware watchdog device.
