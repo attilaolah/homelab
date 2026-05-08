@@ -304,7 +304,7 @@
         "fpu_exception": false,
         "cpuid_level": 22,
         "write_protect": false,
-        "tlb_size": 32710,
+        "tlb_size": 32540,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -504,7 +504,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 xhci-hcd",
+          "name": "Linux 6.18.22 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -518,7 +518,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.21 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.22 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -591,7 +591,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 xhci-hcd",
+          "name": "Linux 6.18.22 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -605,7 +605,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.21 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.22 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "detail": {
@@ -758,28 +758,6 @@
     "network_interface": [
       {
         "index": 24,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
-        ]
-      },
-      {
-        "index": 25,
         "attached_to": 16,
         "class_list": [
           "network_interface"
@@ -817,6 +795,28 @@
         ],
         "driver_modules": [
           "e1000e"
+        ]
+      },
+      {
+        "index": 25,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
         ]
       }
     ],

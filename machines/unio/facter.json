@@ -1025,7 +1025,7 @@
         "power_management": [
           ""
         ],
-        "bogo": 1995,
+        "bogo": 1994,
         "cache": 2048,
         "page_size": 4096,
         "physical_id": 0,
@@ -1035,7 +1035,6 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32715,
         "clflush_size": 64,
         "cache_alignment": 128,
         "address_sizes": {
@@ -1212,7 +1211,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 uhci_hcd",
+          "name": "Linux 6.18.22 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1226,7 +1225,7 @@
           "value": 0
         },
         "serial": "0000:00:10.1",
-        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.22 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:10.1/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
@@ -1299,7 +1298,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 uhci_hcd",
+          "name": "Linux 6.18.22 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1313,7 +1312,7 @@
           "value": 0
         },
         "serial": "0000:00:10.2",
-        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.22 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:10.2/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "resources": [
@@ -1386,7 +1385,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 ehci_hcd",
+          "name": "Linux 6.18.22 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1400,7 +1399,7 @@
           "value": 0
         },
         "serial": "0000:00:10.4",
-        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
+        "model": "Linux 6.18.22 ehci_hcd EHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:10.4/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -1473,7 +1472,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 uhci_hcd",
+          "name": "Linux 6.18.22 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1487,7 +1486,7 @@
           "value": 0
         },
         "serial": "0000:00:10.0",
-        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.22 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:10.0/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [

@@ -507,7 +507,7 @@
     "camera": [
       {
         "index": 31,
-        "attached_to": 36,
+        "attached_to": 33,
         "class_list": [
           "camera",
           "usb"
@@ -543,110 +543,8 @@
         },
         "serial": "SN0001",
         "model": "Chicony Electronics CNF8243",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb2/2-5/2-5:1.0",
-        "sysfs_bus_id": "2-5:1.0",
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 480000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          }
-        ],
-        "detail": {
-          "device_class": {
-            "hex": "00ef",
-            "name": "miscellaneous",
-            "value": 239
-          },
-          "device_subclass": {
-            "hex": "0002",
-            "name": "comm",
-            "value": 2
-          },
-          "device_protocol": 1,
-          "interface_class": {
-            "hex": "000e",
-            "name": "video",
-            "value": 14
-          },
-          "interface_subclass": {
-            "hex": "0001",
-            "name": "audio",
-            "value": 1
-          },
-          "interface_protocol": 0,
-          "interface_number": 0,
-          "interface_alternate_setting": 0,
-          "interface_association": {
-            "function_class": {
-              "hex": "000e",
-              "name": "video",
-              "value": 14
-            },
-            "function_subclass": {
-              "hex": "0003",
-              "name": "hid",
-              "value": 3
-            },
-            "function_protocol": 0,
-            "interface_count": 2,
-            "first_interface": 0
-          }
-        },
-        "hotplug": "usb",
-        "driver": "uvcvideo",
-        "driver_module": "uvcvideo",
-        "drivers": [
-          "uvcvideo"
-        ],
-        "driver_modules": [
-          "uvcvideo"
-        ],
-        "module_alias": "usb:v04F2pB159d8534dcEFdsc02dp01ic0Eisc01ip00in00"
-      },
-      {
-        "index": 34,
-        "attached_to": 36,
-        "class_list": [
-          "camera",
-          "usb"
-        ],
-        "bus_type": {
-          "hex": "0086",
-          "name": "USB",
-          "value": 134
-        },
-        "slot": {
-          "bus": 0,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "010f",
-          "name": "Camera",
-          "value": 271
-        },
-        "vendor": {
-          "hex": "04f2",
-          "name": "Chicony Electronics Co., Ltd.",
-          "value": 1266
-        },
-        "device": {
-          "hex": "b159",
-          "name": "CNF8243",
-          "value": 45401
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "85.34",
-          "value": 0
-        },
-        "serial": "SN0001",
-        "model": "Chicony Electronics CNF8243",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb2/2-5/2-5:1.1",
-        "sysfs_bus_id": "2-5:1.1",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-5/1-5:1.1",
+        "sysfs_bus_id": "1-5:1.1",
         "resources": [
           {
             "type": "baud",
@@ -708,6 +606,108 @@
           "uvcvideo"
         ],
         "module_alias": "usb:v04F2pB159d8534dcEFdsc02dp01ic0Eisc02ip00in01"
+      },
+      {
+        "index": 36,
+        "attached_to": 33,
+        "class_list": [
+          "camera",
+          "usb"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "010f",
+          "name": "Camera",
+          "value": 271
+        },
+        "vendor": {
+          "hex": "04f2",
+          "name": "Chicony Electronics Co., Ltd.",
+          "value": 1266
+        },
+        "device": {
+          "hex": "b159",
+          "name": "CNF8243",
+          "value": 45401
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "85.34",
+          "value": 0
+        },
+        "serial": "SN0001",
+        "model": "Chicony Electronics CNF8243",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-5/1-5:1.0",
+        "sysfs_bus_id": "1-5:1.0",
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 480000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "00ef",
+            "name": "miscellaneous",
+            "value": 239
+          },
+          "device_subclass": {
+            "hex": "0002",
+            "name": "comm",
+            "value": 2
+          },
+          "device_protocol": 1,
+          "interface_class": {
+            "hex": "000e",
+            "name": "video",
+            "value": 14
+          },
+          "interface_subclass": {
+            "hex": "0001",
+            "name": "audio",
+            "value": 1
+          },
+          "interface_protocol": 0,
+          "interface_number": 0,
+          "interface_alternate_setting": 0,
+          "interface_association": {
+            "function_class": {
+              "hex": "000e",
+              "name": "video",
+              "value": 14
+            },
+            "function_subclass": {
+              "hex": "0003",
+              "name": "hid",
+              "value": 3
+            },
+            "function_protocol": 0,
+            "interface_count": 2,
+            "first_interface": 0
+          }
+        },
+        "hotplug": "usb",
+        "driver": "uvcvideo",
+        "driver_module": "uvcvideo",
+        "drivers": [
+          "uvcvideo"
+        ],
+        "driver_modules": [
+          "uvcvideo"
+        ],
+        "module_alias": "usb:v04F2pB159d8534dcEFdsc02dp01ic0Eisc01ip00in00"
       }
     ],
     "cdrom": [
@@ -725,7 +725,7 @@
           "value": 132
         },
         "slot": {
-          "bus": 2,
+          "bus": 4,
           "number": 0
         },
         "base_class": {
@@ -760,8 +760,8 @@
         },
         "model": "TSSTcorp CDDVDW TS-L633M",
         "sysfs_id": "/class/block/sr0",
-        "sysfs_bus_id": "2:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata3/host2/target2:0:0/2:0:0:0",
+        "sysfs_bus_id": "4:0:0:0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata5/host4/target4:0:0/4:0:0:0",
         "unix_device_names": [
           "/dev/cdrom",
           "/dev/disk/by-id/ata-TSSTcorp_CDDVDW_TS-L633M",
@@ -858,7 +858,7 @@
         "power_management": [
           ""
         ],
-        "bogo": 3990,
+        "bogo": 3989,
         "cache": 2048,
         "units": 2,
         "page_size": 4096,
@@ -869,7 +869,6 @@
         "fpu_exception": false,
         "cpuid_level": 10,
         "write_protect": false,
-        "tlb_size": 32673,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -893,7 +892,7 @@
           "value": 133
         },
         "slot": {
-          "bus": 0,
+          "bus": 2,
           "number": 0
         },
         "base_class": {
@@ -924,8 +923,8 @@
         "serial": "WD-WXF0A5931095",
         "model": "WDC WD3200BEVT-6",
         "sysfs_id": "/class/block/sda",
-        "sysfs_bus_id": "0:0:0:0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata1/host0/target0:0:0/0:0:0:0",
+        "sysfs_bus_id": "2:0:0:0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1f.2/ata3/host2/target2:0:0/2:0:0:0",
         "unix_device_names": [
           "/dev/disk/by-id/ata-WDC_WD3200BEVT-60ZCT1_WD-WXF0A5931095",
           "/dev/disk/by-id/wwn-0x50014ee2ad9a829e",
@@ -1149,7 +1148,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 uhci_hcd",
+          "name": "Linux 6.18.22 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1163,7 +1162,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.2",
-        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.22 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.2/usb6/6-0:1.0",
         "sysfs_bus_id": "6-0:1.0",
         "resources": [
@@ -1236,7 +1235,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 uhci_hcd",
+          "name": "Linux 6.18.22 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1250,7 +1249,7 @@
           "value": 0
         },
         "serial": "0000:00:1a.0",
-        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.22 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1a.0/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
@@ -1323,7 +1322,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 uhci_hcd",
+          "name": "Linux 6.18.22 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1337,7 +1336,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.0",
-        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.22 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.0/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "resources": [
@@ -1389,7 +1388,7 @@
       },
       {
         "index": 33,
-        "attached_to": 22,
+        "attached_to": 25,
         "class_list": [
           "usb",
           "hub"
@@ -1410,7 +1409,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 ehci_hcd",
+          "name": "Linux 6.18.22 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1423,9 +1422,9 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:1a.7",
-        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1a.7/usb1/1-0:1.0",
+        "serial": "0000:00:1d.7",
+        "model": "Linux 6.18.22 ehci_hcd EHCI Host Controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
           {
@@ -1475,7 +1474,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 35,
+        "index": 34,
         "attached_to": 9,
         "class_list": [
           "usb",
@@ -1497,7 +1496,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 uhci_hcd",
+          "name": "Linux 6.18.22 uhci_hcd",
           "value": 7531
         },
         "device": {
@@ -1511,7 +1510,7 @@
           "value": 0
         },
         "serial": "0000:00:1d.1",
-        "model": "Linux 6.18.21 uhci_hcd UHCI Host Controller",
+        "model": "Linux 6.18.22 uhci_hcd UHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:1d.1/usb5/5-0:1.0",
         "sysfs_bus_id": "5-0:1.0",
         "resources": [
@@ -1562,8 +1561,8 @@
         "module_alias": "usb:v1D6Bp0001d0618dc09dsc00dp00ic09isc00ip00in00"
       },
       {
-        "index": 36,
-        "attached_to": 25,
+        "index": 35,
+        "attached_to": 22,
         "class_list": [
           "usb",
           "hub"
@@ -1584,7 +1583,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.21 ehci_hcd",
+          "name": "Linux 6.18.22 ehci_hcd",
           "value": 7531
         },
         "device": {
@@ -1597,9 +1596,9 @@
           "name": "6.18",
           "value": 0
         },
-        "serial": "0000:00:1d.7",
-        "model": "Linux 6.18.21 ehci_hcd EHCI Host Controller",
-        "sysfs_id": "/devices/pci0000:00/0000:00:1d.7/usb2/2-0:1.0",
+        "serial": "0000:00:1a.7",
+        "model": "Linux 6.18.22 ehci_hcd EHCI Host Controller",
+        "sysfs_id": "/devices/pci0000:00/0000:00:1a.7/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "resources": [
           {
