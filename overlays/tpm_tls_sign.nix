@@ -9,6 +9,7 @@ in {
     runtimeInputs = [
       clan-core.packages.${system}.clan-cli
       final.coreutils
+      final.gitMinimal
       final.openssl
     ];
     text = ''
@@ -27,6 +28,13 @@ in {
       key="$work/ca.key"
       serial="$work/ca.srl"
 
+      repo="''${CLAN_DIR:-$(git rev-parse --show-toplevel)}"
+      root_crt="$repo/vars/shared/tls-ca/ca.crt/value"
+      if [[ ! -s "$root_crt" ]]; then
+        echo "missing root CA certificate: $root_crt" >&2
+        exit 1
+      fi
+
       cleanup() {
         rm -f "$root_key"
       }
@@ -43,7 +51,7 @@ in {
       openssl x509 \
         -req \
         -in "$csr" \
-        -CA vars/shared/tls-ca/ca.crt/value \
+        -CA "$root_crt" \
         -CAkey "$root_key" \
         -CAserial "$serial" \
         -CAcreateserial \
@@ -52,7 +60,7 @@ in {
         -sha256 \
         -extfile ${intermediateCaExt}
 
-      openssl verify -CAfile vars/shared/tls-ca/ca.crt/value "$crt"
+      openssl verify -CAfile "$root_crt" "$crt"
 
       clan vars set "$machine" tpm/ca.key < "$key"
       clan vars set "$machine" tpm/ca.crt < "$crt"
