@@ -96,7 +96,12 @@ in {
           set -euo pipefail
 
           if mountpoint -q ${dbPath}; then
-            exit 0
+            mounted_source="$(findmnt -n -T ${dbPath} -o SOURCE || true)"
+            if [[ "$mounted_source" == "${dbCryptPath}" ]]; then
+              exit 0
+            fi
+            echo "unexpected mount at ${dbPath}: $mounted_source" >&2
+            exit 1
           fi
 
           if [[ ! -s ${dbKeySealed} ]]; then
