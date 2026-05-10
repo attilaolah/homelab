@@ -122,7 +122,10 @@ in {
     system.disableInstallerTools = true;
     environment.defaultPackages = lib.mkForce [];
 
-    # D-Bus defaults to X11 autolaunch support.
-    services.dbus.dbusPackage = pkgs.dbus.override {x11Support = false;};
+    services = {
+      # D-Bus defaults to X11 autolaunch support.
+      dbus.dbusPackage = pkgs.dbus.override {x11Support = false;};
+      openssh.startWhenNeeded = true;
+    };
   };
 }
