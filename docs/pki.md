@@ -149,3 +149,28 @@ acme-provision "$machine"
 6. Deploy the client again so the account state is managed by Clan.
 
 The account state is tied to the ACME server database. If the ACME database is rebuilt from scratch, re-run provisioning for each ACME client.
+
+## Encrypt ACME Server DB (TPM + gocryptfs)
+
+ACME servers mount the Step CA database path `/var/lib/step-ca/db` through `gocryptfs`. The encrypted backing directory is `/var/lib/step-ca/db.crypt`.
+
+The `gocryptfs` passphrase is sealed by the server TPM and stored as the deployable Clan secret:
+
+```text
+acme-db/key.sealed
+```
+
+For new ACME servers, use this order:
+
+1. Add the machine to `tpm12` and deploy it.
+2. Add the machine to `acme`, but do not deploy yet.
+3. Generate and store the sealed DB key from this repo:
+
+```sh
+machine=todo
+acme-db-seal "$machine"
+```
+
+4. Deploy the machine. This installs and starts both `step-ca-db-mount.service` and `step-ca-acme.service`.
+
+Without a sealed key, or if TPM unsealing fails, `step-ca-acme.service` does not start.

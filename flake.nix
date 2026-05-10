@@ -20,6 +20,7 @@
     ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
     overlays = [
+      (import ./overlays/acme_db_seal.nix {inherit clan-core;})
       (import ./overlays/acme_provision.nix {inherit clan-core domain machineData;})
       (import ./overlays/tpm_tls_sign.nix {inherit clan-core intermediateCaExt;})
     ];
@@ -54,7 +55,7 @@
       (system: let
         pkgs = pkgsForSystem system;
       in {
-        inherit (pkgs) acme-provision tpm-tls-sign;
+        inherit (pkgs) acme-db-seal acme-provision tpm-tls-sign;
       });
     # Add the Clan cli tool to the dev shell.
     # Use "nix develop" to enter the dev shell.
@@ -66,6 +67,7 @@
         default = pkgs.mkShell {
           packages = [
             clan-core.packages.${system}.clan-cli
+            pkgs.acme-db-seal
             pkgs.acme-provision
             pkgs.tpm-tls-sign
           ];
