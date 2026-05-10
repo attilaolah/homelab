@@ -168,9 +168,20 @@ in {
         description = "Socket-activated proxy to Step CA ACME backend";
         wants = after;
         requires = after;
+        path = with pkgs; [coreutils netcat-openbsd];
 
         serviceConfig = {
           Type = "notify";
+          ExecStartPre = "${pkgs.bash}/bin/bash -euo pipefail -c ${lib.escapeShellArg ''
+            deadline=$((SECONDS + 30))
+            while ! nc -z 127.0.0.1 ${toString (acme.port + 1)}; do
+              if (( SECONDS >= deadline )); then
+                echo "step-ca backend did not become ready on ${backendAddress}" >&2
+                exit 1
+              fi
+              sleep 0.2
+            done
+          ''}";
           ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd --exit-idle-time=2min ${backendAddress}";
         };
       };
