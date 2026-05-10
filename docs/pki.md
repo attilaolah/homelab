@@ -180,5 +180,3 @@ test "$(clan vars get "$machine" acme-db/key.sealed | wc -c)" -gt 0
 If this check fails, re-run `acme-db-seal "$machine"` and check again.
 
 4. Deploy the machine. This installs socket activation (`step-ca-proxy.socket`) and on-demand ACME services.
-
-Without a sealed key, or if TPM unsealing fails, `step-ca-acme.service` does not start.
