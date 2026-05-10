@@ -13,6 +13,7 @@
   dbPath = "${acme.stepPath}/db";
   dbCryptPath = "${acme.stepPath}/db.crypt";
   dbKeySealed = config.clan.core.vars.generators.acme-db.files."key.sealed".path;
+  backendAddress = "127.0.0.1:${toString (acme.port + 1)}";
 
   acmeFqdns = map (name: "${name}.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
   acmeClients = lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags.acme_client_bootstrap or []));
@@ -28,7 +29,7 @@
     root = config.clan.core.vars.generators.tls-ca.files."ca.crt".path;
     crt = "${common.tpm}/${common.crt}";
     key = common.pkcs11.key;
-    address = ":${toString acme.port}";
+    address = backendAddress;
     dnsNames = acmeFqdns;
     logger.format = "text";
     db = {
@@ -77,9 +78,9 @@ in {
         inherit after;
         description = "Mount encrypted Step CA Badger DB";
         wants = after;
-        wantedBy = ["multi-user.target"];
         before = ["step-ca-acme.service"];
         path = with pkgs; [coreutils findutils gocryptfs tpm-tools util-linux];
+        unitConfig.StopWhenUnneeded = true;
 
         serviceConfig = {
           Type = "oneshot";
@@ -138,8 +139,8 @@ in {
         description = "Step CA ACME service";
         wants = after;
         requires = ["step-ca-db-mount.service"];
-        wantedBy = ["multi-user.target"];
         path = with pkgs; [step-ca step-cli step-kms-plugin];
+        unitConfig.StopWhenUnneeded = true;
 
         environment = {
           HOME = common.tpm;
@@ -156,6 +157,30 @@ in {
           RestartSec = "10s";
         };
       };
+
+      step-ca-proxy = let
+        after = [
+          "step-ca-acme.service"
+          "step-ca-proxy.socket"
+        ];
+      in {
+        inherit after;
+        description = "Socket-activated proxy to Step CA ACME backend";
+        wants = after;
+        requires = after;
+
+        serviceConfig = {
+          Type = "notify";
+          ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd --exit-idle-time=2min ${backendAddress}";
+        };
+      };
+    };
+
+    sockets.step-ca-proxy = {
+      description = "Socket activation for Step CA ACME endpoint";
+      wantedBy = ["sockets.target"];
+      listenStreams = [(toString acme.port)];
+      socketConfig.Accept = false;
     };
   };
 
