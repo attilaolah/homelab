@@ -132,7 +132,10 @@ in {
         description = "Step CA ACME service";
         wants = after;
         path = with pkgs; [step-ca step-cli step-kms-plugin];
-        unitConfig.StopWhenUnneeded = true;
+        unitConfig = {
+          StopWhenUnneeded = true;
+          RequiresMountsFor = [dbPath];
+        };
 
         environment = {
           HOME = common.tpm;
@@ -144,7 +147,6 @@ in {
           Type = "simple";
           StateDirectory = "step-ca";
           StateDirectoryMode = "0700";
-          RequiresMountsFor = [dbPath];
           ExecStart = "${lib.getExe pkgs.step-ca} ${caConfig}";
           Restart = "on-failure";
           RestartSec = "10s";
@@ -197,7 +199,6 @@ in {
         unitConfig = {
           Requires = ["step-ca-db-prepare.service"];
           After = ["step-ca-db-prepare.service"];
-          StopWhenUnneeded = true;
         };
       }
     ];
