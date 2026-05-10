@@ -53,11 +53,9 @@
     };
   };
 in {
-  clan.core.vars.generators.acme-db = {
-    files."key.sealed" = {
-      secret = true;
-      deploy = true;
-    };
+  clan.core.vars.generators.acme-db.files."key.sealed" = {
+    secret = true;
+    deploy = true;
   };
 
   networking.firewall.extraCommands = acmeFirewallRules;
