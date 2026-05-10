@@ -9,6 +9,8 @@
 in {
   imports = [./base.nix];
 
+  environment.systemPackages = [pkgs.tpm-tools];
+
   clan.core.vars.generators = {
     tpm = {
       files = {
@@ -32,7 +34,10 @@ in {
     ];
 
     services.issue-tls-certificate = let
-      after = ["tcsd.service" "systemd-tmpfiles-setup.service"];
+      after = [
+        "tcsd.service"
+        "systemd-tmpfiles-setup.service"
+      ];
     in {
       inherit after;
       description = "Issue short-lived TLS certificate from TPM CA";

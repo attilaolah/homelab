@@ -52,7 +52,10 @@ in {
         ];
 
         services.issue-tls-certificate = let
-          after = ["network-online.target" "systemd-tmpfiles-setup.service"];
+          after = [
+            "network-online.target"
+            "systemd-tmpfiles-setup.service"
+          ];
         in {
           inherit after;
           description = "Issue short-lived TLS certificate from ACME";
