@@ -26,7 +26,7 @@ in {
       trap cleanup EXIT
 
       # shellcheck disable=SC2016
-      clan ssh "$machine" -c sh -c '
+      clan ssh "$machine" -c bash -c '
         set -euo pipefail
         tmp="$(mktemp -d /run/pki/acme-db-seal.XXXXXX)"
         cleanup_remote() {
