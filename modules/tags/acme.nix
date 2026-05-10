@@ -58,9 +58,6 @@ in {
       secret = true;
       deploy = true;
     };
-    script = ''
-      printf 'placeholder\n' > "$out/key.sealed"
-    '';
   };
 
   networking.firewall.extraCommands = acmeFirewallRules;
