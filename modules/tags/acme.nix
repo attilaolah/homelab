@@ -194,7 +194,7 @@ in {
         what = dbCryptPath;
         where = dbPath;
         type = "fuse.gocryptfs";
-        options = "extpass=${lib.getExe dbExtpass}";
+        options = "extpass=${lib.getExe dbExtpass},nosyslog";
         startLimitBurst = 3;
         unitConfig = {
           Requires = ["step-ca-db-prepare.service"];
