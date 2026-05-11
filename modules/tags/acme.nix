@@ -25,14 +25,7 @@
         exit 1
       fi
 
-      key="$(mktemp /run/step-ca-db-key.XXXXXX)"
-      cleanup() {
-        rm -f "$key"
-      }
-      trap cleanup EXIT
-
-      tpm_unsealdata -z -i ${dbKeySealed} -o "$key"
-      cat "$key"
+      exec tpm_unsealdata -z -i ${dbKeySealed}
     '';
   };
 
