@@ -92,8 +92,6 @@ in {
         inherit after;
         description = "Prepare encrypted Step CA Badger DB";
         wants = after;
-        before = ["var-lib-step\\x2dca-db.mount"];
-        path = with pkgs; [gocryptfs];
         unitConfig.StopWhenUnneeded = true;
 
         serviceConfig = {
@@ -156,7 +154,6 @@ in {
         description = "Socket-activated proxy to Step CA ACME backend";
         wants = after;
         requires = after;
-        path = with pkgs; [coreutils netcat-openbsd];
 
         serviceConfig = {
           Type = "notify";
