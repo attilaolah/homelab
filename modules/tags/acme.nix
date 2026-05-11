@@ -11,8 +11,23 @@
   machineData = import (inputs.self + /inventory/data.nix);
   common = import ./tpm12/common.nix {inherit config lib pkgs;};
   dbPath = "${acme.stepPath}/db";
-  dbCryptPath = "${acme.stepPath}/db.crypt";
+  dbCryptPath = "${dbPath}.crypt";
   dbKeySealed = config.clan.core.vars.generators.acme-db.files."key.sealed".path;
+  backendAddress = "127.0.0.1:${toString (acme.port + 1)}";
+  dbExtpass = pkgs.writeShellApplication {
+    name = "step-ca-db-extpass";
+    runtimeInputs = with pkgs; [coreutils tpm-tools];
+    text = ''
+      set -euo pipefail
+
+      if [[ ! -s ${dbKeySealed} ]]; then
+        echo "sealed DB key is missing (${dbKeySealed})" >&2
+        exit 1
+      fi
+
+      exec tpm_unsealdata -z -i ${dbKeySealed}
+    '';
+  };
 
   acmeFqdns = map (name: "${name}.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
   acmeClients = lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags.acme_client_bootstrap or []));
@@ -28,12 +43,12 @@
     root = config.clan.core.vars.generators.tls-ca.files."ca.crt".path;
     crt = "${common.tpm}/${common.crt}";
     key = common.pkcs11.key;
-    address = ":${toString acme.port}";
+    address = backendAddress;
     dnsNames = acmeFqdns;
     logger.format = "text";
     db = {
       type = "badgerv2";
-      dataSource = "${acme.stepPath}/db";
+      dataSource = "${dbPath}";
     };
     authority.provisioners = [
       {
@@ -68,61 +83,32 @@ in {
     ];
 
     services = {
-      step-ca-db-mount = let
+      step-ca-db-prepare = let
         after = [
           "tcsd.service"
           "systemd-tmpfiles-setup.service"
         ];
       in {
         inherit after;
-        description = "Mount encrypted Step CA Badger DB";
+        description = "Prepare encrypted Step CA Badger DB";
         wants = after;
-        wantedBy = ["multi-user.target"];
-        before = ["step-ca-acme.service"];
-        path = with pkgs; [coreutils findutils gocryptfs tpm-tools util-linux];
+        unitConfig.StopWhenUnneeded = true;
 
         serviceConfig = {
           Type = "oneshot";
-          RemainAfterExit = true;
           UMask = "0077";
         };
 
         script = ''
           set -euo pipefail
 
-          if mountpoint -q ${dbPath}; then
-            mounted_source="$(findmnt -n -T ${dbPath} -o SOURCE || true)"
-            if [[ "$mounted_source" == "${dbCryptPath}" ]]; then
-              exit 0
-            fi
-            echo "unexpected mount at ${dbPath}: $mounted_source" >&2
-            exit 1
-          fi
-
           if [[ ! -s ${dbKeySealed} ]]; then
             echo "sealed DB key is missing (${dbKeySealed})" >&2
             exit 1
           fi
 
-          key="$(mktemp /run/step-ca-db-key.XXXXXX)"
-          cleanup() {
-            rm -f "$key"
-          }
-          trap cleanup EXIT
-
-          tpm_unsealdata -z -i ${dbKeySealed} -o "$key"
-          chmod 0600 "$key"
-
           if [[ ! -f ${dbCryptPath}/gocryptfs.conf ]]; then
-            gocryptfs -q -init -passfile "$key" ${dbCryptPath}
-          fi
-
-          gocryptfs -q -passfile "$key" ${dbCryptPath} ${dbPath}
-        '';
-
-        postStop = ''
-          if mountpoint -q ${dbPath}; then
-            umount ${dbPath}
+            ${lib.getExe' pkgs.gocryptfs "gocryptfs"} -q -init -extpass ${lib.getExe dbExtpass} ${dbCryptPath}
           fi
         '';
       };
@@ -131,15 +117,16 @@ in {
         after = [
           "tcsd.service"
           "systemd-tmpfiles-setup.service"
-          "step-ca-db-mount.service"
         ];
       in {
         inherit after;
         description = "Step CA ACME service";
         wants = after;
-        requires = ["step-ca-db-mount.service"];
-        wantedBy = ["multi-user.target"];
         path = with pkgs; [step-ca step-cli step-kms-plugin];
+        unitConfig = {
+          StopWhenUnneeded = true;
+          RequiresMountsFor = [dbPath];
+        };
 
         environment = {
           HOME = common.tpm;
@@ -156,8 +143,74 @@ in {
           RestartSec = "10s";
         };
       };
+
+      step-ca-proxy = let
+        after = [
+          "step-ca-acme.service"
+          "step-ca-proxy.socket"
+        ];
+      in {
+        inherit after;
+        description = "Socket-activated proxy to Step CA ACME backend";
+        wants = after;
+        requires = after;
+
+        serviceConfig = {
+          Type = "notify";
+          ExecStartPre = lib.getExe (pkgs.writeShellApplication {
+            name = "wait-step-ca-backend";
+            runtimeInputs = with pkgs; [coreutils netcat-openbsd];
+            text = ''
+              set -euo pipefail
+
+              deadline=$((SECONDS + 30))
+              while ! nc -z 127.0.0.1 ${toString (acme.port + 1)}; do
+                if (( SECONDS >= deadline )); then
+                  echo "step-ca backend did not become ready on ${backendAddress}" >&2
+                  exit 1
+                fi
+                sleep 0.2
+              done
+            '';
+          });
+          ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd --exit-idle-time=2min ${backendAddress}";
+        };
+      };
+    };
+
+    mounts = [
+      {
+        description = "Encrypted Step CA Badger DB";
+        what = dbCryptPath;
+        where = dbPath;
+        type = "fuse.gocryptfs";
+        options = "extpass=${lib.getExe dbExtpass},nosyslog";
+        startLimitBurst = 3;
+        unitConfig = {
+          Requires = ["step-ca-db-prepare.service"];
+          After = ["step-ca-db-prepare.service"];
+        };
+      }
+    ];
+
+    automounts = [
+      {
+        description = "Automount for encrypted Step CA Badger DB";
+        where = dbPath;
+        wantedBy = ["multi-user.target"];
+        automountConfig.TimeoutIdleSec = "10min";
+      }
+    ];
+
+    sockets.step-ca-proxy = {
+      description = "Socket activation for Step CA ACME endpoint";
+      wantedBy = ["sockets.target"];
+      listenStreams = [(toString acme.port)];
+      socketConfig.Accept = false;
     };
   };
+
+  system.fsPackages = [pkgs.gocryptfs];
 
   environment.systemPackages = [inputs.acme-eab.packages.${system}.acme-eab];
 }
