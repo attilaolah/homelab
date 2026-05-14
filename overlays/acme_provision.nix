@@ -46,7 +46,7 @@ in {
       acme_url=https://$acme_fqdn:${toString acme.port}
       common_name="$machine.${domain}"
       account="root@$common_name"
-      account_dir="${acmePath}/accounts/${acme_fqdn}_${toString acme.port}/$account"
+      account_dir="${acmePath}/accounts/''${acme_fqdn}_${toString acme.port}/$account"
       cert_dir="${acmePath}/certificates"
       account_secret_parent="/run/secrets/vars/acme-accounts"
       account_secret_dir="$account_secret_parent/$acme_host"
