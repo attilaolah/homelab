@@ -25,14 +25,14 @@ in {
           lib.listToAttrs
           (lib.flatten (map (acmeHost: [
               {
-                name = "${acmeHost}/account.json";
+                name = "${acmeHost}-account.json";
                 value = {
                   secret = true;
                   deploy = true;
                 };
               }
               {
-                name = "${acmeHost}/account.key";
+                name = "${acmeHost}-account.key";
                 value = {
                   secret = true;
                   deploy = true;
@@ -42,8 +42,7 @@ in {
             acmeHosts));
         script = ''
           ${lib.concatMapStringsSep "\n" (acmeHost: ''
-              install -d "$out/${acmeHost}"
-              touch "$out/${acmeHost}/account.json" "$out/${acmeHost}/account.key"
+              touch "$out/${acmeHost}-account.json" "$out/${acmeHost}-account.key"
             '')
             acmeHosts}
         '';
@@ -114,8 +113,8 @@ in {
                 case "$acme_host" in
                 ${lib.concatMapStringsSep "\n" (acmeHost: ''
                     ${acmeHost})
-                      secret_account_json=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}/account.json".path}
-                      secret_account_key=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}/account.key".path}
+                      secret_account_json=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}
+                      secret_account_key=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}
                       ;;
                   '')
                   acmeHosts}

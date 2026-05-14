@@ -49,17 +49,20 @@ in {
       account_dir="${acmePath}/accounts/''${acme_fqdn}_${toString acme.port}/$account"
       cert_dir="${acmePath}/certificates"
       account_secret_parent="/run/secrets/vars/acme-accounts"
-      account_secret_dir="$account_secret_parent/$acme_host"
-      account_secret_backup="${acmePath}/previous-acme-account-$acme_host"
+      account_secret_json="$account_secret_parent/$acme_host-account.json"
+      account_secret_key="$account_secret_parent/$acme_host-account.key"
+      account_secret_json_backup="${acmePath}/previous-acme-account-$acme_host-account.json"
+      account_secret_key_backup="${acmePath}/previous-acme-account-$acme_host-account.key"
       bootstrap_eab="${acmePath}/bootstrap-eab/$acme_host"
       provisioned=0
       cleanup_bootstrap_eab() {
         clan ssh "$acme_machine" -c systemctl start step-ca-acme.service || true
         clan ssh "$machine" -c sh -c "rm -f ''${bootstrap_eab}/kid ''${bootstrap_eab}/hmac-key; rmdir ''${bootstrap_eab} 2>/dev/null || true" || true
         if [[ "$provisioned" -eq 0 ]]; then
-          clan ssh "$machine" -c sh -c "if [ ! -e '$account_secret_dir' ] && [ -e '$account_secret_backup' ]; then install -d -m 0700 '$account_secret_parent'; mv '$account_secret_backup' '$account_secret_dir'; fi" || true
+          clan ssh "$machine" -c sh -c "if [ ! -e '$account_secret_json' ] && [ -e '$account_secret_json_backup' ]; then install -d -m 0700 '$account_secret_parent'; mv '$account_secret_json_backup' '$account_secret_json'; fi" || true
+          clan ssh "$machine" -c sh -c "if [ ! -e '$account_secret_key' ] && [ -e '$account_secret_key_backup' ]; then install -d -m 0700 '$account_secret_parent'; mv '$account_secret_key_backup' '$account_secret_key'; fi" || true
         else
-          clan ssh "$machine" -c sh -c "rm -rf '$account_secret_backup'" || true
+          clan ssh "$machine" -c sh -c "rm -rf '$account_secret_json_backup' '$account_secret_key_backup'" || true
         fi
       }
       fetch_remote_file() {
@@ -99,7 +102,7 @@ in {
       clan ssh "$acme_machine" -c systemctl is-active --quiet step-ca-acme.service
 
       clan ssh "$machine" -c systemctl stop issue-tls-certificate.service
-      clan ssh "$machine" -c sh -c "rm -rf '$account_secret_backup'; if [ -e '$account_secret_dir' ]; then mv '$account_secret_dir' '$account_secret_backup'; fi"
+      clan ssh "$machine" -c sh -c "rm -rf '$account_secret_json_backup' '$account_secret_key_backup'; if [ -e '$account_secret_json' ]; then mv '$account_secret_json' '$account_secret_json_backup'; fi; if [ -e '$account_secret_key' ]; then mv '$account_secret_key' '$account_secret_key_backup'; fi"
       clan ssh "$machine" -c sh -c "rm -rf '$account_dir'; rm -f '$cert_dir/$common_name.crt' '$cert_dir/$common_name.issuer.crt' '$cert_dir/$common_name.json' '$cert_dir/$common_name.key'"
       clan ssh "$machine" -c sh -c "install -d -m 0700 ''${bootstrap_eab}"
       printf '%s' "$kid" |
@@ -112,10 +115,21 @@ in {
       # Base64 keeps SSH transport from changing line endings in JSON or PEM data.
       fetch_remote_file "$account_dir/account.json" |
         jq -c . |
-        clan vars set "$machine" "acme-accounts/$acme_host/account.json"
+        clan vars set "$machine" "acme-accounts/$acme_host-account.json"
       fetch_remote_file "$account_dir/keys/$account.key" |
-        clan vars set "$machine" "acme-accounts/$acme_host/account.key"
-      clan vars fix "$machine"
+        clan vars set "$machine" "acme-accounts/$acme_host-account.key"
+      all_accounts_present=1
+      for host in "''${acme_hosts[@]}"; do
+        for file in account.json account.key; do
+          if [[ ! -f "vars/per-machine/$machine/acme-accounts/$host-$file/secret" ]]; then
+            all_accounts_present=0
+            break
+          fi
+        done
+      done
+      if [[ "$all_accounts_present" -eq 1 ]]; then
+        clan vars fix "$machine"
+      fi
       provisioned=1
 
       printf 'ACME URL: %s/acme/internal/directory\n' "$acme_url"

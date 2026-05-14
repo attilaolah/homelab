@@ -123,8 +123,8 @@ The leaf certificate is valid for 8 days. The timer refreshes every 2 days with 
 Non-TPM machines use ACME. EAB credentials are only bootstrap material. The durable client credential is the ACME account state stored as Clan secrets:
 
 ```text
-acme-accounts/<acme-host>/account.json
-acme-accounts/<acme-host>/account.key
+acme-accounts/<acme-host>-account.json
+acme-accounts/<acme-host>-account.key
 ```
 
 They request certificates with TLS-ALPN-01. Port 443 must be free while `issue-tls-certificate.service` runs. The issued leaf key and certificate still live under `/run`.
@@ -146,7 +146,7 @@ for acme_host in acer hoya; do
 done
 ```
 
-`acme-provision` targets one ACME endpoint at a time. It writes or replaces the client's EAB entry on the selected ACME server, copies the EAB credential into `/run/pki/acme/bootstrap-eab/<acme-host>` on the client, starts `issue-tls-certificate.service` with that endpoint pinned, captures Lego's generated account state, stores it as `acme-accounts/<acme-host>/*`, removes the temporary EAB files, and runs `clan vars fix "$machine"`.
+`acme-provision` targets one ACME endpoint at a time. It writes or replaces the client's EAB entry on the selected ACME server, copies the EAB credential into `/run/pki/acme/bootstrap-eab/<acme-host>` on the client, starts `issue-tls-certificate.service` with that endpoint pinned, captures Lego's generated account state, stores it as `acme-accounts/<acme-host>-account.*`, removes the temporary EAB files, and runs `clan vars fix "$machine"` when all ACME endpoint accounts exist.
 
 6. Deploy the client again so both endpoint account states are managed by Clan.
 
