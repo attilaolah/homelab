@@ -20,9 +20,9 @@ let
   tags = {
     # Machines running the Smallstep ACME server.
     # Only machines with TPM 1.2 hardware can be added here.
-    # Currently only a single instance until the backing database is upgraded.
     acme = [
       "acer"
+      "hoya"
     ];
     # Machines running the Lego ACME client.
     # Only machines with no TPM hardware should be added here.

@@ -6,9 +6,8 @@
   inherit (final.stdenv.hostPlatform) system;
 
   acme = import ../modules/tags/acme_common.nix;
-  acmeHost = builtins.head (builtins.sort builtins.lessThan machineData.tags.acme);
-  acmeFqdn = "${acmeHost}.acme.${domain}";
-  acmeMachines = final.lib.escapeShellArgs machineData.tags.acme;
+  acmeHosts = builtins.sort builtins.lessThan machineData.tags.acme;
+  acmeHostsEscaped = final.lib.escapeShellArgs acmeHosts;
   acmePath = "/run/pki/acme";
 in {
   acme-provision = final.writeShellApplication {
@@ -22,30 +21,43 @@ in {
     text = ''
       set -euo pipefail
 
-      if [[ $# -ne 1 ]]; then
-        echo "usage: acme-provision <machine>" >&2
+      if [[ $# -ne 2 ]]; then
+        echo "usage: acme-provision <acme-host> <machine>" >&2
         exit 2
       fi
 
-      machine=$1
-      acme_machines=(${acmeMachines})
-      acme_url=https://${acmeFqdn}:${toString acme.port}
+      acme_host=$1
+      machine=$2
+      acme_hosts=(${acmeHostsEscaped})
+      acme_machine="$acme_host"
+      found=0
+      for host in "''${acme_hosts[@]}"; do
+        if [[ "$host" == "$acme_host" ]]; then
+          found=1
+          break
+        fi
+      done
+      if [[ "$found" -ne 1 ]]; then
+        echo "unknown ACME host: $acme_host" >&2
+        echo "known ACME hosts: ''${acme_hosts[*]}" >&2
+        exit 2
+      fi
+      acme_fqdn="$acme_host.${domain}"
+      acme_url=https://$acme_fqdn:${toString acme.port}
       common_name="$machine.${domain}"
       account="root@$common_name"
-      account_dir="${acmePath}/accounts/${acmeFqdn}_${toString acme.port}/$account"
+      account_dir="${acmePath}/accounts/${acme_fqdn}_${toString acme.port}/$account"
       cert_dir="${acmePath}/certificates"
-      account_secret_dir="/run/secrets/vars/acme-account"
-      account_secret_backup="${acmePath}/previous-acme-account"
-      bootstrap_eab="${acmePath}/bootstrap-eab"
+      account_secret_parent="/run/secrets/vars/acme-accounts"
+      account_secret_dir="$account_secret_parent/$acme_host"
+      account_secret_backup="${acmePath}/previous-acme-account-$acme_host"
+      bootstrap_eab="${acmePath}/bootstrap-eab/$acme_host"
       provisioned=0
-      acme_touched=()
       cleanup_bootstrap_eab() {
-        for acme_machine in "''${acme_touched[@]}"; do
-          clan ssh "$acme_machine" -c systemctl start step-ca-acme.service || true
-        done
+        clan ssh "$acme_machine" -c systemctl start step-ca-acme.service || true
         clan ssh "$machine" -c sh -c "rm -f ''${bootstrap_eab}/kid ''${bootstrap_eab}/hmac-key; rmdir ''${bootstrap_eab} 2>/dev/null || true" || true
         if [[ "$provisioned" -eq 0 ]]; then
-          clan ssh "$machine" -c sh -c "if [ ! -e '$account_secret_dir' ] && [ -e '$account_secret_backup' ]; then mv '$account_secret_backup' '$account_secret_dir'; fi" || true
+          clan ssh "$machine" -c sh -c "if [ ! -e '$account_secret_dir' ] && [ -e '$account_secret_backup' ]; then install -d -m 0700 '$account_secret_parent'; mv '$account_secret_backup' '$account_secret_dir'; fi" || true
         else
           clan ssh "$machine" -c sh -c "rm -rf '$account_secret_backup'" || true
         fi
@@ -73,21 +85,18 @@ in {
 
       clan ssh "$machine" -c true
 
-      for acme_machine in "''${acme_machines[@]}"; do
-        acme_touched+=("$acme_machine")
-        clan ssh "$acme_machine" -c systemctl stop step-ca-acme.service
-        if ! clan ssh "$acme_machine" -c acme-eab add \
-          --db ${acme.stepPath}/db \
-          --kid "$kid" \
-          --key "$hmac_key" \
-          --reference "$machine" \
-          --replace; then
-          clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
-          exit 1
-        fi
+      clan ssh "$acme_machine" -c systemctl stop step-ca-acme.service
+      if ! clan ssh "$acme_machine" -c acme-eab add \
+        --db ${acme.stepPath}/db \
+        --kid "$kid" \
+        --key "$hmac_key" \
+        --reference "$machine/$acme_host" \
+        --replace; then
         clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
-        clan ssh "$acme_machine" -c systemctl is-active --quiet step-ca-acme.service
-      done
+        exit 1
+      fi
+      clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
+      clan ssh "$acme_machine" -c systemctl is-active --quiet step-ca-acme.service
 
       clan ssh "$machine" -c systemctl stop issue-tls-certificate.service
       clan ssh "$machine" -c sh -c "rm -rf '$account_secret_backup'; if [ -e '$account_secret_dir' ]; then mv '$account_secret_dir' '$account_secret_backup'; fi"
@@ -97,20 +106,20 @@ in {
         clan ssh "$machine" -c sh -c "umask 077; cat > ''${bootstrap_eab}/kid"
       printf '%s' "$hmac_key" |
         clan ssh "$machine" -c sh -c "umask 077; cat > ''${bootstrap_eab}/hmac-key"
-      clan ssh "$machine" -c sh -c "systemctl start issue-tls-certificate.service || true; test \"\$(systemctl show -P Result issue-tls-certificate.service)\" = success"
+      clan ssh "$machine" -c sh -c "systemctl set-environment ACME_PROVISION_HOST='$acme_host'; systemctl start issue-tls-certificate.service || true; result=\"\$(systemctl show -P Result issue-tls-certificate.service)\"; systemctl unset-environment ACME_PROVISION_HOST; test \"\$result\" = success"
       clan ssh "$machine" -c sh -c "test -s '$account_dir/account.json' -a -s '$account_dir/keys/$account.key'"
 
       # Base64 keeps SSH transport from changing line endings in JSON or PEM data.
       fetch_remote_file "$account_dir/account.json" |
         jq -c . |
-        clan vars set "$machine" acme-account/account.json
+        clan vars set "$machine" "acme-accounts/$acme_host/account.json"
       fetch_remote_file "$account_dir/keys/$account.key" |
-        clan vars set "$machine" acme-account/account.key
+        clan vars set "$machine" "acme-accounts/$acme_host/account.key"
       clan vars fix "$machine"
       provisioned=1
 
       printf 'ACME URL: %s/acme/internal/directory\n' "$acme_url"
-      printf 'Stored ACME account for: %s\n' "$account"
+      printf 'Stored ACME account for: %s (%s)\n' "$account" "$acme_host"
     '';
   };
 }

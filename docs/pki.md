@@ -141,7 +141,7 @@ ACME server firewall rules are generated from `acme_client` and `acme_client_boo
 
 ```sh
 machine=todo
-for acme_host in acme iris; do
+for acme_host in acer hoya; do
   acme-provision "$acme_host" "$machine"
 done
 ```
