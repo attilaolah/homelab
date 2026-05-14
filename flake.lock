@@ -34,11 +34,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1778237632,
-        "narHash": "sha256-Nut1BmKhEuwQgtnchdKmAUiRcA39x7i9SMwMuAqrOVk=",
-        "rev": "9b9bff5ac1e3973da6ce80022817a1a7a3eddc6b",
+        "lastModified": 1778735978,
+        "narHash": "sha256-ATmCn7JnacccBLbACCO1pMlP14HyGVWhHJHdXqdVyRo=",
+        "rev": "e1d4d5d482eb809eef89d52f574029452d9aca6b",
         "type": "tarball",
-        "url": "https://git.clan.lol/api/v1/repos/clan/clan-core/archive/9b9bff5ac1e3973da6ce80022817a1a7a3eddc6b.tar.gz"
+        "url": "https://git.clan.lol/api/v1/repos/clan/clan-core/archive/e1d4d5d482eb809eef89d52f574029452d9aca6b.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -101,11 +101,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775087534,
-        "narHash": "sha256-91qqW8lhL7TLwgQWijoGBbiD4t7/q75KTi8NxjVmSmA=",
+        "lastModified": 1777988971,
+        "narHash": "sha256-qIoWPDs+0/8JecyYgE3gpKQxW/4bLW/gp45vow9ioCQ=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "3107b77cd68437b9a76194f0f7f9c55f2329ca5b",
+        "rev": "0678d8986be1661af6bb555f3489f2fdfc31f6ff",
         "type": "github"
       },
       "original": {
