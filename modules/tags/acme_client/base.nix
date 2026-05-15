@@ -142,7 +142,8 @@ in {
                 --tls.port :443
               )
 
-              if [[ ! -e "$account_json" ]]; then
+              if [[ ! -s "$account_json" || ! -s "$account_key" ]]; then
+                rm -f "$account_json" "$account_key"
                 if [[ ! -s "$bootstrap_eab/kid" || ! -s "$bootstrap_eab/hmac-key" ]]; then
                   echo "skipping ACME endpoint $acme_host: no account state or bootstrap EAB credentials"
                   continue

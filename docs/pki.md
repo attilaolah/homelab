@@ -133,11 +133,12 @@ The order matters because Clan initialises missing deployable vars during unrela
 
 ACME server firewall rules are generated from `acme_client` and `acme_client_bootstrap`. After changing either tag, update the ACME servers so the new client can reach the ACME port.
 
-1. Update the ACME servers after adding the new client to `acme_client_bootstrap`.
-2. Add the new client to `acme_client_bootstrap` and deploy it. This installs `issue-tls-certificate.service` without declaring `acme-accounts/*` secrets.
-3. The service is installed but not enabled in bootstrap mode. It stays idle until `acme-provision` injects temporary EAB credentials and starts it.
-4. Move the client from `acme_client_bootstrap` to `acme_client` locally, but do not deploy yet. This makes Clan know about `acme-accounts/*` without pushing empty placeholders to the machine.
-5. Run the provisioning helper:
+1. Add the new client to `acme_client_bootstrap` locally.
+2. Update the ACME servers so firewall rules include the new client.
+3. Deploy the new client in bootstrap mode. This installs `issue-tls-certificate.service` without declaring `acme-accounts/*` secrets.
+4. In bootstrap mode, `issue-tls-certificate.service` is installed but not enabled. It stays idle until `acme-provision` injects temporary EAB credentials and starts it.
+5. Move the client from `acme_client_bootstrap` to `acme_client` locally, but do not deploy yet. This makes Clan know about `acme-accounts/*` without pushing empty placeholders to the machine.
+6. Run the provisioning helper:
 
 ```sh
 machine=todo
@@ -148,7 +149,7 @@ done
 
 `acme-provision` targets one ACME endpoint at a time. It writes or replaces the client's EAB entry on the selected ACME server, copies the EAB credential into `/run/pki/acme/bootstrap-eab/<acme-host>` on the client, starts `issue-tls-certificate.service` with that endpoint pinned, captures Lego's generated account state, stores it as `acme-accounts/<acme-host>-account.*`, removes the temporary EAB files, and runs `clan vars fix "$machine"` when all ACME endpoint accounts exist.
 
-6. Deploy the client again so both endpoint account states are managed by Clan.
+7. Deploy the client again so both endpoint account states are managed by Clan.
 
 The account state is tied to the ACME server database. If the ACME database is rebuilt from scratch, re-run provisioning for each ACME client.
 
