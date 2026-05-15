@@ -11,9 +11,7 @@
   cagen = "tls-ca";
 
   machineData = import (inputs.self + /inventory/data.nix);
-  acmeHosts =
-    builtins.listToAttrs
-    (map (machine: lib.nameValuePair "${machine}.acme" machine) machineData.tags.acme);
+  acmeHosts = builtins.listToAttrs (map (machine: lib.nameValuePair machine machine) machineData.tags.acme);
   lanHosts =
     lib.mapAttrs'
     (name: machine: lib.nameValuePair machine.ip [(fqdn name)])
@@ -34,7 +32,7 @@ in {
   };
   options.homelab.acme.hosts = lib.mkOption {
     type = lib.types.attrsOf lib.types.str;
-    description = "ACME endpoint host aliases mapped to machine names.";
+    description = "ACME endpoint hostnames mapped to machine names.";
   };
 
   config = {
