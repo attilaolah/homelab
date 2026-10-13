@@ -4,7 +4,7 @@ let
   # ALL machines need to be registered here.
   # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
   ids = {
-    acer = 121;
+    acer = 122;
     aloe = 116;
     aria = 102;
     hoya = 104;
@@ -12,7 +12,7 @@ let
     inga = 105;
     iris = 101;
     rosa = 120;
-    sida = 122;
+    sida = 121;
     unio = 117;
   };
 
