@@ -74,6 +74,8 @@ let
   ];
 
   ip4 = x: y: "192.168.${toString x}.${toString y}";
+in {
+  inherit ids internal tags;
 
   machines =
     mapAttrs (name: id: let
@@ -88,6 +90,4 @@ let
       tags = builtins.filter (tag: elem name tags.${tag}) (attrNames tags);
     })
     ids;
-in {
-  inherit ids internal machines tags;
 }
