@@ -110,13 +110,13 @@ in {
       printf '%s' "$hmac_key" |
         clan ssh "$machine" -c sh -c "umask 077; cat > ''${bootstrap_eab}/hmac-key"
       clan ssh "$machine" -c sh -c "systemctl set-environment ACME_PROVISION_HOST='$acme_host'; systemctl start issue-tls-certificate.service || true; result=\"\$(systemctl show -P Result issue-tls-certificate.service)\"; systemctl unset-environment ACME_PROVISION_HOST; test \"\$result\" = success"
-      clan ssh "$machine" -c sh -c "test -s '$account_dir/account.json' -a -s '$account_dir/keys/$account.key'"
+      clan ssh "$machine" -c sh -c "test -s '$account_dir/account.json' -a -s '$account_dir/$account.key'"
 
       # Base64 keeps SSH transport from changing line endings in JSON or PEM data.
       fetch_remote_file "$account_dir/account.json" |
         jq -c . |
         clan vars set "$machine" "acme-accounts/$acme_host-account.json"
-      fetch_remote_file "$account_dir/keys/$account.key" |
+      fetch_remote_file "$account_dir/$account.key" |
         clan vars set "$machine" "acme-accounts/$acme_host-account.key"
       all_accounts_present=1
       for host in "''${acme_hosts[@]}"; do
