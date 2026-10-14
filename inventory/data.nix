@@ -4,16 +4,16 @@ let
   # ALL machines need to be registered here.
   # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
   ids = {
-    acer = 121;
-    aloe = 116;
-    aria = 102;
-    hoya = 104;
-    ilex = 103;
-    inga = 105;
     iris = 101;
-    rosa = 120;
-    sida = 122;
+    aria = 102;
+    ilex = 103;
+    hoya = 104;
+    inga = 105;
+    aloe = 116;
     unio = 117;
+    rosa = 120;
+    sida = 121;
+    acer = 122;
   };
 
   # Additional tags per machine.
@@ -74,6 +74,8 @@ let
   ];
 
   ip4 = x: y: "192.168.${toString x}.${toString y}";
+in {
+  inherit ids internal tags;
 
   machines =
     mapAttrs (name: id: let
@@ -88,6 +90,4 @@ let
       tags = builtins.filter (tag: elem name tags.${tag}) (attrNames tags);
     })
     ids;
-in {
-  inherit ids internal machines tags;
 }
