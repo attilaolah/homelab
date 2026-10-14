@@ -93,7 +93,7 @@ in {
                 fi
               done
               if [[ "$found" -ne 1 ]]; then
-                echo "unknown ACME endpoint: $provision_host" >&2
+                echo "Unknown ACME endpoint: $provision_host" >&2
                 exit 1
               fi
               acme_hosts=("$provision_host")
@@ -110,26 +110,26 @@ in {
               bootstrap_eab="${state}/bootstrap-eab/$acme_host"
 
               ${lib.optionalString deployAccount ''
-                case "$acme_host" in
-                ${lib.concatMapStringsSep "\n" (acmeHost: ''
-                    ${acmeHost})
-                      secret_account_json=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}
-                      secret_account_key=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}
-                      ;;
-                  '')
-                  acmeHosts}
-                  *)
-                    echo "unknown ACME endpoint: $acme_host" >&2
-                    continue
+              case "$acme_host" in
+              ${lib.concatMapStringsSep "\n" (acmeHost: ''
+                  ${acmeHost})
+                    secret_account_json=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}
+                    secret_account_key=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}
                     ;;
-                esac
+                '')
+                acmeHosts}
+                *)
+                  echo "Unknown ACME endpoint: $acme_host" >&2
+                  continue
+                  ;;
+              esac
 
-                if [[ -s "$secret_account_json" && -s "$secret_account_key" ]]; then
-                  install -d -m 0700 "$account_dir/keys"
-                  install -m 0600 "$secret_account_json" "$account_json"
-                  install -m 0600 "$secret_account_key" "$account_key"
-                fi
-              ''}
+              if [[ -s "$secret_account_json" && -s "$secret_account_key" ]]; then
+                install -d -m 0700 "$account_dir/keys"
+                install -m 0600 "$secret_account_json" "$account_json"
+                install -m 0600 "$secret_account_key" "$account_key"
+              fi
+            ''}
 
               lego_common=(
                 --accept-tos
@@ -139,13 +139,13 @@ in {
                 --domains "${commonName}"
                 --key-type ec256
                 --tls
-                --tls.port :443
+                --tls.address :443
               )
 
               if [[ ! -s "$account_json" || ! -s "$account_key" ]]; then
                 rm -f "$account_json" "$account_key"
                 if [[ ! -s "$bootstrap_eab/kid" || ! -s "$bootstrap_eab/hmac-key" ]]; then
-                  echo "skipping ACME endpoint $acme_host: no account state or bootstrap EAB credentials"
+                  echo "Skipping ACME endpoint $acme_host: no account state or bootstrap EAB credentials"
                   continue
                 fi
 
@@ -157,23 +157,24 @@ in {
               else
                 # Lego refuses EAB-required directories unless EAB flags are present,
                 # even when it already has account state and does not register.
+                eab_placeholder="$(head -c 32 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=')"
                 lego_common+=(
                   --eab
-                  --kid unused
-                  --hmac dW51c2Vk
+                  --kid "$eab_placeholder"
+                  --hmac "$eab_placeholder"
                 )
               fi
 
               if [[ -e "${cert}" && -e "${key}" ]]; then
-                if lego "''${lego_common[@]}" renew \
-                  --days 7 \
-                  --reuse-key \
-                  --no-random-sleep; then
+                if lego run "''${lego_common[@]}" \
+                  --no-random-sleep \
+                  --renew-days 7 \
+                  --reuse-key; then
                   success=1
                   break
                 fi
               else
-                if lego "''${lego_common[@]}" run; then
+                if lego run "''${lego_common[@]}"; then
                   success=1
                   break
                 fi
@@ -181,7 +182,7 @@ in {
             done
 
             if [[ "$success" -ne 1 ]]; then
-              echo "failed to issue or renew certificate from all ACME endpoints" >&2
+              echo "Failed to issue or renew certificate from all ACME endpoints" >&2
               exit 1
             fi
 
