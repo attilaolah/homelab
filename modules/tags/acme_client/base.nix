@@ -151,8 +151,8 @@ in {
 
                 lego_common+=(
                   --eab
-                  --kid "$(cat "$bootstrap_eab/kid")"
-                  --hmac "$(cat "$bootstrap_eab/hmac-key")"
+                  --eab.kid "$(cat "$bootstrap_eab/kid")"
+                  --eab.hmac "$(cat "$bootstrap_eab/hmac-key")"
                 )
               else
                 # Lego refuses EAB-required directories unless EAB flags are present,
@@ -160,8 +160,8 @@ in {
                 eab_placeholder="$(head -c 32 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=')"
                 lego_common+=(
                   --eab
-                  --kid "$eab_placeholder"
-                  --hmac "$eab_placeholder"
+                  --eab.kid "$eab_placeholder"
+                  --eab.hmac "$eab_placeholder"
                 )
               fi
 
