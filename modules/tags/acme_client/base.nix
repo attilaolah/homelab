@@ -106,7 +106,7 @@ in {
               account_server="''${acme_fqdn}_${toString acme.port}"
               account_dir="${state}/accounts/$account_server/${account}"
               account_json="$account_dir/account.json"
-              account_key="$account_dir/keys/${account}.key"
+              account_key="$account_dir/${account}.key"
               bootstrap_eab="${state}/bootstrap-eab/$acme_host"
 
               ${lib.optionalString deployAccount ''
@@ -125,7 +125,7 @@ in {
               esac
 
               if [[ -s "$secret_account_json" && -s "$secret_account_key" ]]; then
-                install -d -m 0700 "$account_dir/keys"
+                install -d -m 0700 "$account_dir"
                 install -m 0600 "$secret_account_json" "$account_json"
                 install -m 0600 "$secret_account_key" "$account_key"
               fi
