@@ -1,0 +1,6 @@
+regulatory.db
+regulatory.db.p7s
+tigon/tg357766.bin
+tigon/tg3.bin
+tigon/tg3_tso5.bin
+tigon/tg3_tso.bin

@@ -111,7 +111,7 @@
         "module_alias": "usb:v8087p0A2Ad0003dcE0dsc01dp01icE0isc01ip01in00"
       },
       {
-        "index": 34,
+        "index": 35,
         "attached_to": 33,
         "class_list": [
           "usb",
@@ -502,7 +502,7 @@
         "module_alias": "usb:v0408p5060d0006dcEFdsc02dp01ic0Eisc01ip00in00"
       },
       {
-        "index": 35,
+        "index": 36,
         "attached_to": 33,
         "class_list": [
           "camera",
@@ -762,6 +762,7 @@
         "fpu_exception": false,
         "cpuid_level": 22,
         "write_protect": false,
+        "tlb_size": 11733,
         "clflush_size": 64,
         "cache_alignment": 64,
         "address_sizes": {
@@ -1026,7 +1027,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.22 xhci-hcd",
+          "name": "Linux 6.18.55 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -1040,7 +1041,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.22 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.55 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -1091,7 +1092,7 @@
         "module_alias": "usb:v1D6Bp0002d0618dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 36,
+        "index": 37,
         "attached_to": 24,
         "class_list": [
           "usb",
@@ -1113,7 +1114,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.18.22 xhci-hcd",
+          "name": "Linux 6.18.55 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -1127,7 +1128,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.18.22 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.18.55 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "detail": {
@@ -1504,8 +1505,8 @@
         "module_alias": "pci:v00008086d0000095Asv00008086sd00005010bc02sc80i00"
       },
       {
-        "index": 37,
-        "attached_to": 33,
+        "index": 34,
+        "attached_to": 37,
         "class_list": [
           "network_controller",
           "usb"
@@ -1530,43 +1531,35 @@
           "value": 0
         },
         "vendor": {
-          "hex": "05ac",
-          "name": "Apple Computer, Inc.",
-          "value": 1452
+          "hex": "0b95",
+          "name": "ASIX Elec. Corp.",
+          "value": 2965
         },
         "device": {
-          "hex": "1402",
-          "name": "Apple USB Ethernet Adapter",
-          "value": 5122
+          "hex": "1790",
+          "name": "AX88179",
+          "value": 6032
         },
         "revision": {
           "hex": "0000",
-          "name": "0.01",
+          "name": "1.00",
           "value": 0
         },
-        "serial": "47707D",
-        "model": "Apple USB Ethernet Adapter",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.0",
-        "sysfs_bus_id": "1-5:1.0",
+        "serial": "0000000000",
+        "model": "ASIX Elec AX88179",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb2/2-3/2-3:1.0",
+        "sysfs_bus_id": "2-3:1.0",
         "unix_device_names": [
-          "enp0s20f0u5"
+          "enp0s20f0u3"
         ],
         "resources": [
           {
-            "type": "baud",
-            "speed": 480000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          },
-          {
             "type": "hwaddr",
-            "address": 54
+            "address": 48
           },
           {
             "type": "phwaddr",
-            "address": 54
+            "address": 48
           }
         ],
         "detail": {
@@ -1596,61 +1589,20 @@
           "interface_alternate_setting": 0
         },
         "hotplug": "usb",
-        "driver": "asix",
-        "driver_module": "asix",
+        "driver": "ax88179_178a",
+        "driver_module": "ax88179_178a",
         "drivers": [
-          "asix"
+          "ax88179_178a"
         ],
         "driver_modules": [
-          "asix"
+          "ax88179_178a"
         ],
-        "module_alias": "usb:v05ACp1402d0001dcFFdscFFdp00icFFiscFFip00in00"
+        "module_alias": "usb:v0B95p1790d0100dcFFdscFFdp00icFFiscFFip00in00"
       }
     ],
     "network_interface": [
       {
         "index": 38,
-        "attached_to": 37,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0001",
-          "name": "Ethernet",
-          "value": 1
-        },
-        "model": "Ethernet network interface",
-        "sysfs_id": "/class/net/enp0s20f0u5",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.0",
-        "unix_device_names": [
-          "enp0s20f0u5"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 54
-          },
-          {
-            "type": "phwaddr",
-            "address": 54
-          }
-        ],
-        "driver": "asix",
-        "driver_module": "asix",
-        "drivers": [
-          "asix"
-        ],
-        "driver_modules": [
-          "asix"
-        ]
-      },
-      {
-        "index": 39,
         "attached_to": 0,
         "class_list": [
           "network_interface"
@@ -1672,7 +1624,7 @@
         ]
       },
       {
-        "index": 40,
+        "index": 39,
         "attached_to": 15,
         "class_list": [
           "network_interface"
@@ -1710,6 +1662,47 @@
         ],
         "driver_modules": [
           "iwlwifi"
+        ]
+      },
+      {
+        "index": 40,
+        "attached_to": 34,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/enp0s20f0u3",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb2/2-3/2-3:1.0",
+        "unix_device_names": [
+          "enp0s20f0u3"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 48
+          },
+          {
+            "type": "phwaddr",
+            "address": 48
+          }
+        ],
+        "driver": "ax88179_178a",
+        "driver_module": "ax88179_178a",
+        "drivers": [
+          "ax88179_178a"
+        ],
+        "driver_modules": [
+          "ax88179_178a"
         ]
       }
     ],
