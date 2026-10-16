@@ -1,5 +1,13 @@
 {
-  # Broadcom B43 Wi-Fi firmware is intentionally omitted because the Wi-Fi antenna is disconnected.
-  imports = [ ../../modules/firmware_minimal.nix ];
-  firmwareFile = ./firmware.txt;
+  lib,
+  pkgs,
+  ...
+}: {
+  imports = [../../modules/firmware.nix];
+  firmware = {
+    file = ./firmware.txt;
+    src = [pkgs.linux-firmware pkgs.b43Firmware_6_30_163_46];
+    wifi = true;
+  };
+  nixpkgs.config.allowUnfreePredicate = pkg: lib.getName pkg == "b43-firmware";
 }

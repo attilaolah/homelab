@@ -1,4 +1,7 @@
 {
-  imports = [ ../../modules/firmware_minimal.nix ];
-  firmwareFile = ./firmware.txt;
+  imports = [../../modules/firmware.nix];
+  firmware = {
+    file = ./firmware.txt;
+    wifi = true;
+  };
 }
