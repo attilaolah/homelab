@@ -74,3 +74,41 @@ Much of this was inspired by a number of similar repos:
 - [Euvaz/GitOps-Home](https://github.com/Euvaz/GitOps-Home)
 
 [toboshii/home-ops]: https://github.com/toboshii/home-ops
+
+## Hostnames
+
+Clan-managed hosts are currently assigned four-letter hostnames based on the following DuckDB query:
+
+```sql
+SELECT DISTINCT canonical_scientific_name
+  FROM col_name_usage AS main
+  WHERE length(canonical_scientific_name) = 4
+  ORDER BY (
+      SELECT count(*)
+      FROM col_name_usage AS sub
+      WHERE sub.canonical_scientific_name ^@ (main.canonical_scientific_name || ' ')
+  ) DESC LIMIT 20;
+```
+
+Currently it results in the following names:
+
+- rosa
+- acer
+- iris
+- ilex
+- unio
+- aloe
+- aria
+- inga
+- hoya
+- sida
+- nola
+- sasa
+- geum
+- agra
+- disa
+- pero
+- eois
+- gari
+- musa
+- rhus
