@@ -77,9 +77,7 @@ Much of this was inspired by a number of similar repos:
 
 ## Hostnames
 
-A follow-up refactor will need four-letter hostnames.
-
-The current plan is to assign names using this query:
+Clan-managed hosts are currently assigned four-letter hostnames based on the following DuckDB query:
 
 ```sql
 SELECT DISTINCT canonical_scientific_name
@@ -92,7 +90,7 @@ SELECT DISTINCT canonical_scientific_name
   ) DESC LIMIT 20;
 ```
 
-Which at the moment would give these names:
+Currently it results in the following names:
 
 - rosa
 - acer
