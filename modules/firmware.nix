@@ -35,7 +35,7 @@
     hardware.enableRedistributableFirmware = false;
     hardware.firmware = [
       (pkgs.runCommand "firmware-minimal" {nativeBuildInputs = with pkgs; [coreutils zstd];} ''
-        sh ${./firmware_minimal.sh} "$out" "${config.firmware.file}" ${
+        sh ${./firmware.sh} "$out" "${config.firmware.file}" ${
           lib.escapeShellArgs (config.firmware.src ++ lib.optionals config.firmware.wifi [pkgs.wireless-regdb])
         }
       '')
