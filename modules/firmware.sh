@@ -39,9 +39,14 @@ while IFS= read -r firmware_path || [ -n "$firmware_path" ]; do
       printf 'Unsafe firmware inventory path: %s\n' "$firmware_path" >&2
       exit 1
       ;;
+    *)
+      # Safe relative path without parent traversal.
+      :
+      ;;
   esac
 
   target_file=$output/lib/firmware/$firmware_path
+  firmware_found=false
 
   for firmware_source in "$@"; do
     firmware_root=$firmware_source/lib/firmware
@@ -50,12 +55,18 @@ while IFS= read -r firmware_path || [ -n "$firmware_path" ]; do
       mkdir -p "$(dirname "$target_file")"
       cp "$source_file" "$target_file"
       chmod 0444 "$target_file"
+      firmware_found=true
       break
     elif [ -f "$source_file.zst" ]; then
       mkdir -p "$(dirname "$target_file")"
       zstd --decompress --stdout -- "$source_file.zst" > "$target_file"
       chmod 0444 "$target_file"
+      firmware_found=true
       break
     fi
   done
+
+  if [ "$firmware_found" = false ]; then
+    printf 'Firmware not found in any configured source: %s\n' "$firmware_path" >&2
+  fi
 done < "$firmware_inventory"
