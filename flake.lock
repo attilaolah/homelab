@@ -28,7 +28,9 @@
         "flake-parts": "flake-parts",
         "nix-darwin": "nix-darwin",
         "nix-select": "nix-select",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
         "sops-nix": "sops-nix",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix"
@@ -150,25 +152,39 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1791966044,
-        "narHash": "sha256-UwKRZKua8BOagYl0cou05BHtu7F6XV62FD2Hb+f0QYs=",
-        "rev": "319e4cebef10cbb636c6ea392137b52ad105336a",
+        "lastModified": 1791956154,
+        "narHash": "sha256-gJX2+xcImvxBCI3bp7zXKLUX2AwsdTxMgJ1UX/5Hm/o=",
+        "rev": "55bfb4d7437bd4e09ab7cba58a43bd68eb310044",
         "type": "tarball",
-        "url": "https://releases.nixos.org/nixpkgs/nixpkgs-26.11pre1092129.319e4cebef10/nixexprs.tar.xz"
+        "url": "https://releases.nixos.org/nixos/unstable/nixos-26.11pre1092090.55bfb4d7437b/nixexprs.tar.zst"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://nixos.org/channels/nixpkgs-unstable/nixexprs.tar.xz"
+        "id": "nixpkgs",
+        "ref": "nixos-unstable",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs-patcher": {
+      "locked": {
+        "lastModified": 1789143781,
+        "narHash": "sha256-WFr3wYdhSEJd/nQyJuETd6dcS08Exc+qoZWJ2tHM/gg=",
+        "owner": "gepbird",
+        "repo": "nixpkgs-patcher",
+        "rev": "da7c09e478f552c3a9ebb78b2f68426c1855fd81",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gepbird",
+        "repo": "nixpkgs-patcher",
+        "type": "github"
       }
     },
     "root": {
       "inputs": {
         "acme-eab": "acme-eab",
         "clan-core": "clan-core",
-        "nixpkgs": [
-          "clan-core",
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs",
+        "nixpkgs-patcher": "nixpkgs-patcher"
       }
     },
     "sops-nix": {
