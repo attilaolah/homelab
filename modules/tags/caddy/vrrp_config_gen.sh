@@ -3,11 +3,11 @@ set -euo pipefail
 
 lan_interface="$(ip -o -4 addr show | awk -v address="${HOST_IP}/24" '$4 == address { print $2; exit }')"
 if [[ -z "$lan_interface" ]]; then
-  echo "could not find the LAN interface for ${HOST_IP}" >&2
+  echo "Could not find the LAN interface for ${HOST_IP}" >&2
   exit 1
 fi
 
-cat > /run/keepalived/keepalived.conf <<EOF_CONFIG
+cat > /run/keepalived/keepalived.conf <<EOF
 global_defs {
   enable_script_security
 }
@@ -33,4 +33,4 @@ vrrp_instance CADDY {
     caddy
   }
 }
-EOF_CONFIG
+EOF
