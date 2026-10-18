@@ -24,21 +24,20 @@
     text = builtins.readFile ./issue_tls_certificate.sh;
   };
   serviceEnvironment =
-    [
-      "ACME_HOSTS=${lib.concatStringsSep " " acmeHosts}"
-      "ACME_DOMAIN=${domain}"
-      "ACME_PORT=${toString acme.port}"
-      "ACME_ACCOUNT=${account}"
-      "ACME_COMMON_NAME=${commonName}"
-      "ACME_LAN_IP=${config.homelab.lan.ip4}"
-      "ACME_STATE=${state}"
-      "ACME_TLS=${tls}"
-      "DEPLOY_ACCOUNT=${
+    import (inputs.self + /modules/lib/systemd.nix) {inherit lib;} {
+      acme_hosts = lib.concatStringsSep " " acmeHosts;
+      acme_domain = domain;
+      acme_port = acme.port;
+      acme_account = account;
+      acme_common_name = commonName;
+      acme_lan_ip = config.homelab.lan.ip4;
+      acme_state = state;
+      acme_tls = tls;
+      deploy_account =
         if deployAccount
         then "1"
-        else "0"
-      }"
-    ]
+        else "0";
+    }
     ++ lib.optionals deployAccount (lib.flatten (map (acmeHost: [
         "ACME_ACCOUNT_JSON_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}"
         "ACME_ACCOUNT_KEY_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}"

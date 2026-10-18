@@ -47,7 +47,7 @@ in {
         Type = "simple";
         RuntimeDirectory = "keepalived";
         RuntimeDirectoryMode = "0750";
-        Environment = lib.mapAttrsToList (name: value: "${lib.toUpper name}=${toString value}") {
+        Environment = import (inputs.self + /modules/lib/systemd.nix) {inherit lib;} {
           caddy_vrrp_health_check = lib.getExe (pkgs.writeShellApplication {
             name = "caddy-vrrp-health";
             runtimeInputs = [pkgs.systemd];
