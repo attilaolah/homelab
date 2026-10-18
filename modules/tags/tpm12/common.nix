@@ -12,9 +12,9 @@
   key = "${b}.key";
   tpm = "/var/lib/pki/tpm";
 
-  commonName = "${hostName}.${domain}";
+  commonName = "${hostName}.node.${domain}";
   subjectAltName = lib.concatStringsSep "," (
-    (map (dnsName: "DNS:${dnsName}") [hostName commonName])
+    (map (dnsName: "DNS:${dnsName}") [commonName])
     ++ ["IP:${config.homelab.lan.ip4}"]
   );
 in {

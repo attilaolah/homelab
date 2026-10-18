@@ -14,7 +14,7 @@
   acmeHosts = builtins.listToAttrs (map (machine: lib.nameValuePair machine machine) machineData.tags.acme);
   lanHosts =
     lib.mapAttrs'
-    (name: machine: lib.nameValuePair machine.ip [(fqdn name)])
+    (name: machine: lib.nameValuePair machine.ip [name "${name}.node.${config.networking.domain}"])
     machineData.machines;
   acmeLanHosts =
     lib.mapAttrs'
