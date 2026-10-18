@@ -78,8 +78,13 @@ in {
     # Reduce closure/store size.
     documentation.enable = false;
 
-    # Keep only a small number of bootable generations.
-    boot.loader.grub.configurationLimit = 3;
+    boot = {
+      # Follow the latest stable kernel.
+      kernelPackages = pkgs.linuxPackages_latest;
+      # Keep only a small number of bootable generations.
+      # Some nodes have too small disks, limiting how many kernel images + module sets can be kept.
+      loader.grub.configurationLimit = 3;
+    };
 
     # Periodically reclaim and deduplicate store space.
     nix = {

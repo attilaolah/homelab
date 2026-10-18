@@ -1,8 +1,17 @@
 {
-  inputs.acme-eab.url = "github:attilaolah/acme-eab/v0.2.0";
-  inputs.acme-eab.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.clan-core.url = "https://git.clan.lol/clan/clan-core/archive/main.tar.gz";
-  inputs.nixpkgs.follows = "clan-core/nixpkgs";
+  inputs = {
+    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs-patcher.url = "github:gepbird/nixpkgs-patcher";
+
+    acme-eab = {
+      url = "github:attilaolah/acme-eab/v0.2.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    clan-core = {
+      url = "https://git.clan.lol/clan/clan-core/archive/main.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
   outputs = {
     self,
