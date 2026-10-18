@@ -21,9 +21,8 @@
     (name: machine: let
       ip = machineData.machines.${machine}.ip;
     in
-      lib.nameValuePair ip (lanHosts.${ip} ++ [(fqdn name)]))
+      lib.nameValuePair ip (lanHosts.${ip} ++ ["${name}.acme.${config.networking.domain}"]))
     acmeHosts;
-  fqdn = name: "${name}.${config.networking.domain}";
   disabled.enable = lib.mkForce false;
 in {
   options.homelab.lan.ip4 = lib.mkOption {
@@ -64,10 +63,12 @@ in {
       config.clan.core.vars.generators.${cagen}.files.${crt}.path
     ];
 
-    networking.hosts = lanHosts // acmeLanHosts;
-    networking.firewall.extraCommands = lib.mkAfter ''
-      iptables -I nixos-fw 1 -s 192.168.1.1 -j DROP
-    '';
+    networking = {
+      hosts = lanHosts // acmeLanHosts;
+      firewall.extraCommands = lib.mkAfter ''
+        iptables -I nixos-fw 1 -s 192.168.1.1 -j DROP
+      '';
+    };
 
     users.groups.tls = {};
 

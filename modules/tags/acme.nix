@@ -29,7 +29,7 @@
     '';
   };
 
-  acmeFqdns = map (name: "${name}.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
+  acmeFqdns = map (name: "${name}.acme.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
   acmeClients = lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags.acme_client_bootstrap or []));
   acmeFirewallRules =
     ''
