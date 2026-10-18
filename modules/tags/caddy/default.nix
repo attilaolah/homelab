@@ -48,23 +48,23 @@ in {
         RuntimeDirectory = "keepalived";
         RuntimeDirectoryMode = "0750";
         Environment = import (inputs.self + /modules/lib/systemd.nix) {inherit lib;} {
-          caddy_vrrp_health_check = lib.getExe (pkgs.writeShellApplication {
+          CADDY_VRRP_HEALTH_CHECK = lib.getExe (pkgs.writeShellApplication {
             name = "caddy-vrrp-health";
             runtimeInputs = [pkgs.systemd];
             text = ''
               exec systemctl is-active --quiet caddy.service
             '';
           });
-          host_ip = (import (inputs.self + /inventory/data.nix)).machines.${hostName}.ip;
-          vrrp_priority =
+          HOST_IP = (import (inputs.self + /inventory/data.nix)).machines.${hostName}.ip;
+          VRRP_PRIORITY =
             if isPrimary
             then 150
             else 100;
-          vrrp_state =
+          VRRP_STATE =
             if isPrimary
             then "MASTER"
             else "BACKUP";
-          virtual_ip = vip;
+          VIRTUAL_IP = vip;
         };
         ExecStartPre = lib.getExe (pkgs.callPackage ./vrrp_config_gen.nix {});
         ExecStart = "${lib.getExe pkgs.keepalived} --dont-fork --config /run/keepalived/keepalived.conf";
