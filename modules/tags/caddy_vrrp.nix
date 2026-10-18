@@ -17,10 +17,10 @@
       exec systemctl is-active --quiet caddy.service
     '';
   };
-    keepalivedConfig = pkgs.writeShellApplication {
-      name = "write-caddy-vrrp-config";
-      runtimeInputs = [pkgs.gawk pkgs.iproute2];
-      text = builtins.readFile ./write_caddy_vrrp_config.sh;
+  keepalivedConfig = pkgs.writeShellApplication {
+    name = "write-caddy-vrrp-config";
+    runtimeInputs = [pkgs.gawk pkgs.iproute2];
+    text = builtins.readFile ./write_caddy_vrrp_config.sh;
   };
 in {
   systemd.services.keepalived = {
@@ -32,17 +32,25 @@ in {
 
     serviceConfig = {
       Type = "simple";
-        RuntimeDirectory = "keepalived";
-        RuntimeDirectoryMode = "0750";
-        Environment = [
-          "CADDY_VRRP_HEALTH_CHECK=${lib.getExe caddyHealthCheck}"
-          "HOST_IP=${hostIp}"
-          "VRRP_PRIORITY=${if isPrimary then "150" else "100"}"
-          "VRRP_STATE=${if isPrimary then "MASTER" else "BACKUP"}"
-          "VIRTUAL_IP=${virtualIp}"
-        ];
-        ExecStartPre = lib.getExe keepalivedConfig;
-        ExecStart = "${lib.getExe pkgs.keepalived} --dont-fork --config /run/keepalived/keepalived.conf";
+      RuntimeDirectory = "keepalived";
+      RuntimeDirectoryMode = "0750";
+      Environment = [
+        "CADDY_VRRP_HEALTH_CHECK=${lib.getExe caddyHealthCheck}"
+        "HOST_IP=${hostIp}"
+        "VRRP_PRIORITY=${
+          if isPrimary
+          then "150"
+          else "100"
+        }"
+        "VRRP_STATE=${
+          if isPrimary
+          then "MASTER"
+          else "BACKUP"
+        }"
+        "VIRTUAL_IP=${virtualIp}"
+      ];
+      ExecStartPre = lib.getExe keepalivedConfig;
+      ExecStart = "${lib.getExe pkgs.keepalived} --dont-fork --config /run/keepalived/keepalived.conf";
       Restart = "on-failure";
       RestartSec = "5s";
     };
