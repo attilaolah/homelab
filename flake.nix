@@ -31,6 +31,7 @@
     overlays = [
       (import ./overlays/acme_db_seal.nix {inherit clan-core;})
       (import ./overlays/acme_provision.nix {inherit clan-core domain machineData;})
+      (import ./overlays/sqlite_cross_tests.nix)
       (import ./overlays/tpm_tls_sign.nix {inherit clan-core intermediateCaExt;})
     ];
     homelabOverlay = nixpkgs.lib.composeManyExtensions overlays;

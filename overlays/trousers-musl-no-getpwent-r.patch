@@ -1,0 +1,60 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -150,6 +150,10 @@
+ 	AC_MSG_ERROR(["gtk", "openssl" and "none" are the only supported gui options for trousers])
+ fi
+ 
++# musl does not provide getpwent_r.  Fall back to getpwent under a mutex.
++AC_CHECK_FUNC([getpwent_r], [AC_DEFINE([HAVE_GETPWENT_R], [1],
++  [Define if getpwent_r is available])])
++
+ #
+ # The default port that the TCS daemon listens on
+ #
+--- a/src/tspi/ps/tspps.c
++++ b/src/tspi/ps/tspps.c
+@@ -45,7 +45,7 @@
+ 
+ static int user_ps_fd = -1;
+ static MUTEX_DECLARE_INIT(user_ps_lock);
+-#if (defined (__FreeBSD__) || defined (__OpenBSD__))
++#ifndef HAVE_GETPWENT_R
+ static MUTEX_DECLARE_INIT(user_ps_path);
+ #endif
+ static struct flock fl;
+@@ -60,7 +60,7 @@ get_user_ps_path(char **file)
+ 	TSS_RESULT result;
+ 	char *file_name = NULL, *home_dir = NULL;
+ 	struct passwd *pwp;
+-#if (defined (__linux) || defined (linux) || defined(__GLIBC__))
++#ifdef HAVE_GETPWENT_R
+ 	struct passwd pw;
+ #endif
+ 	struct stat stat_buf;
+@@ -72,7 +72,7 @@ get_user_ps_path(char **file)
+ 		*file = strdup(file_name);
+ 		return (*file) ? TSS_SUCCESS : TSPERR(TSS_E_OUTOFMEMORY);
+ 	}
+-#if (defined (__FreeBSD__) || defined (__OpenBSD__))
++#ifndef HAVE_GETPWENT_R
+ 	MUTEX_LOCK(user_ps_path);
+ #endif
+ 
+@@ -90,7 +90,7 @@ get_user_ps_path(char **file)
+ #else
+ 	setpwent();
+ 	while (1) {
+-#if (defined (__linux) || defined (linux) || defined(__GLIBC__))
++#ifdef HAVE_GETPWENT_R
+ 		rc = getpwent_r(&pw, buf, PASSWD_BUFSIZE, &pwp);
+ 		if (rc) {
+ 			LogDebugFn("USER PS: Error getting path to home directory: getpwent_r: %s",
+@@ -99,7 +99,7 @@ get_user_ps_path(char **file)
+ 			return TSPERR(TSS_E_INTERNAL_ERROR);
+ 		}
+ 
+-#elif (defined (__FreeBSD__) || defined (__OpenBSD__))
++#else
+ 		if ((pwp = getpwent()) == NULL) {
+ 			LogDebugFn("USER PS: Error getting path to home directory: getpwent: %s",
+                                    strerror(rc));

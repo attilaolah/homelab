@@ -1,0 +1,100 @@
+--- a/src/handlers.rs
++++ b/src/handlers.rs
+@@ -31,6 +31,7 @@
+ use std::num::ParseIntError;
+ use std::ptr;
+ use std::str::FromStr;
++#[cfg(not(target_env = "musl"))]
+ use std::sync::{LazyLock, Mutex};
+ 
+ use crate::ffi::{gethostbyaddr_r, gethostbyname2_r, Hostent, HostentError, LibcIp};
+@@ -65,7 +66,9 @@
+     }
+ }
+ 
+-// these functions are not available in the nix::libc crate
++// These netgroup functions are not available in the nix::libc crate. musl
++// does not implement netgroups, so do not reference their symbols there.
++#[cfg(not(target_env = "musl"))]
+ extern "C" {
+     fn setnetgrent(netgroup: *const c_char) -> i32;
+     fn endnetgrent();
+@@ -82,6 +85,9 @@
+         user: *const c_char,
+         domain: *const c_char,
+     ) -> c_int;
++}
++
++extern "C" {
+     fn getservbyname_r(
+         name: *const c_char,
+         proto: *const c_char,
+@@ -110,6 +116,7 @@
+     pub port: u16,
+ }
+ 
++#[cfg(not(target_env = "musl"))]
+ #[derive(Debug)]
+ pub struct NetgroupWithName {
+     pub name: String,
+@@ -283,6 +290,7 @@
+         })
+     }
+ 
++    #[cfg(not(target_env = "musl"))]
+     fn lookup(&self) -> Result<bool> {
+         let netgroup_name = CString::new(self.netgroup.clone())?;
+ 
+@@ -311,6 +319,7 @@
+     }
+ }
+ 
++#[cfg(not(target_env = "musl"))]
+ impl FromStr for NetgroupWithName {
+     type Err = String;
+ 
+@@ -330,8 +339,11 @@
+ //Thus the effective use of these functions in multi-threaded applications may require coordination by the caller.
+ 
+ //Make a Mutex to ensure that setnetgrent and getnetgrent_r are called in sequence
++#[cfg(not(target_env = "musl"))]
+ static SETNETGRENT_LOCK: LazyLock<Mutex<u8>> = LazyLock::new(|| Mutex::new(0));
++#[cfg(not(target_env = "musl"))]
+ impl NetgroupWithName {
++    #[cfg(not(target_env = "musl"))]
+     fn lookup(&self) -> Result<Vec<Netgroup>> {
+         let mut results: Vec<Netgroup> = vec![];
+ 
+@@ -691,6 +703,7 @@
+                 }
+             }
+         }
++        #[cfg(not(target_env = "musl"))]
+         RequestType::GETNETGRENT => {
+             let key = CStr::from_bytes_with_nul(request.key)?;
+             let str_slice: &str = key.to_str()?;
+@@ -707,11 +720,24 @@
+                 }
+             }
+         }
++        #[cfg(not(target_env = "musl"))]
+         RequestType::INNETGR => {
+             let in_netgroup = InNetGroup::from_bytes(request.key)?;
+             debug!(log, "got innetgr {:?}", in_netgroup);
+             serialize_innetgr(in_netgroup.lookup()?)
+         }
++        // The NSCD protocol requires a response header even when a netgroup
++        // request is not found or the service is disabled. musl has no
++        // netgroup service, so return that explicit negative response rather
++        // than silently closing the request with no wire data.
++        #[cfg(target_env = "musl")]
++        RequestType::GETNETGRENT => Ok(protocol::NetgroupResponseHeader::default()
++            .as_slice()
++            .to_vec()),
++        #[cfg(target_env = "musl")]
++        RequestType::INNETGR => Ok(protocol::InNetgroupResponseHeader::default()
++            .as_slice()
++            .to_vec()),
+ 
+         // These will normally send an FD pointing to the internal cache structure,
+         // which clients use to look into the cache contents on their own.
