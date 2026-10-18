@@ -78,8 +78,6 @@ let
   # These should eventually be moved to the external network after initial setup.
   internal = [
   ];
-
-  ip4 = x: y: "192.168.${toString x}.${toString y}";
 in {
   inherit ids internal tags;
 
@@ -89,9 +87,9 @@ in {
         if elem name internal
         then 0
         else 1;
-      ip = ip4 lan id;
+      ip4 = x: y: "192.168.${toString x}.${toString y}";
     in {
-      inherit ip;
+      ip = ip4 lan id;
 
       tags = builtins.filter (tag: elem name tags.${tag}) (attrNames tags);
     })
