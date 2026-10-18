@@ -1,2 +1,2 @@
 {lib}: attrs:
-lib.mapAttrsToList (name: value: "name=${toString value}") attrs
+lib.mapAttrsToList (name: value: "${name}=${toString value}") attrs
