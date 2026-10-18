@@ -36,7 +36,7 @@ in {
       requiredBy = ["keepalived.service"];
     };
 
-    services.keepalived = {
+    keepalived = {
       description = "Keepalived VRRP for the Caddy virtual IP";
       after = ["network-online.target" "caddy.service"];
       requires = ["caddy.service"];
