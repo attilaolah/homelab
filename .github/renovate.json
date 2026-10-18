@@ -23,5 +23,17 @@
       ],
       "automerge": true
     }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update Caddy plugin versions",
+      "managerFilePatterns": [
+        "/\\.nix$/"
+      ],
+      "matchStrings": [
+        "(?m)^# renovate: datasource=(?<datasource>github-releases)\\r?\\n\"github\\.com/(?<depName>[^@\"\\r\\n]+)@(?<currentValue>[^\"\\s\\r\\n]+)\"$"
+      ]
+    }
   ]
 }

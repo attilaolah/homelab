@@ -39,6 +39,17 @@ let
     # The workflow is: add to acme_client_bootstrap, deploy, add to acme_client, provision, deploy.
     acme_client_bootstrap = [
     ];
+    # Both VRRP peers run Caddy and listen only on the virtual IP.  The
+    # standby keeps its listener ready so it can serve as soon as it owns it.
+    caddy = [
+      "aria"
+      "ilex"
+    ];
+    # Keepalived pair for Caddy's 192.168.4.43 virtual IP.
+    caddy_vrrp = [
+      "aria"
+      "ilex"
+    ];
     # Laptops that require special config to keep them awake when the lid is closed.
     laptop = [
       "acer"
