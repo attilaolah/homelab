@@ -26,7 +26,7 @@
   serviceEnvironment =
     import (inputs.self + /modules/lib/systemd.nix) {inherit lib;} {
       ACME_HOSTS = lib.concatStringsSep " " acmeHosts;
-      ACME_DOMAIN = domain;
+      ACME_DOMAIN = "acme.${domain}";
       ACME_PORT = acme.port;
       ACME_ACCOUNT = account;
       ACME_COMMON_NAME = commonName;
