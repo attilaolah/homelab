@@ -1,2 +1,6 @@
-{lib}: attrs:
-lib.mapAttrsToList (name: value: "${name}=${toString value}") attrs
+{
+  lib,
+  utils,
+}:
+lib.mapAttrsToList
+(name: value: "${name}=${utils.escapeSystemdExecArg (toString value)}")

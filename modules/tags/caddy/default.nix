@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs,
+  utils,
   ...
 }: let
   # Reserved service address, outside the addresses assigned to individual hosts.
@@ -47,7 +48,7 @@ in {
         Type = "simple";
         RuntimeDirectory = "keepalived";
         RuntimeDirectoryMode = "0750";
-        Environment = import (inputs.self + /modules/lib/systemd.nix) {inherit lib;} {
+        Environment = import (inputs.self + /modules/lib/systemd.nix) {inherit lib utils;} {
           CADDY_VRRP_HEALTH_CHECK = lib.getExe (pkgs.writeShellApplication {
             name = "caddy-vrrp-health";
             runtimeInputs = [pkgs.systemd];

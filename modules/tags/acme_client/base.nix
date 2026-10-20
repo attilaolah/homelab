@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs,
+  utils,
   ...
 }: let
   inherit (config.networking) domain hostName;
@@ -24,7 +25,7 @@
     text = builtins.readFile ./issue_tls_certificate.sh;
   };
   serviceEnvironment =
-    import (inputs.self + /modules/lib/systemd.nix) {inherit lib;} {
+    import (inputs.self + /modules/lib/systemd.nix) {inherit lib utils;} {
       ACME_HOSTS = lib.concatStringsSep " " acmeHosts;
       ACME_DOMAIN = "acme.${domain}";
       ACME_PORT = acme.port;
