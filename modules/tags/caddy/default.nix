@@ -36,6 +36,15 @@ in {
     '';
   };
 
+  users = {
+    groups.keepalived_script = {};
+    users.keepalived_script = {
+      isSystemUser = true;
+      group = "keepalived_script";
+      shell = "/run/current-system/sw/bin/nologin";
+    };
+  };
+
   services.caddy = {
     enable = true;
 

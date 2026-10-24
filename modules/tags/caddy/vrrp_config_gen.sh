@@ -10,6 +10,7 @@ fi
 cat > /run/keepalived/keepalived.conf <<EOF
 global_defs {
   enable_script_security
+  script_user keepalived_script keepalived_script
 }
 
 vrrp_script caddy {
