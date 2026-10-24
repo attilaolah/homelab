@@ -30,7 +30,7 @@ in {
     lib.concatMapStrings (machine: ''
       ip saddr ${machineData.machines.${machine}.ip} tcp dport ${toString acme.port} accept
     '')
-    (lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags."acme_client_bootstrap" or [])))
+    (lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags.acme_client_bootstrap or [])))
     + ''
       tcp dport ${toString acme.port} drop
     '';

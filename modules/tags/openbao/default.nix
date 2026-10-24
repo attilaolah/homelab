@@ -66,7 +66,7 @@ in
             name = "openbao-validate-tls";
             runtimeInputs = with pkgs; [coreutils gnugrep openssl];
             text = builtins.readFile ./validate_tls.sh;
-          })} ${tls.ca} ${tls.certificate} ${tls.key} ${apiName} ${clusterName}";
+          })} ${tls.ca} ${tls.issuer} ${tls.certificate} ${tls.key} ${apiName} ${clusterName}";
           ExecStart = "${lib.getExe pkgs.openbao} server -config=${
             pkgs.writeText "openbao.hcl" (template ./templates/openbao.hcl.in {
               inherit apiName clusterName hostIp hostName retryJoins;

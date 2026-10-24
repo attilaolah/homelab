@@ -34,10 +34,13 @@ This prepares the identity for a future gocryptfs consumer; it does not add
 Caddy TLS or gocryptfs work.
 
 Before OpenBao starts, validation requires CA chaining, a matching private key,
-both server and client EKUs, and the configured API and cluster DNS SANs. The
-Caddy-host validator checks CA chaining, key matching, client EKU, and that
-host's DNS SAN. Raft retry joins set the expected leader TLS server name
-explicitly.
+both server and client EKUs, and the configured API and cluster DNS SANs. It
+trusts only the shared root and supplies the host TPM intermediate explicitly,
+because OpenSSL does not treat the appended certificate in `tls.crt` as an
+untrusted issuer automatically. The Caddy-host validator uses that intermediate
+when present and retains direct-root validation for ACME clients. It checks CA
+chaining, key matching, client EKU, and that host's DNS SAN. Raft retry joins
+set the expected leader TLS server name explicitly.
 
 ## First initialization and unseal
 

@@ -18,7 +18,9 @@
   };
 
   systemd.tmpfiles.rules = [
-    "d ${(import (inputs.self + /modules/lib/pki.nix)).tpm.dir} 0700 root root - -"
+    # The TPM key remains root-only; members of tls need traversal only to
+    # read the public intermediate used to validate their leaf certificate.
+    "d ${(import (inputs.self + /modules/lib/pki.nix)).tpm.dir} 0710 root tls - -"
   ];
 
   services = {

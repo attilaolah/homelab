@@ -10,7 +10,7 @@
     openbao = tags.openbao or [];
     openbao_client = tags.openbao_client or [];
     tpm12 = tags.tpm12 or [];
-    tpm12_bootstrap = tags."tpm12_bootstrap" or [];
+    tpm12_bootstrap = tags.tpm12_bootstrap or [];
   in
     # Make sure no tags contains a machine that is not registered.
     assert (filter (machine: !(hasAttr machine ids)) (concatLists (attrValues tags))) == [];

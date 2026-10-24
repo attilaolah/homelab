@@ -31,7 +31,7 @@ in
             name = "openbao-validate-client-tls";
             runtimeInputs = with pkgs; [coreutils gnugrep openssl];
             text = builtins.readFile ./validate_client_tls.sh;
-          })} ${tls.ca} ${tls.certificate} ${tls.key} ${hostName}.node.${common.domain}";
+          })} ${tls.ca} ${tls.issuer} ${tls.certificate} ${tls.key} ${hostName}.node.${common.domain}";
         };
       };
     }

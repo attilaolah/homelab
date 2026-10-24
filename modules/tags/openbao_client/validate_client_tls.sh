@@ -3,14 +3,23 @@
 set -euo pipefail
 
 ca=$1
-certificate=$2
-key=$3
-client_name=$4
+issuer=$2
+certificate=$3
+key=$4
+client_name=$5
 
 test -r "$ca"
 test -r "$certificate"
 test -r "$key"
-openssl verify -purpose sslclient -CAfile "$ca" -verify_hostname "$client_name" "$certificate" >/dev/null
+
+# TPM-issued clients use the canonical per-host intermediate.  ACME clients
+# have no TPM CA; their issuer is already part of the certificate bundle and
+# remains compatible with the existing direct-root verification path.
+untrusted_issuer=()
+if [[ -r "$issuer" ]]; then
+  untrusted_issuer=(-untrusted "$issuer")
+fi
+openssl verify -purpose sslclient -CAfile "$ca" "${untrusted_issuer[@]}" -verify_hostname "$client_name" "$certificate" >/dev/null
 openssl x509 -in "$certificate" -noout -purpose | grep -Fq 'SSL client : Yes'
 openssl x509 -in "$certificate" -noout -ext subjectAltName | grep -Fq "DNS:$client_name"
 

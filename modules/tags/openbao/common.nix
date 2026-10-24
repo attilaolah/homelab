@@ -13,6 +13,7 @@
     # The issuer owns leaf renewal.  OpenBao reads its output directly, while
     # the shared root CA remains at the canonical tls-ca Clan variable path.
     ca = config.clan.core.vars.generators.${pki.cluster.ca.gen}.files.${pki.cluster.ca.crt}.path;
+    issuer = pki.tpm.ca.crt;
     certificate = pki.tls.crt;
     key = pki.tls.key;
   };
