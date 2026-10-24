@@ -68,7 +68,7 @@ in {
           VIRTUAL_IP = vip;
         };
         ExecStartPre = lib.getExe (pkgs.callPackage ./vrrp_config_gen.nix {});
-        ExecStart = "${lib.getExe pkgs.keepalived} --dont-fork --config /run/keepalived/keepalived.conf";
+        ExecStart = "${lib.getExe pkgs.keepalived} --dont-fork --use-file /run/keepalived/keepalived.conf";
         Restart = "on-failure";
         RestartSec = "5s";
       };
