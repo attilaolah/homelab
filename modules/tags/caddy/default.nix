@@ -10,6 +10,19 @@
   vip = "192.168.1.43";
 
   hostName = config.networking.hostName;
+  inventory = import (inputs.self + /inventory/data.nix);
+  caddyPeers = {
+    aria = {
+      interface = "enp4s0";
+      peer = "ilex";
+    };
+    ilex = {
+      interface = "enp1s0";
+      peer = "aria";
+    };
+  };
+  peer = caddyPeers.${hostName};
+  peerIp = inventory.machines.${peer.peer}.ip;
   isPrimary = hostName == "ilex";
 in {
   # Allow the standby to open the floating-address listener before it owns the address.
@@ -17,6 +30,9 @@ in {
   boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
   networking.firewall.allowedTCPPorts = [80];
+  networking.firewall.extraCommands = ''
+    iptables -I nixos-fw 1 -i ${peer.interface} -s ${peerIp} -p 112 -j ACCEPT
+  '';
 
   services.caddy = {
     enable = true;
@@ -67,7 +83,7 @@ in {
               exec systemctl is-active --quiet caddy.service
             '';
           });
-          HOST_IP = (import (inputs.self + /inventory/data.nix)).machines.${hostName}.ip;
+          HOST_IP = inventory.machines.${hostName}.ip;
           VRRP_PRIORITY =
             if isPrimary
             then 150
