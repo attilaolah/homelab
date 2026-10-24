@@ -29,10 +29,12 @@ in {
   # This lets it accept traffic immediately when VRRP assigns it.
   boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
-  networking.firewall.allowedTCPPorts = [80];
-  networking.firewall.extraCommands = ''
-    iptables -I nixos-fw 1 -i ${peer.interface} -s ${peerIp} -p 112 -j ACCEPT
-  '';
+  networking.firewall = {
+    allowedTCPPorts = [80];
+    extraInputRules = ''
+      iifname "${peer.interface}" ip saddr ${peerIp} ip protocol 112 accept
+    '';
+  };
 
   services.caddy = {
     enable = true;

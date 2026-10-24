@@ -65,9 +65,19 @@ in {
 
     networking = {
       hosts = lanHosts // acmeLanHosts;
-      firewall.extraCommands = lib.mkAfter ''
-        iptables -I nixos-fw 1 -s 192.168.1.1 -j DROP
-      '';
+      nftables = {
+        enable = true;
+        tables.homelab = {
+          family = "inet";
+          content = ''
+            chain input {
+              type filter hook input priority filter - 1; policy accept;
+              ip saddr 192.168.1.1 drop
+            }
+          '';
+        };
+      };
+      firewall.backend = "nftables";
     };
 
     users.groups.tls = {};

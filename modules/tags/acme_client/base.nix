@@ -77,9 +77,9 @@ in {
     })
 
     {
-      networking.firewall.extraCommands =
+      networking.firewall.extraInputRules =
         lib.concatMapStringsSep "\n" (machine: ''
-          iptables -I nixos-fw 1 -p tcp --dport 443 -s ${machineData.machines.${machine}.ip} -j ACCEPT
+          ip saddr ${machineData.machines.${machine}.ip} tcp dport 443 accept
         '')
         machineData.tags.acme;
 
