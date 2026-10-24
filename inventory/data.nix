@@ -39,6 +39,12 @@ let
     # The workflow is: add to acme_client_bootstrap, deploy, add to acme_client, provision, deploy.
     acme_client_bootstrap = [
     ];
+    # Caddy's VRRP peers listen only on the 192.168.1.43 virtual IP.
+    # The standby keeps its listener ready so it can serve as soon as it owns it.
+    caddy = [
+      "aria"
+      "ilex"
+    ];
     # Laptops that require special config to keep them awake when the lid is closed.
     laptop = [
       "acer"
@@ -72,8 +78,6 @@ let
   # These should eventually be moved to the external network after initial setup.
   internal = [
   ];
-
-  ip4 = x: y: "192.168.${toString x}.${toString y}";
 in {
   inherit ids internal tags;
 
@@ -83,9 +87,9 @@ in {
         if elem name internal
         then 0
         else 1;
-      ip = ip4 lan id;
+      ip4 = x: y: "192.168.${toString x}.${toString y}";
     in {
-      inherit ip;
+      ip = ip4 lan id;
 
       tags = builtins.filter (tag: elem name tags.${tag}) (attrNames tags);
     })

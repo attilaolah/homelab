@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs,
+  utils,
   ...
 }: let
   inherit (config.networking) domain hostName;
@@ -12,11 +13,37 @@
   acmeHosts = builtins.sort builtins.lessThan (builtins.attrNames config.homelab.acme.hosts);
 
   account = "root@${commonName}";
-  commonName = "${hostName}.${domain}";
-  state = "/run/pki/acme";
-  tls = "/run/pki/tls";
-  cert = "${state}/certificates/${commonName}.crt";
-  key = "${state}/certificates/${commonName}.key";
+  commonName = "${hostName}.node.${domain}";
+
+  pki = dir: "/run/pki/${dir}";
+  tls = pki "tls";
+  state = pki "acme";
+
+  issueTlsCertificate = pkgs.writeShellApplication {
+    name = "issue-tls-certificate";
+    runtimeInputs = with pkgs; [coreutils lego];
+    text = builtins.readFile ./issue_tls_certificate.sh;
+  };
+  serviceEnvironment =
+    import (inputs.self + /modules/lib/systemd.nix) {inherit lib utils;} {
+      ACME_HOSTS = lib.concatStringsSep " " acmeHosts;
+      ACME_DOMAIN = "acme.${domain}";
+      ACME_PORT = acme.port;
+      ACME_ACCOUNT = account;
+      ACME_COMMON_NAME = commonName;
+      ACME_LAN_IP = config.homelab.lan.ip4;
+      ACME_STATE = state;
+      ACME_TLS = tls;
+      DEPLOY_ACCOUNT =
+        if deployAccount
+        then "1"
+        else "0";
+    }
+    ++ lib.optionals deployAccount (lib.flatten (map (acmeHost: [
+        "ACME_ACCOUNT_JSON_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}"
+        "ACME_ACCOUNT_KEY_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}"
+      ])
+      acmeHosts));
 in {
   config = lib.mkMerge [
     (lib.mkIf deployAccount {
@@ -50,9 +77,9 @@ in {
     })
 
     {
-      networking.firewall.extraCommands =
+      networking.firewall.extraInputRules =
         lib.concatMapStringsSep "\n" (machine: ''
-          iptables -I nixos-fw 1 -p tcp --dport 443 -s ${machineData.machines.${machine}.ip} -j ACCEPT
+          ip saddr ${machineData.machines.${machine}.ip} tcp dport 443 accept
         '')
         machineData.tags.acme;
 
@@ -71,127 +98,14 @@ in {
           description = "Issue short-lived TLS certificate from ACME";
           wants = after;
           wantedBy = lib.optional deployAccount "multi-user.target";
-          path = with pkgs; [coreutils lego];
 
           serviceConfig = {
             Type = "oneshot";
             UMask = "0077";
             PrivateTmp = true;
+            Environment = serviceEnvironment;
+            ExecStart = "${issueTlsCertificate}/bin/issue-tls-certificate";
           };
-
-          script = ''
-            set -euo pipefail
-
-            acme_hosts=(${lib.escapeShellArgs acmeHosts})
-            provision_host=''${ACME_PROVISION_HOST:-}
-            if [[ -n "$provision_host" ]]; then
-              found=0
-              for acme_host in "''${acme_hosts[@]}"; do
-                if [[ "$acme_host" == "$provision_host" ]]; then
-                  found=1
-                  break
-                fi
-              done
-              if [[ "$found" -ne 1 ]]; then
-                echo "Unknown ACME endpoint: $provision_host" >&2
-                exit 1
-              fi
-              acme_hosts=("$provision_host")
-            fi
-
-            success=0
-            for acme_host in "''${acme_hosts[@]}"; do
-              acme_fqdn="$acme_host.${domain}"
-              acme_url="https://$acme_fqdn:${toString acme.port}/acme/internal/directory"
-              account_server="''${acme_fqdn}_${toString acme.port}"
-              account_dir="${state}/accounts/$account_server/${account}"
-              account_json="$account_dir/account.json"
-              account_key="$account_dir/${account}.key"
-              bootstrap_eab="${state}/bootstrap-eab/$acme_host"
-
-              ${lib.optionalString deployAccount ''
-              case "$acme_host" in
-              ${lib.concatMapStringsSep "\n" (acmeHost: ''
-                  ${acmeHost})
-                    secret_account_json=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}
-                    secret_account_key=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}
-                    ;;
-                '')
-                acmeHosts}
-                *)
-                  echo "Unknown ACME endpoint: $acme_host" >&2
-                  continue
-                  ;;
-              esac
-
-              if [[ -s "$secret_account_json" && -s "$secret_account_key" ]]; then
-                install -d -m 0700 "$account_dir"
-                install -m 0600 "$secret_account_json" "$account_json"
-                install -m 0600 "$secret_account_key" "$account_key"
-              fi
-            ''}
-
-              lego_common=(
-                --accept-tos
-                --email "${account}"
-                --server "$acme_url"
-                --path "${state}"
-                --domains "${commonName}"
-                --key-type ec256
-                --tls
-                --tls.address :443
-              )
-
-              if [[ ! -s "$account_json" || ! -s "$account_key" ]]; then
-                rm -f "$account_json" "$account_key"
-                if [[ ! -s "$bootstrap_eab/kid" || ! -s "$bootstrap_eab/hmac-key" ]]; then
-                  echo "Skipping ACME endpoint $acme_host: no account state or bootstrap EAB credentials"
-                  continue
-                fi
-
-                lego_common+=(
-                  --eab
-                  --eab.kid "$(cat "$bootstrap_eab/kid")"
-                  --eab.hmac "$(cat "$bootstrap_eab/hmac-key")"
-                )
-              else
-                # Lego refuses EAB-required directories unless EAB flags are present,
-                # even when it already has account state and does not register.
-                eab_placeholder="$(head -c 32 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=')"
-                lego_common+=(
-                  --eab
-                  --eab.kid "$eab_placeholder"
-                  --eab.hmac "$eab_placeholder"
-                )
-              fi
-
-              if [[ -e "${cert}" && -e "${key}" ]]; then
-                if lego run "''${lego_common[@]}" \
-                  --no-random-sleep \
-                  --renew-days 7 \
-                  --reuse-key; then
-                  success=1
-                  break
-                fi
-              else
-                if lego run "''${lego_common[@]}"; then
-                  success=1
-                  break
-                fi
-              fi
-            done
-
-            if [[ "$success" -ne 1 ]]; then
-              echo "Failed to issue or renew certificate from all ACME endpoints" >&2
-              exit 1
-            fi
-
-            install -d -m 0750 -o root -g tls ${tls}
-            install -m 0640 -o root -g tls "${key}" ${tls}/tls.key.new
-            install -m 0644 -o root -g tls "${cert}" ${tls}/tls.crt.new
-            mv -f ${tls}/tls.key.new ${tls}/tls.key
-            mv -f ${tls}/tls.crt.new ${tls}/tls.crt
-          '';
         };
 
         timers = lib.mkIf deployAccount {

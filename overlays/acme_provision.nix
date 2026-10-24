@@ -42,9 +42,9 @@ in {
         echo "known ACME hosts: ''${acme_hosts[*]}" >&2
         exit 2
       fi
-      acme_fqdn="$acme_host.${domain}"
+      acme_fqdn="$acme_host.acme.${domain}"
       acme_url=https://$acme_fqdn:${toString acme.port}
-      common_name="$machine.${domain}"
+      common_name="$machine.node.${domain}"
       account="root@$common_name"
       account_dir="${acmePath}/accounts/''${acme_fqdn}_${toString acme.port}/$account"
       cert_dir="${acmePath}/certificates"

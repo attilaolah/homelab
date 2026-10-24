@@ -29,16 +29,16 @@
     '';
   };
 
-  acmeFqdns = map (name: "${name}.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
+  acmeFqdns = map (name: "${name}.acme.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
   acmeClients = lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags.acme_client_bootstrap or []));
   acmeFirewallRules =
-    ''
-      iptables -I nixos-fw 1 -p tcp --dport ${toString acme.port} -j DROP
-    ''
-    + lib.concatMapStrings (machine: ''
-      iptables -I nixos-fw 1 -p tcp --dport ${toString acme.port} -s ${machineData.machines.${machine}.ip} -j ACCEPT
+    lib.concatMapStrings (machine: ''
+      ip saddr ${machineData.machines.${machine}.ip} tcp dport ${toString acme.port} accept
     '')
-    acmeClients;
+    acmeClients
+    + ''
+      tcp dport ${toString acme.port} drop
+    '';
   caConfig = (pkgs.formats.json {}).generate "step-ca.json" {
     root = config.clan.core.vars.generators.tls-ca.files."ca.crt".path;
     crt = "${common.tpm}/${common.crt}";
@@ -73,7 +73,7 @@ in {
     deploy = true;
   };
 
-  networking.firewall.extraCommands = acmeFirewallRules;
+  networking.firewall.extraInputRules = acmeFirewallRules;
 
   systemd = {
     tmpfiles.rules = [
