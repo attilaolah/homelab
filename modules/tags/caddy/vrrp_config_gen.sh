@@ -9,6 +9,7 @@ fi
 
 cat > /run/keepalived/keepalived.conf <<EOF
 global_defs {
+  max_auto_priority
   enable_script_security
   script_user keepalived_script keepalived_script
 }
