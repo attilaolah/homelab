@@ -16,6 +16,8 @@ in {
   # address.  This lets it accept traffic immediately when VRRP assigns it.
   boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
+  networking.firewall.allowedTCPPorts = [80];
+
   services.caddy = {
     enable = true;
 
