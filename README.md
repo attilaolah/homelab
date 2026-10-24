@@ -64,6 +64,7 @@ Without `direnv`, one would need to manually run `nix flake develop` to enter th
 Operational docs:
 
 - [PKI onboarding](docs/pki.md)
+- [OpenBao topology and operations](docs/openbao.md)
 
 ## 💡 Inspiration
 

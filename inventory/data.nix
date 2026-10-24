@@ -51,6 +51,17 @@ let
       "rosa"
       "sida"
     ];
+    # OpenBao Raft servers. These machines run the service and bootstrap unit.
+    openbao = [
+      "hoya"
+      "inga"
+      "iris"
+    ];
+    # Machines that authenticate to the OpenBao API with mTLS.
+    openbao_client = [
+      "aria"
+      "ilex"
+    ];
     # Machines with TPM 1.2 hardware (now considered legacy).
     # These will have an intermediate CA and can issue short-lived leaf certificates.
     tpm12 = [

@@ -6,6 +6,9 @@
     data = import ./data.nix;
     acme = tags.acme or [];
     acme_client = tags.acme_client or [];
+    caddy = tags.caddy or [];
+    openbao = tags.openbao or [];
+    openbao_client = tags.openbao_client or [];
     tpm12 = tags.tpm12 or [];
     tpm12_bootstrap = tags.tpm12_bootstrap or [];
   in
@@ -15,6 +18,9 @@
     assert all (machine: elem machine tpm12) acme;
     # Make sure ACME clients only run on machines without TPM hardware.
     assert all (machine: !(elem machine (tpm12 ++ tpm12_bootstrap))) acme_client;
+    # OpenBao Raft requires the TPM-issued service identity.
+    assert all (machine: elem machine tpm12) openbao;
+    assert all (machine: elem machine caddy && !(elem machine openbao)) openbao_client;
       mapAttrs (_name: machine: {
         deploy.targetHost = "root@${machine.ip}";
         tags = machine.tags;
