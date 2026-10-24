@@ -41,7 +41,7 @@ in {
     users.keepalived_script = {
       isSystemUser = true;
       group = "keepalived_script";
-      shell = "/run/current-system/sw/bin/nologin";
+      shell = lib.getExe' pkgs.shadow "nologin";
     };
   };
 
