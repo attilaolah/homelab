@@ -37,7 +37,7 @@ let
     ];
     # Machines currently being bootstrapped into the "acme_client" tag.
     # The workflow is: add to acme_client_bootstrap, deploy, add to acme_client, provision, deploy.
-    acme_client_bootstrap = [
+    "acme_client_bootstrap" = [
     ];
     # Caddy's VRRP peers listen only on the 192.168.1.43 virtual IP.
     # The standby keeps its listener ready so it can serve as soon as it owns it.
@@ -72,7 +72,7 @@ let
     ];
     # Machines currently being bootstrapped into the "tpm12" tag.
     # The workflow is: add to tpm12_bootstrap, deploy, configure, add to tpm12, provision, deploy.
-    tpm12_bootstrap = [
+    "tpm12_bootstrap" = [
     ];
     # Machines with a hardware watchdog device.
     # Systemd will be configured on these devices to pet the watchdog.

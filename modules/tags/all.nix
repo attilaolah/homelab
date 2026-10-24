@@ -5,24 +5,19 @@
   inputs,
   ...
 }: let
-  b = "ca";
-  crt = "${b}.crt";
-  key = "${b}.key";
-  cagen = "tls-ca";
-
+  pki = import (inputs.self + /modules/lib/pki.nix);
   machineData = import (inputs.self + /inventory/data.nix);
+  template = import (inputs.self + /modules/lib/template.nix);
+
+  crt = pki.cluster.ca.crt;
+  key = pki.cluster.ca.key;
+  cagen = pki.cluster.ca.gen;
+
   acmeHosts = builtins.listToAttrs (map (machine: lib.nameValuePair machine machine) machineData.tags.acme);
   lanHosts =
     lib.mapAttrs'
     (name: machine: lib.nameValuePair machine.ip [name "${name}.node.${config.networking.domain}"])
     machineData.machines;
-  acmeLanHosts =
-    lib.mapAttrs'
-    (name: machine: let
-      ip = machineData.machines.${machine}.ip;
-    in
-      lib.nameValuePair ip (lanHosts.${ip} ++ ["${name}.acme.${config.networking.domain}"]))
-    acmeHosts;
   disabled.enable = lib.mkForce false;
 in {
   options.homelab.lan.ip4 = lib.mkOption {
@@ -49,14 +44,11 @@ in {
         deploy = false;
       };
       runtimeInputs = with pkgs; [step-cli];
-      script = ''
-        step certificate create "TLS CA: ${config.networking.domain}" "$out/${crt}" "$out/${key}" \
-          --profile root-ca \
-          --kty EC \
-          --curve P-256 \
-          --no-password \
-          --insecure
-      '';
+      script = template ./tls_ca_generate.sh {
+        certificateFile = crt;
+        domain = config.networking.domain;
+        keyFile = key;
+      };
     };
 
     security.pki.certificateFiles = [
@@ -64,7 +56,14 @@ in {
     ];
 
     networking = {
-      hosts = lanHosts // acmeLanHosts;
+      hosts =
+        lanHosts
+        // lib.mapAttrs'
+        (name: machine: let
+          ip = machineData.machines.${machine}.ip;
+        in
+          lib.nameValuePair ip (lanHosts.${ip} ++ ["${name}.acme.${config.networking.domain}"]))
+        acmeHosts;
       nftables = {
         enable = true;
         tables.homelab = {
@@ -83,7 +82,7 @@ in {
     users.groups.tls = {};
 
     systemd.tmpfiles.rules = [
-      "d /run/pki/tls 0750 root tls - -"
+      "d ${pki.tls.dir} 0750 root tls - -"
     ];
 
     # Reduce closure/store size.

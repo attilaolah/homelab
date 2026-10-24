@@ -4,7 +4,7 @@
 
 TLS uses a three-layer chain:
 
-- Root CA: `tls-ca/ca.{crt,key}` is a shared Clan var. `ca.key` is secret and `deploy = false`; it is only used locally for signing TPM intermediates. `ca.crt` is public and is added to the system trust store on every machine.
+- Root CA: `tls-ca/ca.{crt,key}` is a shared Clan var. `ca.key` is secret and `deploy = false`; it is only used locally for signing TPM intermediates. `ca.crt` is public and is added to the system trust store on every machine. Canonical host PKI directories and filenames are defined in `modules/lib/pki.nix`.
 - TPM intermediate CA: each TPM-backed machine has `tpm/ca.{crt,key}`. `ca.key` is a TPM 1.2 key blob generated on that machine and deployed back to that same machine as `/run/secrets/vars/tpm/ca.key`. `ca.crt` is signed by the root with `CA:true,pathlen:0`, so it cannot sign another CA.
 - Leaf TLS certificates: `issue-tls-certificate.service` creates `/run/pki/tls/tls.{crt,key}`. The key and CSR are generated in RAM, the cert is signed by the TPM intermediate, and only the final leaf key/cert live under `/run`.
 
@@ -15,7 +15,7 @@ No CA private key material is stored as a normal on-disk private key on the mach
 Start by tagging the machine for TPM 1.2 bootstrap:
 
 ```nix
-tpm12_bootstrap = ["new-machine"];
+"tpm12_bootstrap" = ["new-machine"];
 ```
 
 Deploy this first. The bootstrap tag installs `tcsd`, TPM device udev rules, the `tpm-tls-bootstrap` helper, and the non-deployed owner-auth Clan secret. It does not declare `tpm/ca.{key,crt}`, so it is safe before the machine has a TPM CA.
@@ -63,7 +63,7 @@ Move the machine from `tpm12_bootstrap` to `tpm12` locally before signing, but d
 
 ```nix
 tpm12 = ["new-machine"];
-tpm12_bootstrap = [];
+"tpm12_bootstrap" = [];
 ```
 
 This makes Clan know about the `tpm/ca.{key,crt}` vars while the target still has the bootstrap tooling from its previous deployment.
@@ -83,7 +83,7 @@ Only deploy full `tpm12` after `tpm/ca.key` and `tpm/ca.crt` exist:
 
 ```nix
 tpm12 = ["new-machine"];
-tpm12_bootstrap = [];
+"tpm12_bootstrap" = [];
 ```
 
 If a machine is deployed with full `tpm12` before those vars exist, `clan m update` may try to run the empty `tpm` generator and fail with:

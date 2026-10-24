@@ -1,11 +1,10 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
-}: let
-  common = import ./common.nix {inherit config lib pkgs;};
-in {
+}: {
   clan.core.vars.generators.tpm-owner-auth = {
     files.owner-auth = {
       secret = true;
@@ -19,7 +18,7 @@ in {
   };
 
   systemd.tmpfiles.rules = [
-    "d ${common.tpm} 0700 root root - -"
+    "d ${(import (inputs.self + /modules/lib/pki.nix)).tpm.dir} 0700 root root - -"
   ];
 
   services = {

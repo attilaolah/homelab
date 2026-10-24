@@ -1,26 +1,24 @@
 {
   config,
   lib,
+  pki,
   pkgs,
 }: let
-  inherit (config.networking) domain hostName;
-
   pkcs11 = import ./pkcs11.nix {inherit lib pkgs;};
 
-  b = "ca";
-  crt = "${b}.crt";
-  key = "${b}.key";
-  tpm = "/var/lib/pki/tpm";
+  crt = builtins.baseNameOf pki.tpm.ca.crt;
+  key = builtins.baseNameOf pki.tpm.ca.key;
+  tpm = pki.tpm.dir;
 
-  commonName = "${hostName}.node.${domain}";
+  commonName = "${config.networking.hostName}.node.${config.networking.domain}";
   subjectAltName = lib.concatStringsSep "," (
     (map (dnsName: "DNS:${dnsName}") [commonName])
     ++ ["IP:${config.homelab.lan.ip4}"]
   );
 in {
-  inherit b commonName crt key pkcs11 subjectAltName tpm;
+  inherit commonName crt key pkcs11 pki subjectAltName tpm;
 
-  tls = "/run/pki/tls";
+  tls = pki.tls.dir;
 
   certExt = pkgs.replaceVars ./templates/cert.ext.in {
     inherit subjectAltName;

@@ -7,17 +7,17 @@
   inherit (config.networking) hostName domain;
 
   inventory = import (inputs.self + /inventory/data.nix);
-  pkiDirectory = "/run/pki/tls";
+  pki = import (inputs.self + /modules/lib/pki.nix);
 
   tls = {
     # The issuer owns leaf renewal.  OpenBao reads its output directly, while
     # the shared root CA remains at the canonical tls-ca Clan variable path.
-    ca = config.clan.core.vars.generators."tls-ca".files."ca.crt".path;
-    certificate = "${pkiDirectory}/tls.crt";
-    key = "${pkiDirectory}/tls.key";
+    ca = config.clan.core.vars.generators.${pki.cluster.ca.gen}.files.${pki.cluster.ca.crt}.path;
+    certificate = pki.tls.crt;
+    key = pki.tls.key;
   };
 in {
-  inherit domain hostName inventory pkiDirectory tls;
+  inherit domain hostName inventory pki tls;
 
   module = {
     assertions = [

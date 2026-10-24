@@ -10,7 +10,7 @@ for any operator access instead of widening the firewall.
 The inventory separates those responsibilities: `openbao = [ iris inga hoya ]`
 installs the Raft server and its explicit bootstrap unit, while
 `openbao_client = [ aria ilex ]` installs only the Caddy mTLS identity
-validation. The shared `openbao_common.nix` module provides their common PKI
+validation. The shared `openbao/common.nix` module provides their common PKI
 material and root trust; clients never run OpenBao, and servers never install
 the Caddy identity validator.
 

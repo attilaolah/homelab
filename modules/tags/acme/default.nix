@@ -5,11 +5,12 @@
   pkgs,
   ...
 }: let
-  inherit (pkgs.stdenv.hostPlatform) system;
-
-  acme = import ./acme_common.nix;
+  acme = import ./common.nix {inherit pki;};
+  common = import ../tpm12/common.nix {inherit config lib pkgs pki;};
   machineData = import (inputs.self + /inventory/data.nix);
-  common = import ./tpm12/common.nix {inherit config lib pkgs;};
+  pki = import (inputs.self + /modules/lib/pki.nix);
+  template = import (inputs.self + /modules/lib/template.nix);
+
   dbPath = "${acme.stepPath}/db";
   dbCryptPath = "${dbPath}.crypt";
   dbKeySealed = config.clan.core.vars.generators.acme-db.files."key.sealed".path;
@@ -17,55 +18,7 @@
   dbExtpass = pkgs.writeShellApplication {
     name = "step-ca-db-extpass";
     runtimeInputs = with pkgs; [coreutils tpm-tools];
-    text = ''
-      set -euo pipefail
-
-      if [[ ! -s ${dbKeySealed} ]]; then
-        echo "sealed DB key is missing (${dbKeySealed})" >&2
-        exit 1
-      fi
-
-      exec tpm_unsealdata -z -i ${dbKeySealed}
-    '';
-  };
-
-  acmeFqdns = map (name: "${name}.acme.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
-  acmeClients = lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags.acme_client_bootstrap or []));
-  acmeFirewallRules =
-    lib.concatMapStrings (machine: ''
-      ip saddr ${machineData.machines.${machine}.ip} tcp dport ${toString acme.port} accept
-    '')
-    acmeClients
-    + ''
-      tcp dport ${toString acme.port} drop
-    '';
-  caConfig = (pkgs.formats.json {}).generate "step-ca.json" {
-    root = config.clan.core.vars.generators.tls-ca.files."ca.crt".path;
-    crt = "${common.tpm}/${common.crt}";
-    key = common.pkcs11.key;
-    address = backendAddress;
-    dnsNames = acmeFqdns;
-    logger.format = "text";
-    db = {
-      type = "badgerv2";
-      dataSource = "${dbPath}";
-    };
-    authority.provisioners = [
-      {
-        type = "ACME";
-        name = "internal";
-        forceCN = true;
-        requireEAB = true;
-        claims = {
-          defaultTLSCertDuration = "192h";
-          maxTLSCertDuration = "192h";
-        };
-      }
-    ];
-    kms = {
-      type = "pkcs11";
-      uri = common.pkcs11.kms;
-    };
+    text = template ./db_extpass.sh {inherit dbKeySealed;};
   };
 in {
   clan.core.vars.generators.acme-db.files."key.sealed" = {
@@ -73,7 +26,14 @@ in {
     deploy = true;
   };
 
-  networking.firewall.extraInputRules = acmeFirewallRules;
+  networking.firewall.extraInputRules =
+    lib.concatMapStrings (machine: ''
+      ip saddr ${machineData.machines.${machine}.ip} tcp dport ${toString acme.port} accept
+    '')
+    (lib.unique ((machineData.tags.acme_client or []) ++ (machineData.tags."acme_client_bootstrap" or [])))
+    + ''
+      tcp dport ${toString acme.port} drop
+    '';
 
   systemd = {
     tmpfiles.rules = [
@@ -97,20 +57,15 @@ in {
         serviceConfig = {
           Type = "oneshot";
           UMask = "0077";
+          ExecStart = lib.getExe (pkgs.writeShellApplication {
+            name = "step-ca-db-prepare";
+            runtimeInputs = with pkgs; [coreutils gocryptfs];
+            text = template ./db_prepare.sh {
+              inherit dbKeySealed dbCryptPath;
+              dbExtpass = lib.getExe dbExtpass;
+            };
+          });
         };
-
-        script = ''
-          set -euo pipefail
-
-          if [[ ! -s ${dbKeySealed} ]]; then
-            echo "sealed DB key is missing (${dbKeySealed})" >&2
-            exit 1
-          fi
-
-          if [[ ! -f ${dbCryptPath}/gocryptfs.conf ]]; then
-            ${lib.getExe' pkgs.gocryptfs "gocryptfs"} -q -init -extpass ${lib.getExe dbExtpass} ${dbCryptPath}
-          fi
-        '';
       };
 
       step-ca-acme = let
@@ -138,7 +93,36 @@ in {
           Type = "simple";
           StateDirectory = "step-ca";
           StateDirectoryMode = "0700";
-          ExecStart = "${lib.getExe pkgs.step-ca} ${caConfig}";
+          ExecStart = "${lib.getExe pkgs.step-ca} ${
+            (pkgs.formats.json {}).generate "step-ca.json" {
+              root = config.clan.core.vars.generators.${pki.cluster.ca.gen}.files.${pki.cluster.ca.crt}.path;
+              crt = "${common.tpm}/${common.crt}";
+              key = common.pkcs11.key;
+              address = backendAddress;
+              dnsNames = map (name: "${name}.acme.${config.networking.domain}") (builtins.attrNames config.homelab.acme.hosts);
+              logger.format = "text";
+              db = {
+                type = "badgerv2";
+                dataSource = "${dbPath}";
+              };
+              authority.provisioners = [
+                {
+                  type = "ACME";
+                  name = "internal";
+                  forceCN = true;
+                  requireEAB = true;
+                  claims = {
+                    defaultTLSCertDuration = "192h";
+                    maxTLSCertDuration = "192h";
+                  };
+                }
+              ];
+              kms = {
+                type = "pkcs11";
+                uri = common.pkcs11.kms;
+              };
+            }
+          }";
           Restart = "on-failure";
           RestartSec = "10s";
         };
@@ -160,18 +144,10 @@ in {
           ExecStartPre = lib.getExe (pkgs.writeShellApplication {
             name = "wait-step-ca-backend";
             runtimeInputs = with pkgs; [coreutils netcat-openbsd];
-            text = ''
-              set -euo pipefail
-
-              deadline=$((SECONDS + 30))
-              while ! nc -z 127.0.0.1 ${toString (acme.port + 1)}; do
-                if (( SECONDS >= deadline )); then
-                  echo "step-ca backend did not become ready on ${backendAddress}" >&2
-                  exit 1
-                fi
-                sleep 0.2
-              done
-            '';
+            text = template ./wait_backend.sh {
+              inherit backendAddress;
+              backendPort = toString (acme.port + 1);
+            };
           });
           ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd --exit-idle-time=2min ${backendAddress}";
         };
@@ -212,5 +188,5 @@ in {
 
   system.fsPackages = [pkgs.gocryptfs];
 
-  environment.systemPackages = [inputs.acme-eab.packages.${system}.acme-eab];
+  environment.systemPackages = [inputs.acme-eab.packages.${pkgs.stdenv.hostPlatform.system}.acme-eab];
 }
