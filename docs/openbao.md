@@ -42,24 +42,29 @@ explicitly.
 ## First initialization and unseal
 
 OpenBao initialization is intentionally not declarative. It creates recovery
-material that must not be put into Clan secrets, the Nix store, or this
-repository. After the runtime PKI material exists and the three services have
-started, perform initialization once on `iris` as a console operator (or over
-an SSH tunnel):
+material that is kept as a Clan cluster/shared secret, stored locally with
+`deploy = false`, just like the shared TLS CA private key. The initial root
+token and every unseal/recovery share must never be deployed to a host by
+Clan, included in the Nix store, or committed to this repository. After the
+runtime PKI material exists and the three services have started, perform
+initialization once on `iris` as a console operator (or over an SSH tunnel).
+Become root before setting the mTLS Bao environment:
 
 ```sh
+sudo -i
 export BAO_ADDR=https://iris.node.haus:8200
 export BAO_CLIENT_CERT=/run/pki/tls/tls.crt
 export BAO_CLIENT_KEY=/run/pki/tls/tls.key
-sudo bao operator init -key-shares=5 -key-threshold=3
+bao operator init -key-shares=5 -key-threshold=3
 ```
 
-Store all five unseal shares and the initial root token in the approved offline
-operator secret process. Unseal `iris`, `inga`, and `hoya` with the threshold
-number of shares. Raft peers use their configured retry joins after unseal;
-verify with `bao operator raft list-peers` from an mTLS-authenticated session.
-Do not configure auto-unseal until there is a separately reviewed hardware
-key-management design.
+Store the resulting five unseal/recovery shares and initial root token in the
+locally stored Clan cluster/shared secrets using `deploy = false`; do not make
+an additional host deployment. Unseal `iris`, `inga`, and `hoya` with the
+threshold number of shares. Raft peers use their configured retry joins after
+unseal; verify with `bao operator raft list-peers` from this root,
+mTLS-authenticated shell. Do not configure auto-unseal until there is a
+separately reviewed hardware key-management design.
 
 ## Post-unseal Caddy provisioning
 
@@ -79,23 +84,35 @@ KV v2 data paths:
 | `caddy-aria` | `gocryptfs/data/aria/mount-key` |
 | `caddy-ilex` | `gocryptfs/data/ilex/mount-key` |
 
-They do not grant list, write, delete, or access to the other host's key. No
-gocryptfs key is stored in Clan secrets.
+They do not grant list, write, delete, or access to the other host's key. The
+per-Caddy gocryptfs mount keys exist only in OpenBao KV; they are never Clan
+secrets, including when a future gocryptfs consumer is added.
 
-After unseal, create a root-only temporary token file and run the unit. The
-provisioning service itself runs as root so it can read this file; it is never
-exposed to the `openbao` service account:
+After unseal, the only exception to keeping the initial root token off hosts is
+a temporary root-only `/run/openbao/bootstrap.env` on `iris`. Create it solely
+to run the idempotent post-init provisioning unit. The provisioning service
+runs as root so it can read the file; it is never exposed to the `openbao`
+service account. From the root shell above, create the directory and file:
 
 ```sh
-sudo install -d -m 0700 -o root -g root /run/openbao
-sudo sh -c 'umask 077; printf "%s\n" "BAO_TOKEN=PASTE_INITIAL_ROOT_TOKEN" > /run/openbao/bootstrap.env'
-sudo systemctl start openbao-provision.service
-sudo rm -f /run/openbao/bootstrap.env
+install -d -m 0700 -o root -g root /run/openbao
+install -m 0600 /dev/null /run/openbao/bootstrap.env
+printf '%s\n' 'BAO_TOKEN=PASTE_INITIAL_ROOT_TOKEN' > /run/openbao/bootstrap.env
+systemctl start openbao-provision.service && rm -f /run/openbao/bootstrap.env
 ```
 
-The file is in `/run`, is never persisted by Nix, and must be removed even if
-the unit fails. Certificate renewal is automatic; run this unit again only to
-change a certificate-auth role or retry interrupted bootstrap. Existing KV
+The `&&` removes the temporary file immediately only after a successful run.
+Then leave the root shell:
+
+```sh
+exit
+```
+
+If provisioning fails, leave the file in place so the same idempotent unit can
+be retried; remove it immediately after a successful retry. The file is a
+manual, root-only runtime exception, not a Clan deployment, and is never
+persisted by Nix. Certificate renewal is automatic; run this unit again only
+to change a certificate-auth role or retry interrupted bootstrap. Existing KV
 values are preserved by the idempotent provisioning step.
 
 Future gocryptfs consumers must authenticate to `auth/cert/login` with their

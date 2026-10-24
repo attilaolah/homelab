@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+TPM_CA_KEY_URI=@tpmCaKeyUri@
+
 work="$(mktemp -d "${PKI_RUNTIME_DIRECTORY}/tls-work.XXXXXX")"
 trap 'rm -rf "$work"' EXIT
 

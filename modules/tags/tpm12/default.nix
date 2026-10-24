@@ -10,6 +10,7 @@
     inherit config lib pkgs;
     pki = import (inputs.self + /modules/lib/pki.nix);
   };
+  template = import (inputs.self + /modules/lib/template.nix);
 in {
   imports = [./base.nix];
 
@@ -68,10 +69,11 @@ in {
         TLS_KEY_FILE = builtins.baseNameOf common.pki.tls.key;
         TLS_REQUEST_CONFIG = common.reqConf;
         TPM_CA_CERTIFICATE = common.pki.tpm.ca.crt;
-        TPM_CA_KEY_URI = common.pkcs11.openSslUri;
       };
 
-      script = builtins.readFile ./issue_tls_certificate.sh;
+      script = template ./issue_tls_certificate.sh {
+        tpmCaKeyUri = lib.escapeShellArg common.pkcs11.openSslUri;
+      };
     };
 
     timers.issue-tls-certificate = {
