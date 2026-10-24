@@ -7,7 +7,7 @@
   ...
 }: let
   # Reserved service address, outside the addresses assigned to individual hosts.
-  vip = "192.168.4.43";
+  vip = "192.168.1.43";
 
   hostName = config.networking.hostName;
   isPrimary = hostName == "ilex";
