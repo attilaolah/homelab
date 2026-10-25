@@ -32,7 +32,5 @@ in {
   reqConf = pkgs.replaceVars ./templates/req.cnf.in {
     inherit commonName subjectAltName;
   };
-  simpleTpmPk11Conf = pkgs.replaceVars ./templates/simple_tpm_pk11.conf.in {
-    caKey = "${tpm}/${key}";
-  };
+  simpleTpmPk11Conf = pkgs.writeText "simple_tpm_pk11.conf" "key ${tpm}/${key}\n";
 }

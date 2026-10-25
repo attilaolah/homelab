@@ -19,9 +19,11 @@
     nixpkgs,
     ...
   } @ inputs: let
+    inherit (builtins) toString;
+
     # Usage see: https://docs.clan.lol
     domain = (import ./clan.nix).meta.domain;
-    intermediateCaExt = builtins.toString ./modules/tags/tpm12/templates/intermediate-ca.ext;
+    intermediateCaExt = toString ./modules/tags/tpm12/templates/intermediate_ca.ext;
     machineData = import ./inventory/data.nix;
     systems = [
       "x86_64-linux"
