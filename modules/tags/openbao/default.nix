@@ -5,7 +5,8 @@
   pkgs,
   ...
 }: let
-  inherit (common) domain hostName inventory tls;
+  inherit (common) inventory tls;
+  inherit (config.networking) hostName domain;
 
   common = import ./common.nix {inherit config inputs lib;};
   template = import (inputs.self + /modules/lib/template.nix);

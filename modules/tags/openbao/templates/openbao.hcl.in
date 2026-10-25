@@ -1,6 +1,6 @@
 api_addr = "https://@apiName@:8200"
 cluster_addr = "https://@clusterName@:8201"
-cluster_name = "locker";
+cluster_name = "locker"
 disable_mlock = true
 ui = false
 

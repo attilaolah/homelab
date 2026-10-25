@@ -1,5 +1,5 @@
 let
-  inherit (builtins) attrNames elem mapAttrs;
+  inherit (builtins) attrNames elem filter mapAttrs;
 
   # ALL machines need to be registered here.
   # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
@@ -102,7 +102,7 @@ in {
     in {
       ip = ip4 lan id;
 
-      tags = builtins.filter (tag: elem name tags.${tag}) (attrNames tags);
+      tags = filter (tag: elem name tags.${tag}) (attrNames tags);
     })
     ids;
 }
