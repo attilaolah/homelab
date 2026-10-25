@@ -64,7 +64,7 @@ if ! bao kv get -mount=cryptfs "$host/key" >/dev/null 2>&1; then
   trap 'rm -f -- "$client_key_file"' EXIT
   chmod 600 "$client_key_file"
   openssl rand -base64 48 >"$client_key_file"
-  bao kv put -mount=cryptfs "$host/key" key=@"$client_key_file"
+  bao kv put -cas=0 -mount=cryptfs "$host/key" key=@"$client_key_file"
 fi
 
 bao policy write "cryptfs-$host" - <<POLICY

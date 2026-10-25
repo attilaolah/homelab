@@ -123,7 +123,14 @@ in
                 })) (lib.filter (node: node != hostName) nodes.cluster);
             })
           }";
+          ExecReload = "${lib.getExe' pkgs.coreutils "kill"} -HUP $MAINPID";
         };
       };
+
+      systemd.services.issue-tls-certificate.postStart = lib.mkAfter ''
+        if ${pkgs.systemd}/bin/systemctl is-active --quiet openbao.service; then
+          ${pkgs.systemd}/bin/systemctl reload openbao.service
+        fi
+      '';
     }
   ]

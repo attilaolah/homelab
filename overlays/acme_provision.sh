@@ -26,6 +26,11 @@ fi
 acme_fqdn="$acme_host.acme.@domain@"
 acme_url="https://${acme_fqdn}:@acmePort@"
 common_name="$machine.node.@domain@"
+if [[ -n ${CLAN_DIR:-} ]]; then
+  clan_dir=$CLAN_DIR
+else
+  clan_dir=$(git rev-parse --show-toplevel)
+fi
 account="root@$common_name"
 account_dir="@acmeDirectory@/accounts/${acme_fqdn}_@acmePort@/$account"
 cert_dir="@acmeDirectory@/certificates"
@@ -102,7 +107,7 @@ fetch_remote_file "$account_dir/$account.key" |
 all_accounts_present=1
 for host in "${acme_hosts[@]}"; do
   for file in account.json account.key; do
-    if [[ ! -f "vars/per-machine/$machine/acme-accounts/$host-$file/secret" ]]; then
+    if [[ ! -f "$clan_dir/vars/per-machine/$machine/acme-accounts/$host-$file/secret" ]]; then
       all_accounts_present=0
       break
     fi

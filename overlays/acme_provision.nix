@@ -12,6 +12,7 @@ in {
     runtimeInputs = [
       clan-core.packages.${final.stdenv.hostPlatform.system}.clan-cli
       final.coreutils
+      final.gitMinimal
       final.gnused
       final.jq
     ];

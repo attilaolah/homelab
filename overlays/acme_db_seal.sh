@@ -19,6 +19,7 @@ trap cleanup EXIT
 # shellcheck disable=SC2016
 clan ssh "$machine" -c bash -c '
   set -euo pipefail
+  install -d -m 0700 @acmeDirectory@
   tmp="$(mktemp -d @acmeDirectory@/acme-db-seal.XXXXXX)"
   cleanup_remote() {
     rm -rf "$tmp"
