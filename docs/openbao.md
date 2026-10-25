@@ -21,9 +21,11 @@ its `issue-tls-certificate.service`; configuration evaluation fails if that
 issuer is absent. There is no manual `/run/pki/tls` artifact prerequisite.
 
 The existing certificate issuer automatically creates and renews, on every participating host,
-`/run/pki/tls/tls.crt` and `/run/pki/tls/tls.key` with the existing TPM key
-protection. OpenBao servers, Raft retry joins, the operator command, and the
-client identity validator use those files directly. They use the canonical shared
+`/run/pki/tls/tls.crt` and `/run/pki/tls/tls.key`. TPM-backed hosts use their
+TPM issuance flow. The ACME client hosts (`aria` and `ilex`) use Lego-generated
+certificate and key files installed at those same paths. OpenBao servers, Raft
+retry joins, the operator command, and the client identity validator use those
+files directly. They use the canonical shared
 `tls-ca/ca.crt` Clan variable path directly for cluster trust; no CA copy,
 private-key copy, or OpenBao-specific TLS alias is created.
 

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-  echo "usage: tpm-tls-sign <machine>" >&2
+  echo "Usage: tpm-tls-sign <machine>" >&2
   exit 2
 fi
 
@@ -18,7 +18,7 @@ serial="$work/@tpmCaSerialFile@"
 repo="${CLAN_DIR:-$(git rev-parse --show-toplevel)}"
 root_crt="$repo/vars/shared/@clusterCaGenerator@/@clusterCaCertificateFile@/value"
 if [[ ! -s "$root_crt" ]]; then
-  echo "missing root CA certificate: $root_crt" >&2
+  echo "Missing root CA certificate: $root_crt" >&2
   exit 1
 fi
 
@@ -53,5 +53,5 @@ clan vars set "$machine" @tpmGenerator@/@tpmCaKeyFile@ < "$key"
 clan vars set "$machine" @tpmGenerator@/@tpmCaCertificateFile@ < "$crt"
 clan vars fix "$machine"
 
-echo "stored @tpmGenerator@/@tpmCaKeyFile@ and @tpmGenerator@/@tpmCaCertificateFile@ for $machine"
-echo "temporary files kept in $work"
+echo "Stored @tpmGenerator@/@tpmCaKeyFile@ and @tpmGenerator@/@tpmCaCertificateFile@ for $machine"
+echo "Temporary files kept in $work"

@@ -48,7 +48,7 @@ in
         (
           pkgs.writeShellApplication {
             name = "openbao-provision-cryptfs";
-            runtimeInputs = with pkgs; [coreutils gnugrep jq openbao openssl];
+            runtimeInputs = with pkgs; [coreutils curl gnugrep jq openbao openssl];
             text = template ./provision_cryptfs.sh {
               inherit domain;
               inherit (addrs) api;

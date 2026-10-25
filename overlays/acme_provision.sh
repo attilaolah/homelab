@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
-  echo "usage: acme-provision <acme-host> <machine>" >&2
+  echo "Usage: acme-provision <acme-host> <machine>" >&2
   exit 2
 fi
 
@@ -19,8 +19,8 @@ for host in "${acme_hosts[@]}"; do
   fi
 done
 if [[ "$found" -ne 1 ]]; then
-  echo "unknown ACME host: $acme_host" >&2
-  echo "known ACME hosts: ${acme_hosts[*]}" >&2
+  echo "Unknown ACME host: $acme_host" >&2
+  echo "Known ACME hosts: ${acme_hosts[*]}" >&2
   exit 2
 fi
 acme_fqdn="$acme_host.acme.@domain@"

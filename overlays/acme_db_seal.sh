@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-  echo "usage: acme-db-seal <machine>" >&2
+  echo "Usage: acme-db-seal <machine>" >&2
   exit 2
 fi
 
@@ -35,4 +35,4 @@ clan ssh "$machine" -c bash -c '
 clan vars set "$machine" acme-db/key.sealed < "$sealed"
 clan vars fix "$machine"
 
-echo "stored acme-db/key.sealed for $machine"
+echo "Stored acme-db/key.sealed for $machine"

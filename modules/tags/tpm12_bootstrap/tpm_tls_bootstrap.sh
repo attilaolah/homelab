@@ -23,5 +23,5 @@ SIMPLE_TPM_PK11_CONFIG=@simpleTpmPk11Conf@ \
     -subj "/CN=TLS CA: @commonName@" \
     -out "$csr"
 
-echo "wrote $key"
-echo "wrote $csr"
+echo "Wrote $key"
+echo "Wrote $csr"
