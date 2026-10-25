@@ -33,7 +33,7 @@ clan ssh "$machine" -c base64 -w0 @tpmCaCsr@ |
 clan ssh "$machine" -c base64 -w0 @tpmCaKey@ |
   base64 -d > "$key"
 
-clan vars get "$machine" @tpmGenerator@/@tpmCaKeyFile@ > "$root_key"
+clan vars get shared tls-ca/ca.key > "$root_key"
 
 openssl x509 \
   -req \
