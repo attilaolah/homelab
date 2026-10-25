@@ -61,13 +61,39 @@ export BAO_CLIENT_KEY=/run/pki/tls/tls.key
 bao operator init -key-shares=5 -key-threshold=3
 ```
 
-Store the resulting five unseal/recovery shares and initial root token in the
-locally stored Clan cluster/shared secrets using `deploy = false`; do not make
-an additional host deployment. Unseal `iris`, `inga`, and `hoya` with the
-threshold number of shares. Raft peers use their configured retry joins after
-unseal; verify with `bao operator raft list-peers` from this root,
-mTLS-authenticated shell. Do not configure auto-unseal until there is a
-separately reviewed hardware key-management design.
+Store the resulting recovery material with the declared shared
+`openbao-init` Clan generator. Its exact secret variable IDs are:
+
+- `openbao-init/initial-root-token`
+- `openbao-init/unseal-share-1`
+- `openbao-init/unseal-share-2`
+- `openbao-init/unseal-share-3`
+- `openbao-init/unseal-share-4`
+- `openbao-init/unseal-share-5`
+
+From a local interactive terminal in this repository, set each value once
+against any OpenBao server (the commands below use `iris`). The pinned Clan
+CLI syntax is `clan vars set <machine> <var-id>`; with a TTY it reads a hidden
+multiline value from the prompt rather than a command-line argument. Paste one
+value at each prompt and finish the multiline input as instructed by the CLI:
+
+```sh
+nix develop . -c clan vars set iris openbao-init/initial-root-token
+nix develop . -c clan vars set iris openbao-init/unseal-share-1
+nix develop . -c clan vars set iris openbao-init/unseal-share-2
+nix develop . -c clan vars set iris openbao-init/unseal-share-3
+nix develop . -c clan vars set iris openbao-init/unseal-share-4
+nix develop . -c clan vars set iris openbao-init/unseal-share-5
+```
+
+The generator is shared only by `iris`, `inga`, and `hoya`, and every file has
+`deploy = false`: the values are encrypted in the local Clan vars store but
+are never made available to any host. Do not put a value in a shell command,
+environment variable, command substitution, or shell history. Unseal `iris`,
+`inga`, and `hoya` with a threshold number of shares. Raft peers use their
+configured retry joins after unseal; verify with `bao operator raft list-peers`
+from a root, mTLS-authenticated shell. Do not configure auto-unseal until a
+separately reviewed hardware key-management design exists.
 
 ## Post-unseal Caddy provisioning
 

@@ -57,13 +57,15 @@ in {
 
     networking = {
       hosts =
-        lanHosts
-        // lib.mapAttrs'
-        (name: machine: let
-          ip = machineData.machines.${machine}.ip;
-        in
-          lib.nameValuePair ip (lanHosts.${ip} ++ ["${name}.acme.${config.networking.domain}"]))
-        acmeHosts;
+        (lanHosts
+          // lib.mapAttrs'
+          (name: machine: let
+            ip = machineData.machines.${machine}.ip;
+          in
+            lib.nameValuePair ip (lanHosts.${ip} ++ ["${name}.acme.${config.networking.domain}"]))
+          acmeHosts)
+        # Keep the node TLS identity on its inventory LAN address.
+        // {"127.0.0.2" = lib.mkForce [config.networking.hostName];};
       nftables = {
         enable = true;
         tables.homelab = {

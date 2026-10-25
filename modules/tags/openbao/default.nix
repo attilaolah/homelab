@@ -10,10 +10,15 @@
   common = import ./common.nix {inherit config inputs lib;};
   template = import (inputs.self + /modules/lib/template.nix);
 
+  nodes = {
+    cluster = inventory.tags.openbao or [];
+    client = inventory.tags.openbao_client or [];
+  };
+
+  # TODO: These are the same; use "fqdn".
   apiName = "${hostName}.node.${domain}";
-  clientNodes = inventory.tags.openbao_client or [];
-  clusterNodes = inventory.tags.openbao or [];
   clusterName = "${hostName}.node.${domain}";
+
   hostIp = inventory.machines.${hostName}.ip;
   retryJoins = lib.concatMapStringsSep "\n" (node: ''
     retry_join {
@@ -23,15 +28,52 @@
       leader_client_cert_file = "${tls.certificate}"
       leader_client_key_file = "${tls.key}"
     }
-  '') (lib.filter (node: node != hostName) clusterNodes);
+  '') (lib.filter (node: node != hostName) nodes.cluster);
 in
   lib.mkMerge [
     common.module
 
     {
+      # TODO: refactor
+      # Recovery material is shared between the Raft servers, but is only
+      # available to an operator through the vars store, never on a host.
+      clan.core.vars.generators.openbao-init = {
+        share = true;
+        files = {
+          initial-root-token = {
+            secret = true;
+            deploy = false;
+          };
+          unseal-share-1 = {
+            secret = true;
+            deploy = false;
+          };
+          unseal-share-2 = {
+            secret = true;
+            deploy = false;
+          };
+          unseal-share-3 = {
+            secret = true;
+            deploy = false;
+          };
+          unseal-share-4 = {
+            secret = true;
+            deploy = false;
+          };
+          unseal-share-5 = {
+            secret = true;
+            deploy = false;
+          };
+        };
+      };
+    }
+
+    {
+      environment.systemPackages = [pkgs.openbao];
+
       networking.firewall.extraInputRules = lib.mkAfter ''
-        ip saddr { ${lib.concatStringsSep ", " (map (node: inventory.machines.${node}.ip) clusterNodes)} } tcp dport { 8200, 8201 } accept
-        ip saddr { ${lib.concatStringsSep ", " (map (node: inventory.machines.${node}.ip) clientNodes)} } tcp dport 8200 accept
+        ip saddr { ${lib.concatStringsSep ", " (map (node: inventory.machines.${node}.ip) nodes.cluster)} } tcp dport { 8200, 8201 } accept
+        ip saddr { ${lib.concatStringsSep ", " (map (node: inventory.machines.${node}.ip) nodes.client)} } tcp dport 8200 accept
       '';
 
       users = {
@@ -108,7 +150,7 @@ in
                   inherit domain node;
                   tlsCa = tls.ca;
                 })
-              clientNodes;
+              nodes.client;
             };
           });
         };
