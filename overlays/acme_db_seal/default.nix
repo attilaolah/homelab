@@ -1,5 +1,5 @@
 {clan-core}: final: _prev: let
-  template = import ../modules/lib/template.nix;
+  template = import ../../modules/lib/template.nix;
 in {
   acme-db-seal = final.writeShellApplication {
     name = "acme-db-seal";
@@ -8,8 +8,8 @@ in {
       final.coreutils
       final.gitMinimal
     ];
-    text = template ./acme_db_seal.sh {
-      acmeDirectory = (import ../modules/lib/pki.nix).acme.dir;
+    text = template ./seal.sh {
+      acmeDirectory = (import ../../modules/lib/pki.nix).acme.dir;
     };
   };
 }

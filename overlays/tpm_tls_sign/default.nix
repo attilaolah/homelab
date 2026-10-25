@@ -2,8 +2,8 @@
   clan-core,
   intermediateCaExt,
 }: final: _prev: let
-  pki = import ../modules/lib/pki.nix;
-  template = import ../modules/lib/template.nix;
+  pki = import ../../modules/lib/pki.nix;
+  template = import ../../modules/lib/template.nix;
 in {
   tpm-tls-sign = final.writeShellApplication {
     name = "tpm-tls-sign";
@@ -13,7 +13,7 @@ in {
       final.gitMinimal
       final.openssl
     ];
-    text = template ./tpm_tls_sign.sh {
+    text = template ./sign.sh {
       clusterCaCertificateFile = pki.cluster.ca.crt;
       clusterCaGenerator = pki.cluster.ca.gen;
       inherit intermediateCaExt;

@@ -25,9 +25,9 @@
     machineData = import ./inventory/data.nix;
 
     overlays = [
-      (import ./overlays/acme_db_seal.nix {inherit clan-core;})
-      (import ./overlays/acme_provision.nix {inherit clan-core domain machineData;})
-      (import ./overlays/tpm_tls_sign.nix {inherit clan-core intermediateCaExt;})
+      (import ./overlays/acme_db_seal {inherit clan-core;})
+      (import ./overlays/acme_provision {inherit clan-core domain machineData;})
+      (import ./overlays/tpm_tls_sign {inherit clan-core intermediateCaExt;})
     ];
 
     forAllSystems = nixpkgs.lib.genAttrs [

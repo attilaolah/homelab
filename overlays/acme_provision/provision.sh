@@ -45,18 +45,14 @@ cleanup_bootstrap_eab() {
   clan ssh "$acme_machine" -c systemctl start step-ca-acme.service || true
   clan ssh "$machine" -c sh -c "rm -f ${bootstrap_eab}/kid ${bootstrap_eab}/hmac-key; rmdir ${bootstrap_eab} 2>/dev/null || true" || true
   if [[ "$provisioned" -eq 0 ]]; then
-    clan ssh "$machine" -c bash -c "
-      if [[ ! -e '$account_secret_json' && -e '$account_secret_json_backup' ]]; then
-        install -d -m 0700 '$account_secret_parent'
-        mv '$account_secret_json_backup' '$account_secret_json'
-      fi
-    " || true
-    clan ssh "$machine" -c bash -c "
-      if [[ ! -e '$account_secret_key' && -e '$account_secret_key_backup' ]]; then
-        install -d -m 0700 '$account_secret_parent'
-        mv '$account_secret_key_backup' '$account_secret_key'
-      fi
-    " || true
+    clan ssh "$machine" -c bash -s -- \
+      "$account_secret_parent" "$account_secret_json" "$account_secret_json_backup" <<'EOF' || true
+@restoreAccount@
+EOF
+    clan ssh "$machine" -c bash -s -- \
+      "$account_secret_parent" "$account_secret_key" "$account_secret_key_backup" <<'EOF' || true
+@restoreAccount@
+EOF
   else
     clan ssh "$machine" -c sh -c "rm -rf '$account_secret_json_backup' '$account_secret_key_backup'" || true
   fi
@@ -98,28 +94,20 @@ clan ssh "$acme_machine" -c systemctl start step-ca-acme.service
 clan ssh "$acme_machine" -c systemctl is-active --quiet step-ca-acme.service
 
 clan ssh "$machine" -c systemctl stop issue-tls-certificate.service
-clan ssh "$machine" -c bash -c "
-  rm -rf '$account_secret_json_backup' '$account_secret_key_backup'
-  if [[ -e '$account_secret_json' ]]; then
-    mv '$account_secret_json' '$account_secret_json_backup'
-  fi
-  if [[ -e '$account_secret_key' ]]; then
-    mv '$account_secret_key' '$account_secret_key_backup'
-  fi
-"
+clan ssh "$machine" -c bash -s -- \
+  "$account_secret_json" "$account_secret_json_backup" \
+  "$account_secret_key" "$account_secret_key_backup" <<'EOF'
+@backupAccount@
+EOF
 clan ssh "$machine" -c sh -c "rm -rf '$account_dir'; rm -f '$cert_dir/$common_name.crt' '$cert_dir/$common_name.issuer.crt' '$cert_dir/$common_name.json' '$cert_dir/$common_name.key'"
 clan ssh "$machine" -c sh -c "install -d -m 0700 ${bootstrap_eab}"
 printf '%s' "$kid" |
   clan ssh "$machine" -c sh -c "umask 077; cat > ${bootstrap_eab}/kid"
 printf '%s' "$hmac_key" |
   clan ssh "$machine" -c sh -c "umask 077; cat > ${bootstrap_eab}/hmac-key"
-clan ssh "$machine" -c bash -c "
-  systemctl set-environment ACME_PROVISION_HOST='$acme_host'
-  systemctl start issue-tls-certificate.service || true
-  result=\"\$(systemctl show -P Result issue-tls-certificate.service)\"
-  systemctl unset-environment ACME_PROVISION_HOST
-  [[ \"\$result\" == success ]]
-"
+clan ssh "$machine" -c bash -s -- "$acme_host" <<'EOF'
+@issueCertificate@
+EOF
 clan ssh "$machine" -c bash -c "[[ -s '$account_dir/account.json' && -s '$account_dir/$account.key' ]]"
 
 # Base64 keeps SSH transport from changing line endings in JSON or PEM data.
