@@ -25,17 +25,17 @@
     domain = (import ./clan.nix).meta.domain;
     intermediateCaExt = toString ./modules/tags/tpm12/templates/intermediate_ca.ext;
     machineData = import ./inventory/data.nix;
-    systems = [
-      "x86_64-linux"
-      "aarch64-darwin"
-    ];
-    forAllSystems = nixpkgs.lib.genAttrs systems;
+
     overlays = [
       (import ./overlays/acme_db_seal.nix {inherit clan-core;})
       (import ./overlays/acme_provision.nix {inherit clan-core domain machineData;})
       (import ./overlays/tpm_tls_sign.nix {inherit clan-core intermediateCaExt;})
     ];
-    homelabOverlay = nixpkgs.lib.composeManyExtensions overlays;
+
+    forAllSystems = nixpkgs.lib.genAttrs [
+      "x86_64-linux"
+      "aarch64-darwin"
+    ];
     pkgsForSystem = system:
       import nixpkgs {
         inherit system;
@@ -48,15 +48,21 @@
     };
   in {
     inherit (clan.config) nixosConfigurations nixosModules clanInternals;
+
     clan = clan.config;
-    overlays.default = homelabOverlay;
+    overlays.default = nixpkgs.lib.composeManyExtensions overlays;
+
     packages =
       forAllSystems
-      (system: let
-        pkgs = pkgsForSystem system;
-      in {
-        inherit (pkgs) acme-db-seal acme-provision tpm-tls-sign;
+      (system: {
+        inherit
+          (pkgsForSystem system)
+          acme-db-seal
+          acme-provision
+          tpm-tls-sign
+          ;
       });
+
     # Add the Clan cli tool to the dev shell.
     # Use "nix develop" to enter the dev shell.
     devShells =
@@ -65,12 +71,13 @@
         pkgs = pkgsForSystem system;
       in {
         default = pkgs.mkShell {
-          packages = [
-            clan-core.packages.${system}.clan-cli
-            pkgs.acme-db-seal
-            pkgs.acme-provision
-            pkgs.tpm-tls-sign
-          ];
+          packages =
+            [clan-core.packages.${system}.clan-cli]
+            ++ (with pkgs; [
+              acme-db-seal
+              acme-provision
+              tpm-tls-sign
+            ]);
         };
       });
   };
