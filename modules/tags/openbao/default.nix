@@ -16,20 +16,25 @@
     client = inventory.tags.openbao_client or [];
   };
 
-  # TODO: These are the same; use "fqdn".
-  apiName = "${hostName}.node.${domain}";
-  clusterName = "${hostName}.node.${domain}";
+  host = fqdn hostName;
+  ports = builtins.mapAttrValues (_: toString) {
+    api = 8200;
+    cluster = 8201;
+  };
+  addrs = builtins.mapAttrValues (_: port: "https://${host}:${port}") ports;
 
-  hostIp = inventory.machines.${hostName}.ip;
   retryJoins = lib.concatMapStringsSep "\n" (node: ''
     retry_join {
-      leader_api_addr = "https://${node}.node.${domain}:8200"
-      leader_tls_servername = "${node}.node.${domain}"
+      leader_api_addr = "${addrs.api}"
+      leader_tls_servername = "${host}"
       leader_ca_cert_file = "${tls.ca}"
       leader_client_cert_file = "${tls.certificate}"
       leader_client_key_file = "${tls.key}"
     }
   '') (lib.filter (node: node != hostName) nodes.cluster);
+
+  # TODO: Move this somewhere!
+  fqdn = node: "${node}.node.${domain}";
 in
   lib.mkMerge [
     common.module
@@ -73,8 +78,14 @@ in
       environment.systemPackages = [pkgs.openbao];
 
       networking.firewall.extraInputRules = lib.mkAfter ''
-        ip saddr { ${lib.concatStringsSep ", " (map (node: inventory.machines.${node}.ip) nodes.cluster)} } tcp dport { 8200, 8201 } accept
-        ip saddr { ${lib.concatStringsSep ", " (map (node: inventory.machines.${node}.ip) nodes.client)} } tcp dport 8200 accept
+        ip saddr { ${
+          lib.concatStringsSep ", "
+          (map (node: inventory.machines.${node}.ip) nodes.cluster)
+        } } tcp dport { ${ports.api}, ${ports.cluster} } accept
+        ip saddr { ${
+          lib.concatStringsSep ", "
+          (map (node: inventory.machines.${node}.ip) nodes.client)
+        } } tcp dport ${ports.api} accept
       '';
 
       users = {
@@ -109,10 +120,11 @@ in
             name = "openbao-validate-tls";
             runtimeInputs = with pkgs; [coreutils gnugrep openssl];
             text = builtins.readFile ./validate_tls.sh;
-          })} ${tls.ca} ${tls.issuer} ${tls.certificate} ${tls.key} ${apiName} ${clusterName}";
+          })} ${tls.ca} ${tls.issuer} ${tls.certificate} ${tls.key} ${host} ${host}";
           ExecStart = "${lib.getExe pkgs.openbao} server -config=${
             pkgs.writeText "openbao.hcl" (template ./templates/openbao.hcl.in {
-              inherit apiName clusterName hostIp hostName retryJoins;
+              inherit host hostName retryJoins;
+              ip = inventory.machines.${hostName}.ip;
               tlsCa = tls.ca;
               tlsCertificate = tls.certificate;
               tlsKey = tls.key;
@@ -142,7 +154,7 @@ in
             name = "openbao-bootstrap";
             runtimeInputs = with pkgs; [coreutils gnugrep jq openbao openssl];
             text = template ./bootstrap.sh {
-              apiAddress = "https://${apiName}:8200";
+              apiAddress = addrs.api;
               tlsCa = tls.ca;
               tlsCertificate = tls.certificate;
               tlsKey = tls.key;
