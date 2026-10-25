@@ -12,14 +12,16 @@ test -r "$ca"
 test -r "$certificate"
 test -r "$key"
 
-# TPM-issued clients use the canonical per-host intermediate.  ACME clients
-# have no TPM CA; their issuer is already part of the certificate bundle and
-# remains compatible with the existing direct-root verification path.
-untrusted_issuer=()
+# `openssl verify` only treats the first certificate in $certificate as the
+# leaf. Supply the complete presented bundle as untrusted chain input so ACME
+# client fullchains can reach the shared cluster CA. TPM-issued clients also
+# need their canonical intermediate when it is available; direct-root clients
+# remain valid without one.
+untrusted_chain=(-untrusted "$certificate")
 if [[ -r "$issuer" ]]; then
-  untrusted_issuer=(-untrusted "$issuer")
+  untrusted_chain+=(-untrusted "$issuer")
 fi
-openssl verify -purpose sslclient -CAfile "$ca" "${untrusted_issuer[@]}" -verify_hostname "$client_name" "$certificate" >/dev/null
+openssl verify -purpose sslclient -CAfile "$ca" "${untrusted_chain[@]}" -verify_hostname "$client_name" "$certificate" >/dev/null
 openssl x509 -in "$certificate" -noout -purpose | grep -Fq 'SSL client : Yes'
 openssl x509 -in "$certificate" -noout -ext subjectAltName | grep -Fq "DNS:$client_name"
 
