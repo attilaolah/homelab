@@ -8,9 +8,9 @@ certificate=$3
 key=$4
 client_name=$5
 
-test -r "$ca"
-test -r "$certificate"
-test -r "$key"
+[[ -r "$ca" ]]
+[[ -r "$certificate" ]]
+[[ -r "$key" ]]
 
 # `openssl verify` only treats the first certificate in $certificate as the
 # leaf. Supply the complete presented bundle as untrusted chain input so ACME
@@ -27,4 +27,4 @@ openssl x509 -in "$certificate" -noout -ext subjectAltName | grep -Fq "DNS:$clie
 
 certificate_public_key=$(openssl x509 -in "$certificate" -pubkey -noout | openssl pkey -pubin -pubout -outform DER | openssl dgst -sha256)
 key_public_key=$(openssl pkey -in "$key" -pubout -outform DER | openssl dgst -sha256)
-test "$certificate_public_key" = "$key_public_key"
+[[ "$certificate_public_key" == "$key_public_key" ]]

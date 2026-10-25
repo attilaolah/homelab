@@ -9,10 +9,10 @@ key=$4
 api_name=$5
 cluster_name=$6
 
-test -r "$ca"
-test -r "$issuer"
-test -r "$certificate"
-test -r "$key"
+[[ -r "$ca" ]]
+[[ -r "$issuer" ]]
+[[ -r "$certificate" ]]
+[[ -r "$key" ]]
 
 # `openssl verify` treats the first PEM certificate in $certificate as the leaf; it does not automatically use later
 # PEM certificates as untrusted issuers. Keep the shared cluster CA as the sole trust anchor and explicitly provide the
@@ -26,4 +26,4 @@ openssl x509 -in "$certificate" -noout -ext subjectAltName | grep -Fq "DNS:$clus
 
 certificate_public_key=$(openssl x509 -in "$certificate" -pubkey -noout | openssl pkey -pubin -pubout -outform DER | openssl dgst -sha256)
 key_public_key=$(openssl pkey -in "$key" -pubout -outform DER | openssl dgst -sha256)
-test "$certificate_public_key" = "$key_public_key"
+[[ "$certificate_public_key" == "$key_public_key" ]]
