@@ -4,17 +4,19 @@
   pki,
   pkgs,
 }: let
+  inherit (builtins) baseNameOf;
+
   pkcs11 = import ./pkcs11.nix {inherit lib pkgs;};
 
-  crt = builtins.baseNameOf pki.tpm.ca.crt;
-  key = builtins.baseNameOf pki.tpm.ca.key;
+  crt = baseNameOf pki.tpm.ca.crt;
+  key = baseNameOf pki.tpm.ca.key;
   tpm = pki.tpm.dir;
 
   commonName = "${config.networking.hostName}.node.${config.networking.domain}";
-  subjectAltName = lib.concatStringsSep "," (
-    (map (dnsName: "DNS:${dnsName}") [commonName])
-    ++ ["IP:${config.homelab.lan.ip4}"]
-  );
+  subjectAltName = lib.concatStringsSep "," [
+    "DNS:${commonName}"
+    "IP:${config.homelab.lan.ip4}"
+  ];
 in {
   inherit commonName crt key pkcs11 pki subjectAltName tpm;
 
@@ -30,7 +32,7 @@ in {
   reqConf = pkgs.replaceVars ./templates/req.cnf.in {
     inherit commonName subjectAltName;
   };
-  simpleTpmPk11Conf = pkgs.replaceVars ./templates/simple-tpm-pk11.conf.in {
+  simpleTpmPk11Conf = pkgs.replaceVars ./templates/simple_tpm_pk11.conf.in {
     caKey = "${tpm}/${key}";
   };
 }
