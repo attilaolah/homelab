@@ -1,6 +1,5 @@
 {
   inventory.machines = let
-    inherit (builtins) all attrValues concatLists elem filter hasAttr mapAttrs;
     inherit (data) ids machines tags;
 
     data = import ./data.nix;
@@ -13,15 +12,18 @@
     tpm12_bootstrap = tags.tpm12_bootstrap or [];
   in
     # Make sure no tags contains a machine that is not registered.
-    assert (filter (machine: !(hasAttr machine ids)) (concatLists (attrValues tags))) == [];
+    assert (builtins.filter
+      (machine: !(builtins.hasAttr machine ids))
+      (builtins.concatLists (builtins.attrValues tags)))
+    == [];
     # Make sure ACME servers only run on machines with TPM 1.2 hardware.
-    assert all (machine: elem machine tpm12) acme;
+    assert builtins.all (machine: builtins.elem machine tpm12) acme;
     # Make sure ACME clients only run on machines without TPM hardware.
-    assert all (machine: !(elem machine (tpm12 ++ tpm12_bootstrap))) acme_client;
+    assert builtins.all (machine: !(builtins.elem machine (tpm12 ++ tpm12_bootstrap))) acme_client;
     # OpenBao Raft requires the TPM-issued service identity.
-    assert all (machine: elem machine tpm12) openbao;
-    assert all (machine: elem machine caddy && !(elem machine openbao)) openbao_client;
-      mapAttrs (_name: machine: {
+    assert builtins.all (machine: builtins.elem machine tpm12) openbao;
+    assert builtins.all (machine: builtins.elem machine caddy && !(builtins.elem machine openbao)) openbao_client;
+      builtins.mapAttrs (_name: machine: {
         deploy.targetHost = "root@${machine.ip}";
         tags = machine.tags;
       })

@@ -5,7 +5,6 @@
   pkgs,
   ...
 }: let
-  inherit (builtins) readFile;
   inherit (common) inventory tls;
   inherit (config.networking) hostName domain;
 
@@ -126,7 +125,7 @@ in
           ExecStartPre = "${lib.getExe (pkgs.writeShellApplication {
             name = "openbao-validate-tls";
             runtimeInputs = with pkgs; [coreutils gnugrep openssl];
-            text = readFile ./validate_tls.sh;
+            text = builtins.readFile ./validate_tls.sh;
           })} ${tls.ca} ${tls.issuer} ${tls.certificate} ${tls.key} ${host} ${host}";
           ExecStart = "${lib.getExe pkgs.openbao} server -config=${
             pkgs.writeText "openbao.hcl" (template ./templates/openbao.hcl.in {

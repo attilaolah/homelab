@@ -4,13 +4,11 @@
   pki,
   pkgs,
 }: let
-  inherit (builtins) baseNameOf;
-
   pkcs11 = import ./pkcs11.nix {inherit lib pkgs;};
 
-  crt = baseNameOf pki.tpm.ca.crt;
-  key = baseNameOf pki.tpm.ca.key;
   tpm = pki.tpm.dir;
+  crt = builtins.baseNameOf pki.tpm.ca.crt;
+  key = builtins.baseNameOf pki.tpm.ca.key;
 
   commonName = "${config.networking.hostName}.node.${config.networking.domain}";
   subjectAltName = lib.concatStringsSep "," [
