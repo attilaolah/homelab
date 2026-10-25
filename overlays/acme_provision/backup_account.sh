@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 if [[ $# -ne 4 ]]; then
   echo "Usage: acme-provision-backup-account <json> <json-backup> <key> <key-backup>" >&2
   exit 2

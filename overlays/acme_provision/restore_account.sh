@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 if [[ $# -ne 3 ]]; then
   echo "Usage: acme-provision-restore-account <secret-parent> <secret> <backup>" >&2
   exit 2

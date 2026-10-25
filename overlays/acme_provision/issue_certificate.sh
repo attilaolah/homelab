@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 if [[ $# -ne 1 ]]; then
   echo "Usage: acme-provision-issue-certificate <acme-host>" >&2
   exit 2
