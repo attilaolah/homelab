@@ -78,11 +78,10 @@ if ! http_status=$(curl \
   --cacert "$BAO_CACERT" \
   --cert "$BAO_CLIENT_CERT" \
   --key "$BAO_CLIENT_KEY" \
-  --header "X-Vault-Token: $BAO_TOKEN" \
-  "$BAO_ADDR/v1/cryptfs/data/$host/key" 2>"$curl_error_file"); then
+  --header @- \
+  "$BAO_ADDR/v1/cryptfs/data/$host/key" <<<"X-Vault-Token: $BAO_TOKEN" 2>"$curl_error_file"); then
   echo "Failed to query 'cryptfs' key for $host" >&2
   cat "$curl_error_file" >&2
-  cat "$response_file" >&2
   exit 1
 fi
 
