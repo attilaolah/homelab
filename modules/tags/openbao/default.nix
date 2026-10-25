@@ -5,6 +5,7 @@
   pkgs,
   ...
 }: let
+  inherit (builtins) readFile;
   inherit (common) inventory tls;
   inherit (config.networking) hostName domain;
 
@@ -17,11 +18,11 @@
   };
 
   host = fqdn hostName;
-  ports = builtins.mapAttrValues (_: toString) {
+  ports = lib.mapAttrs (_: toString) {
     api = 8200;
     cluster = 8201;
   };
-  addrs = builtins.mapAttrValues (_: port: "https://${host}:${port}") ports;
+  addrs = lib.mapAttrs (_: port: "https://${host}:${port}") ports;
 
   retryJoins = lib.concatMapStringsSep "\n" (node: ''
     retry_join {
@@ -75,7 +76,23 @@ in
     }
 
     {
-      environment.systemPackages = [pkgs.openbao];
+      environment.systemPackages = [
+        pkgs.openbao
+        (
+          pkgs.writeShellApplication {
+            name = "openbao-provision-cryptfs";
+            runtimeInputs = with pkgs; [coreutils gnugrep jq openbao openssl];
+            text = template ./provision_cryptfs.sh {
+              inherit domain;
+              apiAddress = addrs.api;
+              approvedHosts = lib.concatMapStringsSep "|" lib.escapeShellArg nodes.client;
+              tlsCa = tls.ca;
+              tlsCertificate = tls.certificate;
+              tlsKey = tls.key;
+            };
+          }
+        )
+      ];
 
       networking.firewall.extraInputRules = lib.mkAfter ''
         ip saddr { ${
@@ -119,7 +136,7 @@ in
           ExecStartPre = "${lib.getExe (pkgs.writeShellApplication {
             name = "openbao-validate-tls";
             runtimeInputs = with pkgs; [coreutils gnugrep openssl];
-            text = builtins.readFile ./validate_tls.sh;
+            text = readFile ./validate_tls.sh;
           })} ${tls.ca} ${tls.issuer} ${tls.certificate} ${tls.key} ${host} ${host}";
           ExecStart = "${lib.getExe pkgs.openbao} server -config=${
             pkgs.writeText "openbao.hcl" (template ./templates/openbao.hcl.in {
@@ -133,40 +150,4 @@ in
         };
       };
     }
-
-    # This is intentionally only installed on iris and has no WantedBy. An
-    # operator supplies a short-lived root token after init/unseal, then starts
-    # it explicitly. It can safely be rerun for certificate rotation.
-    (lib.mkIf (hostName == "iris") {
-      systemd.services.openbao-provision = {
-        description = "Provision OpenBao Caddy certificate-auth access";
-        after = ["network-online.target" "openbao.service"];
-        requires = ["openbao.service"];
-        wants = ["network-online.target"];
-        unitConfig.ConditionPathExists = "/run/openbao/bootstrap.env";
-        serviceConfig = {
-          Type = "oneshot";
-          User = "root";
-          Group = "root";
-          UMask = "0077";
-          EnvironmentFile = "/run/openbao/bootstrap.env";
-          ExecStart = lib.getExe (pkgs.writeShellApplication {
-            name = "openbao-bootstrap";
-            runtimeInputs = with pkgs; [coreutils gnugrep jq openbao openssl];
-            text = template ./bootstrap.sh {
-              apiAddress = addrs.api;
-              tlsCa = tls.ca;
-              tlsCertificate = tls.certificate;
-              tlsKey = tls.key;
-              clientProvisioning = lib.concatMapStringsSep "\n\n" (node:
-                template ./caddy_client_provision.sh {
-                  inherit domain node;
-                  tlsCa = tls.ca;
-                })
-              nodes.client;
-            };
-          });
-        };
-      };
-    })
   ]

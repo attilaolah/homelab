@@ -27,7 +27,5 @@ in {
         message = "The OpenBao tags require the tpm12 issue-tls-certificate service.";
       }
     ];
-
-    systemd.tmpfiles.rules = ["d /run/openbao 0700 root root - -"];
   };
 }

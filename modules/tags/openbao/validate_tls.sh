@@ -13,10 +13,10 @@ test -r "$ca"
 test -r "$issuer"
 test -r "$certificate"
 test -r "$key"
-# openssl verify treats the first PEM certificate in $certificate as the leaf;
-# it does not automatically use later PEM certificates as untrusted issuers.
-# Keep the shared cluster CA as the sole trust anchor and explicitly provide
-# the host TPM intermediate from its canonical PKI location.
+
+# `openssl verify` treats the first PEM certificate in $certificate as the leaf; it does not automatically use later
+# PEM certificates as untrusted issuers. Keep the shared cluster CA as the sole trust anchor and explicitly provide the
+# host TPM intermediate from its canonical PKI location.
 openssl verify -purpose sslserver -CAfile "$ca" -untrusted "$issuer" -verify_hostname "$api_name" "$certificate" >/dev/null
 openssl verify -purpose sslserver -CAfile "$ca" -untrusted "$issuer" -verify_hostname "$cluster_name" "$certificate" >/dev/null
 openssl x509 -in "$certificate" -noout -purpose | grep -Fq 'SSL client : Yes'

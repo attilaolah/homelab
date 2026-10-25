@@ -12,18 +12,14 @@ in
     common.module
 
     {
-      users.users.caddy.extraGroups = ["tls"];
-
       systemd.services.openbao-client-identity = {
         description = "Validate the ${hostName} OpenBao mTLS identity";
         after = ["issue-tls-certificate.service"];
         requires = ["issue-tls-certificate.service"];
-        before = ["caddy.service"];
-        requiredBy = ["caddy.service"];
+        wantedBy = ["multi-user.target"];
         serviceConfig = {
           Type = "oneshot";
-          User = "caddy";
-          Group = "caddy";
+          DynamicUser = true;
           SupplementaryGroups = ["tls"];
           RemainAfterExit = true;
           UMask = "0077";

@@ -51,13 +51,13 @@ let
       "rosa"
       "sida"
     ];
-    # OpenBao Raft servers. These machines run the service and bootstrap unit.
+    # OpenBao Raft servers. These machines run the service and operator command.
     openbao = [
       "hoya"
       "inga"
       "iris"
     ];
-    # Machines that authenticate to the OpenBao API with mTLS.
+    # Machines that authenticate to the OpenBao API with generic mTLS identities.
     openbao_client = [
       "aria"
       "ilex"
