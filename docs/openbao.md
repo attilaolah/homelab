@@ -28,9 +28,10 @@ client identity validator use those files directly. They use the canonical share
 private-key copy, or OpenBao-specific TLS alias is created.
 
 The OpenBao service reads its local key through the existing `tls` group.
-`openbao-client-identity.service` runs as root after certificate issuance to
-prove that a client host's local certificate identity is usable. It is not
-ordered around, or coupled to, a particular secret consumer.
+`openbao-client-identity.service` runs after certificate issuance with a
+dynamic unprivileged user in that group to prove that a client host's local
+certificate identity is usable. It is not ordered around, or coupled to, a
+particular secret consumer.
 
 Before OpenBao starts, validation requires CA chaining, a matching private key,
 both server and client EKUs, and the configured API and cluster DNS SANs. It
