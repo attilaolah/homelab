@@ -22,20 +22,11 @@
     api = 8200;
     cluster = 8201;
   };
-  addrs = lib.mapAttrs (_: port: "https://${host}:${port}") ports;
-
-  retryJoins = lib.concatMapStringsSep "\n" (node: ''
-    retry_join {
-      leader_api_addr = "${addrs.api}"
-      leader_tls_servername = "${host}"
-      leader_ca_cert_file = "${tls.ca}"
-      leader_client_cert_file = "${tls.certificate}"
-      leader_client_key_file = "${tls.key}"
-    }
-  '') (lib.filter (node: node != hostName) nodes.cluster);
+  addrs = lib.mapAttrs (_: https host) ports;
 
   # TODO: Move this somewhere!
   fqdn = node: "${node}.node.${domain}";
+  https = host: port: "https://${host}:${port}";
 in
   lib.mkMerge [
     common.module
@@ -84,11 +75,10 @@ in
             runtimeInputs = with pkgs; [coreutils gnugrep jq openbao openssl];
             text = template ./provision_cryptfs.sh {
               inherit domain;
-              apiAddress = addrs.api;
+              inherit (addrs) api;
+              inherit (tls) ca certificate key;
+
               approvedHosts = lib.concatMapStringsSep "|" lib.escapeShellArg nodes.client;
-              tlsCa = tls.ca;
-              tlsCertificate = tls.certificate;
-              tlsKey = tls.key;
             };
           }
         )
@@ -140,11 +130,21 @@ in
           })} ${tls.ca} ${tls.issuer} ${tls.certificate} ${tls.key} ${host} ${host}";
           ExecStart = "${lib.getExe pkgs.openbao} server -config=${
             pkgs.writeText "openbao.hcl" (template ./templates/openbao.hcl.in {
-              inherit host hostName retryJoins;
+              inherit hostName;
+              inherit (addrs) api cluster;
+              inherit (tls) ca certificate key;
+
+              apiPort = ports.api;
+              clusterPort = ports.cluster;
               ip = inventory.machines.${hostName}.ip;
-              tlsCa = tls.ca;
-              tlsCertificate = tls.certificate;
-              tlsKey = tls.key;
+              retryJoins = lib.concatMapStringsSep "\n" (node:
+                template ./templates/retry_join.hcl.in (let
+                  host = fqdn node;
+                in {
+                  inherit host;
+                  inherit (tls) ca certificate key;
+                  api = https host ports.api;
+                })) (lib.filter (node: node != hostName) nodes.cluster);
             })
           }";
         };

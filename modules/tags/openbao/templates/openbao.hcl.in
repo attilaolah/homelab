@@ -1,15 +1,15 @@
-api_addr = "https://@host@:8200"
-cluster_addr = "https://@host@:8201"
+api_addr = "@api"
+cluster_addr = "@cluster@"
 cluster_name = "locker"
 disable_mlock = true
 ui = false
 
 listener "tcp" {
-  address = "@ip@:8200"
-  cluster_address = "@ip@:8201"
-  tls_ca_file = "@tlsCa@"
-  tls_cert_file = "@tlsCertificate@"
-  tls_key_file = "@tlsKey@"
+  address = "@ip@:@port@"
+  cluster_address = "@ip@:@clusterPort@"
+  tls_ca_file = "@ca@"
+  tls_cert_file = "@certificate@"
+  tls_key_file = "@key@"
   tls_min_version = "tls13"
   tls_require_and_verify_client_cert = true
 }

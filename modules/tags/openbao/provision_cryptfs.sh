@@ -34,10 +34,10 @@ if [[ -z ${BAO_TOKEN:-} ]]; then
 fi
 export BAO_TOKEN
 
-export BAO_ADDR="@apiAddress@"
-export BAO_CACERT="@tlsCa@"
-export BAO_CLIENT_CERT="@tlsCertificate@"
-export BAO_CLIENT_KEY="@tlsKey@"
+export BAO_ADDR="@api@"
+export BAO_CACERT="@ca@"
+export BAO_CLIENT_CERT="@certificate@"
+export BAO_CLIENT_KEY="@key@"
 
 bao status >/dev/null
 
