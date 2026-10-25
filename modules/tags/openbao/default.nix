@@ -31,37 +31,14 @@ in
     common.module
 
     {
-      # TODO: refactor
       # Recovery material is shared between the Raft servers, but is only
       # available to an operator through the vars store, never on a host.
       clan.core.vars.generators.openbao-init = {
         share = true;
-        files = {
-          initial-root-token = {
-            secret = true;
-            deploy = false;
-          };
-          unseal-share-1 = {
-            secret = true;
-            deploy = false;
-          };
-          unseal-share-2 = {
-            secret = true;
-            deploy = false;
-          };
-          unseal-share-3 = {
-            secret = true;
-            deploy = false;
-          };
-          unseal-share-4 = {
-            secret = true;
-            deploy = false;
-          };
-          unseal-share-5 = {
-            secret = true;
-            deploy = false;
-          };
-        };
+        files = lib.genAttrs (["initial-root-token"] ++ (map (n: "unseal-share-${toString n}") (lib.range 1 5))) (_: {
+          secret = true;
+          deploy = false;
+        });
       };
     }
 
