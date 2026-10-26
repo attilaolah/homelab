@@ -18,6 +18,6 @@ cleanup() {
 trap cleanup EXIT HUP INT TERM
 
 systemctl set-environment "ACME_PROVISION_HOST=$acme_host"
-systemctl start issue-tls-certificate.service || true
+systemctl start issue-tls-certificate.service
 result="$(systemctl show -P Result issue-tls-certificate.service)"
 [[ "$result" == success ]]

@@ -8,6 +8,12 @@ if [[ $# -ne 1 ]]; then
 fi
 
 machine=$1
+
+if clan vars get "$machine" acme-db/key.sealed >/dev/null 2>&1; then
+  echo "Refusing to overwrite existing acme-db/key.sealed for $machine" >&2
+  exit 1
+fi
+
 work="$(mktemp -d "/tmp/acme-db-seal-$machine.XXXXXX")"
 sealed="$work/key.sealed"
 
@@ -19,6 +25,10 @@ trap cleanup EXIT
 # shellcheck disable=SC2016
 clan ssh "$machine" -c bash -c '
   set -euo pipefail
+  if [[ -e @acmeGocryptfsConfig@ ]]; then
+    echo "Refusing to seal an initialized ACME database: @acmeGocryptfsConfig@" >&2
+    exit 1
+  fi
   install -d -m 0700 @acmeDirectory@
   tmp="$(mktemp -d @acmeDirectory@/acme-db-seal.XXXXXX)"
   cleanup_remote() {

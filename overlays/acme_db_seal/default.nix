@@ -1,4 +1,5 @@
 {clan-core}: final: _prev: let
+  pki = import ../../modules/lib/pki.nix;
   template = import ../../modules/lib/template.nix;
 in {
   acme-db-seal = final.writeShellApplication {
@@ -9,7 +10,8 @@ in {
       final.gitMinimal
     ];
     text = template ./seal.sh {
-      acmeDirectory = (import ../../modules/lib/pki.nix).acme.dir;
+      acmeDirectory = pki.acme.dir;
+      acmeGocryptfsConfig = "${pki.step.dir}/db.crypt/gocryptfs.conf";
     };
   };
 }
