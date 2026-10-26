@@ -9,18 +9,24 @@ fi
 
 machine=$1
 
-if clan vars get "$machine" acme-db/key.sealed >/dev/null 2>&1; then
-  echo "Refusing to overwrite existing acme-db/key.sealed for $machine" >&2
-  exit 1
-fi
-
 work="$(mktemp -d "/tmp/acme-db-seal-$machine.XXXXXX")"
 sealed="$work/key.sealed"
+vars_list="$work/vars.list"
 
 cleanup() {
   rm -rf "$work"
 }
 trap cleanup EXIT
+
+if ! clan vars list "$machine" > "$vars_list"; then
+  echo "Failed to list variables for $machine; refusing to create acme-db/key.sealed" >&2
+  exit 1
+fi
+
+if grep -q '^acme-db/key\.sealed:' "$vars_list"; then
+  echo "Refusing to overwrite existing acme-db/key.sealed for $machine" >&2
+  exit 1
+fi
 
 # shellcheck disable=SC2016
 clan ssh "$machine" -c bash -c '
