@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
 lan_interface="$(ip -o -4 addr show | awk -v address="${HOST_IP}/24" '$4 == address { print $2; exit }')"

@@ -34,8 +34,8 @@
     # Most hosts have either the WiFi hardware removed, or at least the antenna severed.
     hardware.enableRedistributableFirmware = false;
     hardware.firmware = [
-      (pkgs.runCommand "firmware-minimal" {nativeBuildInputs = with pkgs; [coreutils zstd];} ''
-        sh ${./firmware.sh} "$out" "${config.firmware.file}" ${
+      (pkgs.runCommand "firmware-minimal" {nativeBuildInputs = with pkgs; [bash coreutils zstd];} ''
+        bash ${./firmware.sh} "$out" "${config.firmware.file}" ${
           lib.escapeShellArgs (config.firmware.src ++ lib.optionals config.firmware.wifi [pkgs.wireless-regdb])
         }
       '')

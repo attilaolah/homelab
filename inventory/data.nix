@@ -1,6 +1,4 @@
 let
-  inherit (builtins) attrNames elem mapAttrs;
-
   # ALL machines need to be registered here.
   # Numbers are used to build the network suffix, i.e. 8 -> 192.168.1.8.
   ids = {
@@ -51,6 +49,17 @@ let
       "rosa"
       "sida"
     ];
+    # OpenBao Raft servers. These machines run the service and operator command.
+    openbao = [
+      "hoya"
+      "inga"
+      "iris"
+    ];
+    # Machines that authenticate to the OpenBao API with generic mTLS identities.
+    openbao_client = [
+      "aria"
+      "ilex"
+    ];
     # Machines with TPM 1.2 hardware (now considered legacy).
     # These will have an intermediate CA and can issue short-lived leaf certificates.
     tpm12 = [
@@ -82,16 +91,16 @@ in {
   inherit ids internal tags;
 
   machines =
-    mapAttrs (name: id: let
+    builtins.mapAttrs (name: id: let
       lan =
-        if elem name internal
+        if builtins.elem name internal
         then 0
         else 1;
       ip4 = x: y: "192.168.${toString x}.${toString y}";
     in {
       ip = ip4 lan id;
 
-      tags = builtins.filter (tag: elem name tags.${tag}) (attrNames tags);
+      tags = builtins.filter (tag: builtins.elem name tags.${tag}) (builtins.attrNames tags);
     })
     ids;
 }

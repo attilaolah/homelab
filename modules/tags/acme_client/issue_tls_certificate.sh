@@ -10,6 +10,8 @@ set -euo pipefail
 : "${ACME_LAN_IP:?}"
 : "${ACME_STATE:?}"
 : "${ACME_TLS:?}"
+: "${ACME_TLS_CERTIFICATE:?}"
+: "${ACME_TLS_KEY:?}"
 : "${DEPLOY_ACCOUNT:?}"
 
 read -r -a acme_hosts <<<"${ACME_HOSTS}"
@@ -109,7 +111,7 @@ if [[ "${success}" -ne 1 ]]; then
 fi
 
 install -d -m 0750 -o root -g tls "${ACME_TLS}"
-install -m 0640 -o root -g tls "${key}" "${ACME_TLS}/tls.key.new"
-install -m 0644 -o root -g tls "${cert}" "${ACME_TLS}/tls.crt.new"
-mv -f "${ACME_TLS}/tls.key.new" "${ACME_TLS}/tls.key"
-mv -f "${ACME_TLS}/tls.crt.new" "${ACME_TLS}/tls.crt"
+install -m 0640 -o root -g tls "${key}" "${ACME_TLS_KEY}.new"
+install -m 0644 -o root -g tls "${cert}" "${ACME_TLS_CERTIFICATE}.new"
+mv -f "${ACME_TLS_KEY}.new" "${ACME_TLS_KEY}"
+mv -f "${ACME_TLS_CERTIFICATE}.new" "${ACME_TLS_CERTIFICATE}"

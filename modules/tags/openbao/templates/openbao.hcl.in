@@ -1,0 +1,22 @@
+api_addr = "@api@"
+cluster_addr = "@cluster@"
+cluster_name = "locker"
+disable_mlock = true
+ui = false
+
+listener "tcp" {
+  address = "@ip@:@apiPort@"
+  cluster_address = "@ip@:@clusterPort@"
+  tls_ca_file = "@ca@"
+  tls_cert_file = "@certificate@"
+  tls_key_file = "@key@"
+  tls_min_version = "tls13"
+  tls_require_and_verify_client_cert = true
+}
+
+storage "raft" {
+  path = "/var/lib/openbao"
+  node_id = "@hostName@"
+
+@retryJoins@
+}

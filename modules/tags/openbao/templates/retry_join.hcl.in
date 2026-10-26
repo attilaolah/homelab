@@ -1,0 +1,7 @@
+  retry_join {
+    leader_api_addr = "@api@"
+    leader_tls_servername = "@host@"
+    leader_ca_cert_file = "@ca@"
+    leader_client_cert_file = "@certificate@"
+    leader_client_key_file = "@key@"
+  }

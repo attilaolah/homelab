@@ -10,8 +10,7 @@
     machineData = import ../data.nix;
     modules = ../../modules/tags;
     moduleNames = builtins.attrNames (builtins.readDir modules);
-    hasTaggedMachines = tag:
-      tag == "all" || (machineData.tags.${tag} or []) != [];
+    hasTaggedMachines = tag: tag == "all" || (machineData.tags.${tag} or []) != [];
   in
     map (module: let
       tag = builtins.replaceStrings [".nix"] [""] module;

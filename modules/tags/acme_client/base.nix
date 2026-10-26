@@ -6,44 +6,14 @@
   utils,
   ...
 }: let
-  inherit (config.networking) domain hostName;
+  inherit (config.networking) domain;
 
-  acme = import ../acme_common.nix;
+  pki = import (inputs.self + /modules/lib/pki.nix);
   machineData = import (inputs.self + /inventory/data.nix);
+
   acmeHosts = builtins.sort builtins.lessThan (builtins.attrNames config.homelab.acme.hosts);
-
-  account = "root@${commonName}";
-  commonName = "${hostName}.node.${domain}";
-
-  pki = dir: "/run/pki/${dir}";
-  tls = pki "tls";
-  state = pki "acme";
-
-  issueTlsCertificate = pkgs.writeShellApplication {
-    name = "issue-tls-certificate";
-    runtimeInputs = with pkgs; [coreutils lego];
-    text = builtins.readFile ./issue_tls_certificate.sh;
-  };
-  serviceEnvironment =
-    import (inputs.self + /modules/lib/systemd.nix) {inherit lib utils;} {
-      ACME_HOSTS = lib.concatStringsSep " " acmeHosts;
-      ACME_DOMAIN = "acme.${domain}";
-      ACME_PORT = acme.port;
-      ACME_ACCOUNT = account;
-      ACME_COMMON_NAME = commonName;
-      ACME_LAN_IP = config.homelab.lan.ip4;
-      ACME_STATE = state;
-      ACME_TLS = tls;
-      DEPLOY_ACCOUNT =
-        if deployAccount
-        then "1"
-        else "0";
-    }
-    ++ lib.optionals deployAccount (lib.flatten (map (acmeHost: [
-        "ACME_ACCOUNT_JSON_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}"
-        "ACME_ACCOUNT_KEY_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}"
-      ])
-      acmeHosts));
+  commonName = "${config.networking.hostName}.node.${domain}";
+  state = pki.acme.dir;
 in {
   config = lib.mkMerge [
     (lib.mkIf deployAccount {
@@ -67,12 +37,11 @@ in {
               }
             ])
             acmeHosts));
-        script = ''
-          ${lib.concatMapStringsSep "\n" (acmeHost: ''
-              touch "$out/${acmeHost}-account.json" "$out/${acmeHost}-account.key"
-            '')
-            acmeHosts}
-        '';
+        script =
+          lib.concatMapStringsSep "\n" (acmeHost: ''
+            touch "$out/${acmeHost}-account.json" "$out/${acmeHost}-account.key"
+          '')
+          acmeHosts;
       };
     })
 
@@ -103,8 +72,33 @@ in {
             Type = "oneshot";
             UMask = "0077";
             PrivateTmp = true;
-            Environment = serviceEnvironment;
-            ExecStart = "${issueTlsCertificate}/bin/issue-tls-certificate";
+            Environment =
+              (import (inputs.self + /modules/lib/systemd.nix) {inherit lib utils;} {
+                ACME_HOSTS = lib.concatStringsSep " " acmeHosts;
+                ACME_DOMAIN = "acme.${domain}";
+                ACME_PORT = (import ../acme/common.nix {inherit pki;}).port;
+                ACME_ACCOUNT = "root@${commonName}";
+                ACME_COMMON_NAME = commonName;
+                ACME_LAN_IP = config.homelab.lan.ip4;
+                ACME_STATE = state;
+                ACME_TLS = pki.tls.dir;
+                ACME_TLS_CERTIFICATE = pki.tls.crt;
+                ACME_TLS_KEY = pki.tls.key;
+                DEPLOY_ACCOUNT =
+                  if deployAccount
+                  then "1"
+                  else "0";
+              })
+              ++ lib.optionals deployAccount (lib.flatten (map (acmeHost: [
+                  "ACME_ACCOUNT_JSON_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.json".path}"
+                  "ACME_ACCOUNT_KEY_${acmeHost}=${config.clan.core.vars.generators.acme-accounts.files."${acmeHost}-account.key".path}"
+                ])
+                acmeHosts));
+            ExecStart = "${pkgs.writeShellApplication {
+              name = "issue-tls-certificate";
+              runtimeInputs = with pkgs; [coreutils lego];
+              text = builtins.readFile ./issue_tls_certificate.sh;
+            }}/bin/issue-tls-certificate";
           };
         };
 

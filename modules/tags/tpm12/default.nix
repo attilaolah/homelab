@@ -1,11 +1,16 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }: let
   inherit (config.clan.core.vars.generators.tpm) files;
-  common = import ./common.nix {inherit config lib pkgs;};
+  common = import ./common.nix {
+    inherit config lib pkgs;
+    pki = import (inputs.self + /modules/lib/pki.nix);
+  };
+  template = import (inputs.self + /modules/lib/template.nix);
 in {
   imports = [./base.nix];
 
@@ -30,7 +35,7 @@ in {
     tmpfiles.rules = [
       "L+ ${common.tpm}/${common.key} - - - - ${files.${common.key}.path}"
       "L+ ${common.tpm}/${common.crt} - - - - ${files.${common.crt}.path}"
-      "r ${common.tpm}/ca.csr"
+      "r ${common.pki.tpm.ca.csr}"
     ];
 
     services.issue-tls-certificate = let
@@ -52,47 +57,23 @@ in {
         PrivateTmp = true;
       };
 
-      script = ''
-        set -euo pipefail
+      environment = {
+        OPENSSL_CONF = common.opensslConf;
+        SIMPLE_TPM_PK11_CONFIG = common.simpleTpmPk11Conf;
+        PKI_RUNTIME_DIRECTORY = common.pki.dir;
+        TLS_CERTIFICATE = common.pki.tls.crt;
+        TLS_CERTIFICATE_EXTENSIONS = common.certExt;
+        TLS_CERTIFICATE_FILE = builtins.baseNameOf common.pki.tls.crt;
+        TLS_DIRECTORY = common.tls;
+        TLS_KEY = common.pki.tls.key;
+        TLS_KEY_FILE = builtins.baseNameOf common.pki.tls.key;
+        TLS_REQUEST_CONFIG = common.reqConf;
+        TPM_CA_CERTIFICATE = common.pki.tpm.ca.crt;
+      };
 
-        work="$(mktemp -d /run/pki/tls-work.XXXXXX)"
-        trap 'rm -rf "$work"' EXIT
-
-        openssl genpkey \
-          -algorithm EC \
-          -pkeyopt ec_paramgen_curve:P-256 \
-          -out "$work/tls.key"
-
-        openssl req \
-          -new \
-          -key "$work/tls.key" \
-          -out "$work/tls.csr" \
-          -config ${common.reqConf}
-
-        OPENSSL_CONF=${common.opensslConf} \
-        SIMPLE_TPM_PK11_CONFIG=${common.simpleTpmPk11Conf} \
-          openssl x509 \
-            -req \
-            -engine pkcs11 \
-            -in "$work/tls.csr" \
-            -CA ${common.tpm}/${common.crt} \
-            -CAkeyform engine \
-            -CAkey "${common.pkcs11.openSslUri}" \
-            -set_serial "0x$(openssl rand -hex 16)" \
-            -out "$work/tls.crt" \
-            -days 8 \
-            -sha256 \
-            -extfile ${common.certExt}
-
-        install -d -m 0750 -o root -g tls ${common.tls}
-        install -m 0640 -o root -g tls "$work/tls.key" ${common.tls}/tls.key.new
-        install -m 0644 -o root -g tls "$work/tls.crt" ${common.tls}/tls.crt.new
-        cat ${common.tpm}/${common.crt} >> ${common.tls}/tls.crt.new
-        chown root:tls ${common.tls}/tls.crt.new
-        chmod 0644 ${common.tls}/tls.crt.new
-        mv -f ${common.tls}/tls.key.new ${common.tls}/tls.key
-        mv -f ${common.tls}/tls.crt.new ${common.tls}/tls.crt
-      '';
+      script = template ./issue_tls_certificate.sh {
+        tpmCaKeyUri = lib.escapeShellArg common.pkcs11.openSslUri;
+      };
     };
 
     timers.issue-tls-certificate = {

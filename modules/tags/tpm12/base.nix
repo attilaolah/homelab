@@ -1,11 +1,10 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
-}: let
-  common = import ./common.nix {inherit config lib pkgs;};
-in {
+}: {
   clan.core.vars.generators.tpm-owner-auth = {
     files.owner-auth = {
       secret = true;
@@ -19,7 +18,9 @@ in {
   };
 
   systemd.tmpfiles.rules = [
-    "d ${common.tpm} 0700 root root - -"
+    # The TPM key remains root-only; members of tls need traversal only to
+    # read the public intermediate used to validate their leaf certificate.
+    "d ${(import (inputs.self + /modules/lib/pki.nix)).tpm.dir} 0710 root tls - -"
   ];
 
   services = {

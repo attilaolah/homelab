@@ -1,26 +1,24 @@
 {
   config,
   lib,
+  pki,
   pkgs,
 }: let
-  inherit (config.networking) domain hostName;
-
   pkcs11 = import ./pkcs11.nix {inherit lib pkgs;};
 
-  b = "ca";
-  crt = "${b}.crt";
-  key = "${b}.key";
-  tpm = "/var/lib/pki/tpm";
+  tpm = pki.tpm.dir;
+  crt = builtins.baseNameOf pki.tpm.ca.crt;
+  key = builtins.baseNameOf pki.tpm.ca.key;
 
-  commonName = "${hostName}.node.${domain}";
-  subjectAltName = lib.concatStringsSep "," (
-    (map (dnsName: "DNS:${dnsName}") [commonName])
-    ++ ["IP:${config.homelab.lan.ip4}"]
-  );
+  commonName = "${config.networking.hostName}.node.${config.networking.domain}";
+  subjectAltName = lib.concatStringsSep "," [
+    "DNS:${commonName}"
+    "IP:${config.homelab.lan.ip4}"
+  ];
 in {
-  inherit b commonName crt key pkcs11 subjectAltName tpm;
+  inherit commonName crt key pkcs11 pki subjectAltName tpm;
 
-  tls = "/run/pki/tls";
+  tls = pki.tls.dir;
 
   certExt = pkgs.replaceVars ./templates/cert.ext.in {
     inherit subjectAltName;
@@ -32,7 +30,5 @@ in {
   reqConf = pkgs.replaceVars ./templates/req.cnf.in {
     inherit commonName subjectAltName;
   };
-  simpleTpmPk11Conf = pkgs.replaceVars ./templates/simple-tpm-pk11.conf.in {
-    caKey = "${tpm}/${key}";
-  };
+  simpleTpmPk11Conf = pkgs.writeText "simple_tpm_pk11.conf" "key ${tpm}/${key}\n";
 }
