@@ -13,7 +13,7 @@
   cryptfsPath = pki.cryptfs.dir;
   cryptfsCryptPath = "${cryptfsPath}.crypt";
   cryptfsExtpass = pkgs.writeShellApplication {
-    name = "openbao-cryptfs-extpass";
+    name = "cryptfs-extpass";
     runtimeInputs = with pkgs; [coreutils curl jq];
     text = template ./cryptfs_extpass.sh {
       inherit hostName;
@@ -27,10 +27,12 @@ in
     common.module
 
     {
+      users.groups.cryptfs = {};
+
       systemd = {
         tmpfiles.rules = [
-          "d ${cryptfsCryptPath} 0700 root root - -"
-          "d ${cryptfsPath} 0700 root root - -"
+          "d ${cryptfsCryptPath} 0750 root cryptfs - -"
+          "d ${cryptfsPath} 0750 root cryptfs - -"
         ];
 
         services = {
@@ -53,7 +55,7 @@ in
             };
           };
 
-          openbao-cryptfs-prepare = let
+          cryptfs-prepare = let
             after = [
               "network-online.target"
               "openbao-client-identity.service"
@@ -65,7 +67,7 @@ in
             ];
           in {
             inherit after requires;
-            description = "Prepare encrypted OpenBao client filesystem";
+            description = "Prepare encrypted filesystem";
             wants = ["network-online.target"];
             unitConfig.StopWhenUnneeded = true;
 
@@ -73,7 +75,7 @@ in
               Type = "oneshot";
               UMask = "0077";
               ExecStart = lib.getExe (pkgs.writeShellApplication {
-                name = "openbao-cryptfs-prepare";
+                name = "cryptfs-prepare";
                 runtimeInputs = with pkgs; [coreutils gocryptfs];
                 text = template ./cryptfs_prepare.sh {
                   inherit cryptfsCryptPath;
@@ -86,25 +88,32 @@ in
 
         mounts = [
           {
-            description = "Encrypted OpenBao client filesystem";
+            description = "Encrypted filesystem";
             what = cryptfsCryptPath;
             where = cryptfsPath;
             type = "fuse.gocryptfs";
-            options = "nofail,extpass=${lib.getExe cryptfsExtpass},nosyslog";
-            wantedBy = ["multi-user.target"];
+            options = "nofail,allow_other,extpass=${lib.getExe cryptfsExtpass},nosyslog";
             startLimitBurst = 3;
             unitConfig = {
               Requires = [
                 "openbao-client-identity.service"
-                "openbao-cryptfs-prepare.service"
+                "cryptfs-prepare.service"
               ];
               Wants = ["network-online.target"];
               After = [
                 "network-online.target"
                 "openbao-client-identity.service"
-                "openbao-cryptfs-prepare.service"
+                "cryptfs-prepare.service"
               ];
             };
+          }
+        ];
+
+        automounts = [
+          {
+            description = "Automount for encrypted filesystem";
+            where = cryptfsPath;
+            wantedBy = ["multi-user.target"];
           }
         ];
       };

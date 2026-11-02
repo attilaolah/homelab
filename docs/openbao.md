@@ -156,17 +156,24 @@ cryptfs keys exist only in OpenBao KV; they are never Clan secrets.
 
 ## Client cryptfs mount
 
-On each `openbao_client` host (`aria` and `ilex`), after
-`openbao-client-identity.service` validates `/run/pki/tls/tls.{crt,key}`,
-`openbao-cryptfs-prepare.service` initializes `/var/lib/cryptfs.crypt` with
-`gocryptfs` when `gocryptfs.conf` is absent, and `var-lib-cryptfs.mount` mounts
-`/var/lib/cryptfs.crypt` at `/var/lib/cryptfs` during boot.
+On each `openbao_client` host (`aria` and `ilex`), `var-lib-cryptfs.automount`
+is enabled at boot. When `/var/lib/cryptfs` is accessed, systemd orders the
+mount after `openbao-client-identity.service` (which validates
+`/run/pki/tls/tls.{crt,key}`) and `cryptfs-prepare.service` (which initializes
+`/var/lib/cryptfs.crypt` with `gocryptfs` when `gocryptfs.conf` is absent),
+then mounts `/var/lib/cryptfs.crypt` at `/var/lib/cryptfs`. Using an automount
+unit allows the host to finish booting while OpenBao is sealed after a full
+cluster reboot and mount `/var/lib/cryptfs` on demand once OpenBao is unsealed.
 
-The `openbao-cryptfs-extpass` helper authenticates against
-`/v1/auth/cert/login` with role `cryptfs-<host>`, reads
-`/v1/cryptfs/data/<host>/key`, and immediately revokes the short-lived client
-token. It iterates across all configured OpenBao cluster members (`hoya`,
-`inga`, and `iris`) so the encrypted filesystem can still initialize and mount
-when individual Raft nodes are unreachable or sealed. Future secret consumers
-(such as Caddy) should order themselves after `var-lib-cryptfs.mount` via
-`RequiresMountsFor = [ "/var/lib/cryptfs" ]`.
+The backing and mount directories are owned by `root:cryptfs` with mode `0750`,
+and the `fuse.gocryptfs` mount uses `allow_other` so services in the `cryptfs`
+group (such as `caddy`) can traverse `/var/lib/cryptfs` without exposing it to
+other local users.
+
+The `cryptfs-extpass` helper authenticates against `/v1/auth/cert/login` with
+role `cryptfs-<host>`, reads `/v1/cryptfs/data/<host>/key`, and immediately
+revokes the short-lived client token. It iterates across all configured OpenBao
+cluster members (`hoya`, `inga`, and `iris`) so the encrypted filesystem can
+still initialize and mount when individual Raft nodes are unreachable or
+sealed. Future secret consumers (such as Caddy) should order themselves after
+`var-lib-cryptfs.mount` via `RequiresMountsFor = [ "/var/lib/cryptfs" ]`.
