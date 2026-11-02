@@ -27,6 +27,7 @@ in {
   };
 
   step.dir = "${lib}/step-ca";
+  cryptfs.dir = "${lib}/cryptfs";
 
   cluster.ca = {
     gen = "tls-ca";
