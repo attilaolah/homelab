@@ -9,10 +9,12 @@ for any operator access instead of widening the firewall.
 
 The inventory separates those responsibilities: `openbao = [ iris inga hoya ]`
 installs the Raft server and the `openbao-provision-cryptfs` operator command,
-while `openbao_client = [ aria ilex ]` installs only generic mTLS identity
-validation. The shared `openbao/common.nix` module provides their common PKI
-material and root trust; clients never run OpenBao, and servers never install
-the client identity validator.
+while `openbao_client = [ aria ilex ]` installs mTLS identity validation and
+mounts the per-host encrypted `/var/lib/cryptfs` filesystem backed by
+`/var/lib/cryptfs.crypt`. The shared `openbao/common.nix` module provides their
+common PKI material, cluster endpoints, and root trust; clients never run
+OpenBao, and servers never install the client identity validator or cryptfs
+mount.
 
 ## Runtime PKI
 
@@ -150,7 +152,28 @@ these KV v2 data paths:
 | `cryptfs-ilex` | `cryptfs/data/ilex/key` |
 
 They do not grant list, write, delete, or access to the other host's key. The
-cryptfs keys exist only in OpenBao KV; they are never Clan secrets. Future
-consumers must authenticate with their local `openbao-client` identity and
-read their exact `cryptfs/data/<host>/key` path. This configuration does not
-yet implement secret retrieval or any cryptfs mount.
+cryptfs keys exist only in OpenBao KV; they are never Clan secrets.
+
+## Client cryptfs mount
+
+On each `openbao_client` host (`aria` and `ilex`), `var-lib-cryptfs.automount`
+is enabled at boot. When `/var/lib/cryptfs` is accessed, systemd orders the
+mount after `openbao-client-identity.service` (which validates
+`/run/pki/tls/tls.{crt,key}`) and `cryptfs-prepare.service` (which initializes
+`/var/lib/cryptfs.crypt` with `gocryptfs` when `gocryptfs.conf` is absent),
+then mounts `/var/lib/cryptfs.crypt` at `/var/lib/cryptfs`. Using an automount
+unit allows the host to finish booting while OpenBao is sealed after a full
+cluster reboot and mount `/var/lib/cryptfs` on demand once OpenBao is unsealed.
+
+The backing and mount directories are owned by `root:cryptfs` with mode `0750`,
+and the `fuse.gocryptfs` mount uses `allow_other` so services in the `cryptfs`
+group (such as `caddy`) can traverse `/var/lib/cryptfs` without exposing it to
+other local users.
+
+The `cryptfs-extpass` helper authenticates against `/v1/auth/cert/login` with
+role `cryptfs-<host>`, reads `/v1/cryptfs/data/<host>/key`, and immediately
+revokes the short-lived client token. It iterates across all configured OpenBao
+cluster members (`hoya`, `inga`, and `iris`) so the encrypted filesystem can
+still initialize and mount when individual Raft nodes are unreachable or
+sealed. Future secret consumers (such as Caddy) should order themselves after
+`var-lib-cryptfs.mount` via `RequiresMountsFor = [ "/var/lib/cryptfs" ]`.
