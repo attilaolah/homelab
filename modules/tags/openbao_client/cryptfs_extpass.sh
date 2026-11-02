@@ -17,13 +17,13 @@ for file in "$ca" "$certificate" "$key"; do
   fi
 done
 
-response_file=$(mktemp -p /run openbao-cryptfs-response.XXXXXX)
+response_file=$(mktemp -p /run cryptfs-response.XXXXXX)
 curl_error_file=
 cleanup() {
   rm -f -- "$response_file" "${curl_error_file:-}"
 }
 trap cleanup EXIT
-curl_error_file=$(mktemp -p /run openbao-cryptfs-error.XXXXXX)
+curl_error_file=$(mktemp -p /run cryptfs-error.XXXXXX)
 chmod 600 "$response_file" "$curl_error_file"
 
 login_payload=$(jq -cn --arg name "$role" '{name: $name}')
