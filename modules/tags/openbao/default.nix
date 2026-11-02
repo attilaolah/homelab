@@ -5,27 +5,10 @@
   pkgs,
   ...
 }: let
-  inherit (common) inventory tls;
-  inherit (config.networking) hostName domain;
+  inherit (common) addrs domain fqdn host hostName https inventory nodes ports tls;
 
   common = import ./common.nix {inherit config inputs lib;};
   template = import (inputs.self + /modules/lib/template.nix);
-
-  nodes = {
-    cluster = inventory.tags.openbao or [];
-    client = inventory.tags.openbao_client or [];
-  };
-
-  host = fqdn hostName;
-  ports = lib.mapAttrs (_: toString) {
-    api = 8200;
-    cluster = 8201;
-  };
-  addrs = lib.mapAttrs (_: https host) ports;
-
-  # TODO: Move this somewhere!
-  fqdn = node: "${node}.node.${domain}";
-  https = host: port: "https://${host}:${port}";
 in
   lib.mkMerge [
     common.module
