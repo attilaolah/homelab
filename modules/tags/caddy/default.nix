@@ -38,10 +38,13 @@ in {
 
   users = {
     groups.keepalived_script = {};
-    users.keepalived_script = {
-      isSystemUser = true;
-      group = "keepalived_script";
-      shell = lib.getExe' pkgs.shadow "nologin";
+    users = {
+      caddy.extraGroups = ["cryptfs"];
+      keepalived_script = {
+        isSystemUser = true;
+        group = "keepalived_script";
+        shell = lib.getExe' pkgs.shadow "nologin";
+      };
     };
   };
 

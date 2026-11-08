@@ -9,6 +9,20 @@
   inventory = import (inputs.self + /inventory/data.nix);
   pki = import (inputs.self + /modules/lib/pki.nix);
 
+  fqdn = node: "${node}.node.${domain}";
+  https = host: port: "https://${host}:${port}";
+
+  host = fqdn hostName;
+  nodes = {
+    cluster = inventory.tags.openbao or [];
+    client = inventory.tags.openbao_client or [];
+  };
+  ports = lib.mapAttrs (_: toString) {
+    api = 8200;
+    cluster = 8201;
+  };
+  addrs = lib.mapAttrs (_: https host) ports;
+
   tls = {
     # The issuer owns leaf renewal.  OpenBao reads its output directly, while
     # the shared root CA remains at the canonical tls-ca Clan variable path.
@@ -18,7 +32,7 @@
     key = pki.tls.key;
   };
 in {
-  inherit domain hostName inventory pki tls;
+  inherit addrs domain fqdn host hostName https inventory nodes pki ports tls;
 
   module = {
     assertions = [
